@@ -1,4 +1,4 @@
-export type PropertyType = 'Apartment' | 'Duplex' | 'Villa' | 'Commercial';
+export type PropertyType = 'Apartment' | 'Duplex' | 'Villa' | 'Commercial' | 'Land';
 
 export interface Property {
   id: string;
@@ -8,10 +8,13 @@ export interface Property {
   price: number; // For easy formatting and filtering
   bedrooms: number;
   bathrooms: number;
-  size: number; // in sqft
+  size: number; // in sqft or sqm
   image: string;
   images?: string[];
   description: string;
+  currency?: 'USD' | 'NGN';
+  whatsappLink?: string;
+  phoneNumber?: string;
 }
 
 export interface FeatureCard {

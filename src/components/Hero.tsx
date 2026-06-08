@@ -11,9 +11,10 @@ interface HeroProps {
   }) => void;
   onOpenInquiry: (subject?: string) => void;
   onExploreClick: () => void;
+  locations?: string[];
 }
 
-export default function Hero({ onSearch, onOpenInquiry, onExploreClick }: HeroProps) {
+export default function Hero({ onSearch, onOpenInquiry, onExploreClick, locations = ['California', 'New York', 'Dubai', 'Colorado', 'Boston'] }: HeroProps) {
   const [location, setLocation] = useState('All');
   const [type, setType] = useState('All');
   const [priceRange, setPriceRange] = useState('All');
@@ -140,14 +141,14 @@ export default function Hero({ onSearch, onOpenInquiry, onExploreClick }: HeroPr
                   <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full rounded-xl border border-gray-100 bg-slate-50/50 px-4 py-3.5 text-xs text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-sans cursor-pointer appearance-none"
+                    className="w-full rounded-xl border border-gray-100 bg-slate-50/50 px-4 py-3.5 text-xs text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-sans cursor-pointer appearance-none animate-none"
                   >
                     <option value="All">All Locations</option>
-                    <option value="California">California</option>
-                    <option value="New York">New York</option>
-                    <option value="Dubai">Dubai Crescent</option>
-                    <option value="Colorado">Colorado Valley</option>
-                    <option value="Boston">Boston Metro</option>
+                    {locations.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                     ▼
@@ -165,13 +166,14 @@ export default function Hero({ onSearch, onOpenInquiry, onExploreClick }: HeroPr
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="w-full rounded-xl border border-gray-100 bg-slate-50/50 px-4 py-3.5 text-xs text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-sans cursor-pointer appearance-none"
+                    className="w-full rounded-xl border border-gray-100 bg-slate-50/50 px-4 py-3.5 text-xs text-gray-600 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-sans cursor-pointer appearance-none animate-none"
                   >
                     <option value="All">All Types</option>
                     <option value="Apartment">Apartment</option>
                     <option value="Duplex">Duplex</option>
                     <option value="Villa">Villa</option>
                     <option value="Commercial">Commercial</option>
+                    <option value="Land">Land</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                     ▼

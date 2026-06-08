@@ -14,9 +14,10 @@ interface FeaturedPropertiesProps {
   onOpenInquiry: (propertyName: string) => void;
   onSelectProperty: (property: Property) => void;
   properties?: Property[];
+  locations?: string[];
 }
 
-export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty, properties }: FeaturedPropertiesProps) {
+export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty, properties, locations }: FeaturedPropertiesProps) {
   const [selectedTypeTab, setSelectedTypeTab] = useState<string>('All');
 
   const loadedProperties = properties || PROPERTIES;
@@ -52,15 +53,16 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
 
       return tabTypeMatch && typeMatch && locationMatch && priceMatch && bedMatch;
     });
-  }, [selectedTypeTab, filters]);
+  }, [selectedTypeTab, filters, loadedProperties]);
 
   // Format currency helper
-  const formatPrice = (value: number) => {
+  const formatPrice = (value: number, currency?: 'USD' | 'NGN') => {
+    const isNaira = currency === 'NGN';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: isNaira ? 'NGN' : 'USD',
       maximumFractionDigits: 0
-    }).format(value);
+    }).format(value).replace('NGN', '₦');
   };
 
   const isFilteredActive = useMemo(() => {
@@ -98,7 +100,7 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
 
           {/* Quick Filter Categories */}
           <div className="flex flex-wrap items-center gap-2">
-            {['All', 'Villa', 'Apartment', 'Duplex', 'Commercial'].map((category) => (
+            {['All', 'Villa', 'Apartment', 'Duplex', 'Commercial', 'Land'].map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedTypeTab(category)}
@@ -108,7 +110,7 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
                     : 'bg-white text-gray-500 hover:text-secondary border border-black/[0.03]'
                 }`}
               >
-                {category}s
+                {category === 'All' ? 'All' : category === 'Land' ? 'Land' : `${category}s`}
               </button>
             ))}
           </div>
@@ -170,7 +172,7 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
                   {/* Pricing Badge Right */}
                   <div className="absolute bottom-4 right-4 bg-secondary/90 text-white backdrop-blur-md px-4 py-1.5 rounded-xl border border-white/10 shadow-lg">
                     <span className="text-xs font-mono font-medium tracking-tight">
-                      {formatPrice(prop.price)}
+                      {formatPrice(prop.price, prop.currency)}
                     </span>
                   </div>
                 </div>

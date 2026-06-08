@@ -6,9 +6,11 @@ interface NavbarProps {
   onOpenInquiry: (subject?: string) => void;
   activePage: 'home' | 'properties' | 'about' | 'services' | 'contact';
   onChangePage: (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => void;
+  loggedInAdmin?: any;
+  onBackToAdmin?: () => void;
 }
 
-export default function Navbar({ onOpenInquiry, activePage, onChangePage }: NavbarProps) {
+export default function Navbar({ onOpenInquiry, activePage, onChangePage, loggedInAdmin, onBackToAdmin }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -116,10 +118,45 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage }: Navb
               <span>List With Us</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
+
+            {loggedInAdmin && onBackToAdmin && (
+              <button
+                onClick={onBackToAdmin}
+                className="relative group flex items-center gap-2 p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-all text-left cursor-pointer"
+                title="Back to Admin Dashboard"
+                id="header-admin-avatar"
+              >
+                <div className="relative h-9 w-9 rounded-full ring-2 ring-primary bg-secondary overflow-hidden flex items-center justify-center">
+                  <img
+                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
+                    alt="Admin Avatar"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="hidden lg:block pr-1">
+                  <div className="text-[9px] font-bold tracking-tight text-primary uppercase font-mono block leading-none">SYSTEM ACTIVE</div>
+                  <span className={`text-xs font-bold leading-none ${isScrolled ? 'text-white font-medium' : 'text-secondary font-bold'}`}>Admin Panel</span>
+                </div>
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Icon */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-2">
+            {loggedInAdmin && onBackToAdmin && (
+              <button
+                onClick={onBackToAdmin}
+                className="relative h-8.5 w-8.5 rounded-full ring-2 ring-primary overflow-hidden flex items-center justify-center active:scale-95 transition-transform"
+                title="Admin Dashboard"
+                id="mobile-admin-avatar"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"
+                  alt="Admin Avatar"
+                  className="h-full w-full object-cover"
+                />
+              </button>
+            )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl border transition-all cursor-pointer ${

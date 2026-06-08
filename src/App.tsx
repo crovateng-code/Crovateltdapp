@@ -24,8 +24,47 @@ import { PROPERTIES } from './data';
 export default function App() {
   const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin'>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [dynamicProperties, setDynamicProperties] = useState<Property[]>(PROPERTIES);
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
+
+  // Load properties permanently from LocalStorage with fallback to initial data
+  const [dynamicProperties, setDynamicProperties] = useState<Property[]>(() => {
+    const saved = localStorage.getItem('crovation_local_properties');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error parsing local properties', e);
+      }
+    }
+    return PROPERTIES;
+  });
+
+  // Track the logged in admin state so we can render an avatar at the top in Navbar!
+  const [loggedInAdmin, setLoggedInAdmin] = useState<any>(() => {
+    try {
+      const activeSession = localStorage.getItem('crovation_logged_in_admin');
+      return activeSession ? JSON.parse(activeSession) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Unique list of customizable locations, with sensible defaults
+  const [locations, setLocations] = useState<string[]>(() => {
+    const saved = localStorage.getItem('crovation_custom_locations');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch {}
+    }
+    return ['California', 'New York', 'Dubai', 'Colorado', 'Boston', 'Lagos', 'Abuja'];
+  });
 
   const [searchFilters, setSearchFilters] = useState({
     location: 'All',
@@ -36,6 +75,18 @@ export default function App() {
 
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [inquirySubject, setInquirySubject] = useState('');
+
+  // Persist properties state changes
+  const saveProperties = (updated: Property[]) => {
+    setDynamicProperties(updated);
+    localStorage.setItem('crovation_local_properties', JSON.stringify(updated));
+  };
+
+  // Helper to persist updated locations list
+  const saveLocations = (newLocs: string[]) => {
+    setLocations(newLocs);
+    localStorage.setItem('crovation_custom_locations', JSON.stringify(newLocs));
+  };
 
   // Handle dynamic queries from search section and transition directly to the Properties catalog
   const handleSearch = (filters: {
@@ -79,12 +130,16 @@ export default function App() {
 
   if (activePage === 'admin') {
     return (
-      <div className="relative min-h-screen bg-[#00090a] selection:bg-primary selection:text-secondary antialiased" id="admin-workspace-page">
+      <div className="relative min-h-screen bg-[#f8fafc] selection:bg-primary selection:text-secondary antialiased" id="admin-workspace-page">
         <AdminPortal 
           properties={dynamicProperties}
-          onPropertiesUpdated={(updated) => setDynamicProperties(updated)}
+          onPropertiesUpdated={saveProperties}
           activeSubView={adminSubView}
           onNavigateSubView={(sub) => setAdminSubView(sub)}
+          locations={locations}
+          onLocationsUpdated={saveLocations}
+          loggedInAdmin={loggedInAdmin}
+          onLoggedInAdminChange={(admin) => setLoggedInAdmin(admin)}
           onBackToSite={() => {
             setActivePage('home');
             setSelectedProperty(null);
@@ -101,16 +156,23 @@ export default function App() {
       {/* Dynamic Navigation Bar Header */}
       <Navbar 
         onOpenInquiry={handleOpenInquiry} 
-        activePage={activePage}
+        activePage={activePage === 'admin' ? 'home' : activePage}
         onChangePage={(page) => {
           setActivePage(page);
+          setSelectedProperty(null);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        loggedInAdmin={loggedInAdmin}
+        onBackToAdmin={() => {
+          setActivePage('admin');
+          setAdminSubView('dashboard');
           setSelectedProperty(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
 
       {/* Supabase Integration & Diagnostics Dashboard */}
-      <SupabaseStatus onDataLoaded={(props) => setDynamicProperties(props)} />
+      <SupabaseStatus onDataLoaded={saveProperties} />
 
       {/* Main Flow Sections based on Active Page */}
       <main className="relative min-h-[70vh]">
@@ -131,6 +193,7 @@ export default function App() {
                   onSearch={handleSearch} 
                   onOpenInquiry={handleOpenInquiry} 
                   onExploreClick={handleExploreClick} 
+                  locations={locations}
                 />
 
                 {/* WHY CHOOSE CROVATION SECTION */}
@@ -143,6 +206,7 @@ export default function App() {
                   onOpenInquiry={handleOpenInquiry} 
                   onSelectProperty={handleSelectProperty}
                   properties={dynamicProperties || undefined}
+                  locations={locations}
                 />
 
                 {/* NUMBERS ACHIEVEMENT STATS BANNER */}
@@ -168,6 +232,7 @@ export default function App() {
                 onSelectProperty={handleSelectProperty}
                 initialFilters={searchFilters} 
                 properties={dynamicProperties || undefined}
+                locations={locations}
               />
             )}
 

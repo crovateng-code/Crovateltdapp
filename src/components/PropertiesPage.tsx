@@ -13,9 +13,10 @@ interface PropertiesPageProps {
     bedrooms: string;
   };
   properties?: Property[];
+  locations?: string[];
 }
 
-export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initialFilters, properties }: PropertiesPageProps) {
+export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initialFilters, properties, locations = ['California', 'New York', 'Dubai', 'Colorado', 'Boston'] }: PropertiesPageProps) {
   // Local state for full catalog filtering
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLocation, setFilterLocation] = useState(initialFilters?.location || 'All');
@@ -81,7 +82,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
     }
 
     return result;
-  }, [searchTerm, filterLocation, filterType, filterPrice, filterBeds, sortBy]);
+  }, [searchTerm, filterLocation, filterType, filterPrice, filterBeds, sortBy, loadedProperties]);
 
   const handleResetFilters = () => {
     setSearchTerm('');
@@ -92,12 +93,13 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
     setSortBy('default');
   };
 
-  const formatPrice = (value: number) => {
+  const formatPrice = (value: number, currency?: 'USD' | 'NGN') => {
+    const isNaira = currency === 'NGN';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: isNaira ? 'NGN' : 'USD',
       maximumFractionDigits: 0
-    }).format(value);
+    }).format(value).replace('NGN', '₦');
   };
 
   return (
@@ -152,9 +154,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                 />
                 <Search className="absolute left-3 top-3 h-3.5 w-3.5 text-gray-400" />
               </div>
-            </div>
-
-            {/* Destination Location */}
+            </div>             {/* Destination Location */}
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                 Region / State
@@ -162,14 +162,14 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
               <select
                 value={filterLocation}
                 onChange={(e) => setFilterLocation(e.target.value)}
-                className="w-full rounded-xl border border-gray-100 bg-slate-50/50 px-3.5 py-2.5 text-xs text-gray-600 focus:outline-none focus:border-primary transition-all cursor-pointer"
+                className="w-full rounded-xl border border-gray-100 bg-slate-50/50 px-3.5 py-2.5 text-xs text-gray-600 focus:outline-none focus:border-primary transition-all cursor-pointer animate-none"
               >
                 <option value="All">All Locations</option>
-                <option value="California">California</option>
-                <option value="New York">New York</option>
-                <option value="Dubai">Dubai Crescent</option>
-                <option value="Colorado">Colorado Valley</option>
-                <option value="Boston">Boston Metro</option>
+                {locations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -179,7 +179,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                 Building Category
               </label>
               <div className="space-y-1.5">
-                {['All', 'Villa', 'Apartment', 'Duplex', 'Commercial'].map((type) => (
+                {['All', 'Villa', 'Apartment', 'Duplex', 'Commercial', 'Land'].map((type) => (
                   <button
                     key={type}
                     type="button"
@@ -304,7 +304,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                       </span>
                       
                       <div className="absolute bottom-4 right-4 bg-[#00090a]/90 text-white font-mono text-xs font-semibold px-3 py-1 bg-secondary/80 rounded-lg">
-                        {formatPrice(prop.price)}
+                        {formatPrice(prop.price, prop.currency)}
                       </div>
                     </div>
 
