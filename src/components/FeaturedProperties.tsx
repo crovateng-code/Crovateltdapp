@@ -13,13 +13,16 @@ interface FeaturedPropertiesProps {
   onResetFilters: () => void;
   onOpenInquiry: (propertyName: string) => void;
   onSelectProperty: (property: Property) => void;
+  properties?: Property[];
 }
 
-export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty }: FeaturedPropertiesProps) {
+export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty, properties }: FeaturedPropertiesProps) {
   const [selectedTypeTab, setSelectedTypeTab] = useState<string>('All');
 
+  const loadedProperties = properties || PROPERTIES;
+
   const filteredProperties = useMemo(() => {
-    return PROPERTIES.filter((prop) => {
+    return loadedProperties.filter((prop) => {
       // Filter by Type Tab + Search Box Type
       const tabTypeMatch = selectedTypeTab === 'All' || prop.type === selectedTypeTab;
       const typeMatch = filters.type === 'All' || prop.type === filters.type;

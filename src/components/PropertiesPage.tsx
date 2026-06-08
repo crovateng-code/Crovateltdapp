@@ -12,9 +12,10 @@ interface PropertiesPageProps {
     priceRange: string;
     bedrooms: string;
   };
+  properties?: Property[];
 }
 
-export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initialFilters }: PropertiesPageProps) {
+export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initialFilters, properties }: PropertiesPageProps) {
   // Local state for full catalog filtering
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLocation, setFilterLocation] = useState(initialFilters?.location || 'All');
@@ -23,12 +24,14 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
   const [filterBeds, setFilterBeds] = useState(initialFilters?.bedrooms || 'All');
   const [sortBy, setSortBy] = useState<'default' | 'priceAsc' | 'priceDesc' | 'sizeDesc'>('default');
   
+  const loadedProperties = properties || PROPERTIES;
+
   // Stats summary counted
-  const totalInInventory = PROPERTIES.length;
+  const totalInInventory = loadedProperties.length;
 
   // Filter properties logic
   const filteredProperties = useMemo(() => {
-    let result = [...PROPERTIES];
+    let result = [...loadedProperties];
 
     // Search bar search term
     if (searchTerm.trim()) {

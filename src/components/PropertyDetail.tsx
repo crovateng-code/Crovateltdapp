@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Phone, MessageCircle, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, Check, Sparkles, Compass, Landmark } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Phone, MessageCircle, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, Check, Sparkles, Compass, Landmark, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { Property } from '../types';
 
 interface PropertyDetailProps {
@@ -9,6 +9,42 @@ interface PropertyDetailProps {
 
 export default function PropertyDetail({ property, onBack }: PropertyDetailProps) {
   const [copiedLink, setCopiedLink] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Fallback if images array doesn't exist on Property
+  const galleryImages = property.images && property.images.length > 0
+    ? property.images
+    : [property.image];
+
+  const handlePrevLightbox = () => {
+    setLightboxIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+  };
+
+  const handleNextLightbox = () => {
+    setLightboxIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+  };
+
+  // Listen for escape and arrow key navigation when lightbox is open
+  useEffect(() => {
+    if (!isLightboxOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevLightbox();
+      } else if (e.key === 'ArrowRight') {
+        handleNextLightbox();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLightboxOpen, lightboxIndex, galleryImages.length]);
 
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -102,15 +138,85 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
           </div>
         </div>
 
-        {/* Big Visual Feature Frame */}
-        <div className="relative aspect-[16/9] bg-slate-100 rounded-3xl overflow-hidden border border-black/[0.04] mb-12 shadow-md">
-          <img
-            src={property.image}
-            alt={property.title}
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+        {/* Interactive Luxury Photo Gallery Stage */}
+        <div className="mb-12 space-y-4">
+          <div 
+            onClick={() => {
+              setLightboxIndex(activeImageIndex);
+              setIsLightboxOpen(true);
+            }}
+            className="group relative aspect-[16/9] bg-slate-100 rounded-3xl overflow-hidden border border-black/[0.04] shadow-md cursor-pointer"
+            title="Click to zoom / view full-screen lightbox"
+          >
+            <img
+              src={galleryImages[activeImageIndex]}
+              alt={`${property.title} - View ${activeImageIndex + 1}`}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              referrerPolicy="no-referrer"
+            />
+            
+            {/* Ambient Dark Gradient Layer */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+            {/* Bottom Left: Quick Details Overlaid */}
+            <div className="absolute bottom-5 left-5 z-10 hidden sm:block text-left">
+              <span className="text-[9px] font-mono tracking-widest text-[#00e1ff] uppercase bg-black/40 px-2.5 py-1 rounded backdrop-blur-sm border border-white/5 font-semibold">
+                Interactive Exhibition Frame
+              </span>
+              <h3 className="text-white text-lg font-bold drop-shadow-md mt-1">
+                {property.title}
+              </h3>
+            </div>
+
+            {/* Floating Live counter badge */}
+            <div className="absolute top-4 right-4 z-10 bg-[#00090a]/85 backdrop-blur-md text-white text-[11px] font-mono font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md">
+              <ZoomIn className="h-3.5 w-3.5 text-primary" />
+              <span>{activeImageIndex + 1} / {galleryImages.length} Photos</span>
+            </div>
+
+            {/* Premium click Zoom action overlay */}
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="bg-[#00090a]/90 text-white backdrop-blur-md text-xs font-extrabold uppercase tracking-widest px-5 py-3 rounded-2xl flex items-center gap-2 border border-white/10 shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                <ZoomIn className="h-4 w-4 text-primary" />
+                <span>Open Immersive Gallery Lightbox</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Multi-Angle Gallery Thumbnails Grid */}
+          {galleryImages.length > 1 && (
+            <div className="grid grid-cols-5 gap-3 max-w-2xl mx-auto pt-1">
+              {galleryImages.map((imgUrl, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveImageIndex(idx);
+                  }}
+                  className={`relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
+                    activeImageIndex === idx 
+                      ? 'border-primary ring-4 ring-primary/25 scale-[1.03]' 
+                      : 'border-transparent hover:border-black/20 brightness-75 hover:brightness-100'
+                  }`}
+                  aria-label={`View image ${idx + 1}`}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={`${property.title} thumbnail preview ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                  {activeImageIndex === idx && (
+                    <div className="absolute inset-0 bg-primary/15 flex items-center justify-center">
+                      <div className="bg-primary text-secondary p-0.5 rounded-full">
+                        <Check className="h-3 w-3" />
+                      </div>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Specs Highlights & Information Hub Split */}
@@ -284,6 +390,117 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
         </div>
 
       </div>
+
+      {/* IMMERSIVE FULL SCREEN LIGHTBOX ARCHITECTURAL EXHIBIT */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex flex-col justify-between bg-black/98 text-white backdrop-blur-xl p-4 md:p-8 animate-fade-in focus:outline-none"
+          tabIndex={0}
+          id="lightbox-immersive-modal"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Top Control Bar */}
+          <div className="flex items-center justify-between py-3 border-b border-white/10 relative z-20">
+            <div className="text-left">
+              <span className="text-[9px] font-mono tracking-widest text-[#00e1ff] uppercase block font-semibold">
+                High-Fidelity Virtual Tour
+              </span>
+              <h4 className="text-sm md:text-base font-extrabold text-white mt-0.5 uppercase tracking-wide">
+                {property.title}
+              </h4>
+            </div>
+            
+            <div className="flex items-center gap-5">
+              <span className="text-xs font-mono text-gray-400 bg-white/5 border border-white/5 px-3 py-1.5 rounded-lg">
+                Photo {lightboxIndex + 1} of {galleryImages.length}
+              </span>
+              <button
+                onClick={() => setIsLightboxOpen(false)}
+                className="p-2 ml-1 rounded-full bg-white/5 hover:bg-white/15 text-white cursor-pointer transition-all duration-200 hover:scale-105"
+                title="Close Lightbox (Esc)"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Central Spatial Stage */}
+          <div className="relative flex-1 flex items-center justify-center my-6">
+            
+            {/* Prev Image Click Trigger Zone */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrevLightbox();
+              }}
+              className="absolute left-2 md:left-6 p-4 rounded-full bg-black/40 hover:bg-[#00090a] text-white border border-white/10 hover:border-primary hover:text-primary transition-all duration-300 cursor-pointer z-35 backdrop-blur-sm"
+              title="Previous Photo"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+
+            {/* Main Stage Image wrapper */}
+            <div className="relative max-w-5xl max-h-[64vh] w-full h-full flex items-center justify-center select-none overflow-hidden rounded-2xl p-2">
+              <img
+                src={galleryImages[lightboxIndex]}
+                alt={`${property.title} view ${lightboxIndex + 1}`}
+                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl transition-all duration-500 ease-in-out"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Next Image Click Trigger Zone */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextLightbox();
+              }}
+              className="absolute right-2 md:right-6 p-4 rounded-full bg-black/40 hover:bg-[#00090a] text-white border border-white/10 hover:border-primary hover:text-primary transition-all duration-300 cursor-pointer z-35 backdrop-blur-sm"
+              title="Next Photo"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Bottom Row: Controls Guide & Inner Slides Carousel */}
+          <div className="space-y-4 relative z-20">
+            
+            {/* Quick-Jump Mini Thumbnail Track */}
+            {galleryImages.length > 1 && (
+              <div className="flex justify-center items-center gap-2.5 overflow-x-auto py-2 px-4 max-w-xl mx-auto scrollbar-thin">
+                {galleryImages.map((imgUrl, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setLightboxIndex(idx)}
+                    className={`relative w-16 md:w-20 aspect-[4/3] rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300 cursor-pointer border ${
+                      lightboxIndex === idx 
+                        ? 'border-primary ring-2 ring-primary/40 scale-105 brightness-100' 
+                        : 'border-white/10 brightness-50 hover:brightness-100 hover:scale-[1.02]'
+                    }`}
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`Jump to photo ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* Navigational Tooltip Guidance */}
+            <div className="flex justify-center items-center gap-4 text-[10px] text-gray-500 font-mono tracking-wider">
+              <span>Use keyboard <kbd className="bg-white/10 border border-white/5 px-1 rounded text-gray-300 font-sans font-semibold">←</kbd> and <kbd className="bg-white/10 border border-white/5 px-1 rounded text-gray-300 font-sans font-semibold">→</kbd> keys</span>
+              <span className="text-white/10">|</span>
+              <span>Press <kbd className="bg-white/10 border border-white/5 px-1.5 py-0.5 rounded text-gray-300 font-sans font-semibold">Esc</kbd> to return</span>
+            </div>
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 }

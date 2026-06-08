@@ -10,6 +10,7 @@ export interface Property {
   bathrooms: number;
   size: number; // in sqft
   image: string;
+  images?: string[];
   description: string;
 }
 

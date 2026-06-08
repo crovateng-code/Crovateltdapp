@@ -9,6 +9,7 @@ import Testimonials from './components/Testimonials';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
 import InquiryModal from './components/InquiryModal';
+import SupabaseStatus from './components/SupabaseStatus.tsx';
 
 // Dedicated standalone pages imports
 import PropertiesPage from './components/PropertiesPage';
@@ -21,6 +22,7 @@ import { Property } from './types';
 export default function App() {
   const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact'>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [dynamicProperties, setDynamicProperties] = useState<Property[] | null>(null);
 
   const [searchFilters, setSearchFilters] = useState({
     location: 'All',
@@ -86,6 +88,9 @@ export default function App() {
         }}
       />
 
+      {/* Supabase Integration & Diagnostics Dashboard */}
+      <SupabaseStatus onDataLoaded={(props) => setDynamicProperties(props)} />
+
       {/* Main Flow Sections based on Active Page */}
       <main className="relative min-h-[70vh]">
         {selectedProperty ? (
@@ -116,6 +121,7 @@ export default function App() {
                   onResetFilters={handleResetFilters} 
                   onOpenInquiry={handleOpenInquiry} 
                   onSelectProperty={handleSelectProperty}
+                  properties={dynamicProperties || undefined}
                 />
 
                 {/* NUMBERS ACHIEVEMENT STATS BANNER */}
@@ -140,6 +146,7 @@ export default function App() {
                 onOpenInquiry={handleOpenInquiry}
                 onSelectProperty={handleSelectProperty}
                 initialFilters={searchFilters} 
+                properties={dynamicProperties || undefined}
               />
             )}
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, Mail, Phone, Calendar, Send, Landmark } from 'lucide-react';
+import { submitSupabaseInquiry, isSupabaseConfigured } from '../lib/supabase.ts';
 
 interface InquiryModalProps {
   isOpen: boolean;
@@ -28,16 +29,31 @@ export default function InquiryModal({ isOpen, onClose, defaultSubject = '' }: I
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate luxury API call with high fidelity delays
+    if (isSupabaseConfigured) {
+      try {
+        await submitSupabaseInquiry({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: `Preferred Viewing Date: ${formData.date || 'Anytime'}. Client Comments: ${formData.message}`,
+          propertyName: formData.subject,
+        });
+      } catch (err) {
+        console.error('Supabase submission failed:', err);
+      }
+    }
+
+    // Simulate luxury API call with high fidelity delays for the client transition
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
     }, 1200);
   };
+
 
   const handleReset = () => {
     setFormData({
