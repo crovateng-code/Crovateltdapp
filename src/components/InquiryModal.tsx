@@ -33,6 +33,26 @@ export default function InquiryModal({ isOpen, onClose, defaultSubject = '' }: I
     e.preventDefault();
     setIsSubmitting(true);
 
+    const newInquiry = {
+      id: `lead-${Date.now()}`,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      message: `Preferred Viewing Date: ${formData.date || 'Anytime'}. Client Comments: ${formData.message}`,
+      propertyName: formData.subject,
+      createdAt: new Date().toISOString()
+    };
+
+    // Backup to local storage directory so the Administrator receives the lead in real-time
+    try {
+      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+      currentList.unshift(newInquiry);
+      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+    } catch (e) {
+      console.warn('LocalStorage listing backup failed:', e);
+    }
+
     if (isSupabaseConfigured) {
       try {
         await submitSupabaseInquiry({

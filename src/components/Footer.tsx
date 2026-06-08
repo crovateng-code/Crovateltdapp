@@ -1,12 +1,14 @@
 import React from 'react';
-import { Landmark, Mail, Phone, MapPin, Facebook, Instagram, Linkedin, MessageCircle, ArrowUp } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin, MessageCircle, ArrowUp } from 'lucide-react';
+import CrovationLogo from './CrovationLogo';
 
 interface FooterProps {
   onOpenInquiry: (subject?: string) => void;
   onChangePage: (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => void;
+  onAdminAccess?: () => void;
 }
 
-export default function Footer({ onOpenInquiry, onChangePage }: FooterProps) {
+export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess }: FooterProps) {
   
   const handleNavigate = (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => {
     onChangePage(page);
@@ -24,14 +26,9 @@ export default function Footer({ onOpenInquiry, onChangePage }: FooterProps) {
           <div className="md:col-span-4 space-y-6 text-left">
             <button
               onClick={() => handleNavigate('home')}
-              className="flex items-center gap-2.5 font-bold text-xl tracking-tight text-white cursor-pointer hover:opacity-90 text-left"
+              className="flex items-center text-white cursor-pointer hover:opacity-90 text-left focus:outline-none"
             >
-              <div className="p-1.5 rounded-lg bg-primary text-secondary flex items-center justify-center">
-                <Landmark className="h-5 w-5" />
-              </div>
-              <span className="font-semibold text-white">
-                Crovation <span className="font-light text-primary">Limited</span>
-              </span>
+              <CrovationLogo isDarkTheme={true} height={42} />
             </button>
             
             <p className="text-xs text-gray-400 leading-relaxed font-sans pr-4">
@@ -204,8 +201,18 @@ export default function Footer({ onOpenInquiry, onChangePage }: FooterProps) {
           </p>
 
           <div className="flex items-center gap-6">
-            <a href="#" className="text-[11px] text-gray-500 hover:text-white transition-colors font-sans">Confidentiality Agreement</a>
-            <a href="#" className="text-[11px] text-gray-500 hover:text-white transition-colors font-sans">Privacy Policy</a>
+            <a href="#" className="text-[11px] text-gray-500 hover:text-white transition-colors font-sans font-medium">Confidentiality Agreement</a>
+            <a href="#" className="text-[11px] text-gray-500 hover:text-white transition-colors font-sans font-medium">Privacy Policy</a>
+            
+            {onAdminAccess && (
+              <button 
+                onClick={onAdminAccess}
+                className="text-[11px] text-gray-500 hover:text-primary transition-colors font-sans font-semibold cursor-pointer border-b border-dashed border-gray-600 hover:border-primary pb-0.5"
+                title="Admin Security Operations Console"
+              >
+                Executive Console
+              </button>
+            )}
             
             {/* Scroll back to Top Button */}
             <button

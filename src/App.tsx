@@ -17,12 +17,15 @@ import AboutPage from './components/AboutPage';
 import ServicesPage from './components/ServicesPage';
 import ContactPage from './components/ContactPage';
 import PropertyDetail from './components/PropertyDetail';
+import AdminPortal from './components/AdminPortal';
 import { Property } from './types';
+import { PROPERTIES } from './data';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact'>('home');
+  const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin'>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [dynamicProperties, setDynamicProperties] = useState<Property[] | null>(null);
+  const [dynamicProperties, setDynamicProperties] = useState<Property[]>(PROPERTIES);
+  const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
 
   const [searchFilters, setSearchFilters] = useState({
     location: 'All',
@@ -73,6 +76,24 @@ export default function App() {
     setSelectedProperty(property);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (activePage === 'admin') {
+    return (
+      <div className="relative min-h-screen bg-[#00090a] selection:bg-primary selection:text-secondary antialiased" id="admin-workspace-page">
+        <AdminPortal 
+          properties={dynamicProperties}
+          onPropertiesUpdated={(updated) => setDynamicProperties(updated)}
+          activeSubView={adminSubView}
+          onNavigateSubView={(sub) => setAdminSubView(sub)}
+          onBackToSite={() => {
+            setActivePage('home');
+            setSelectedProperty(null);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-brandbg selection:bg-primary selection:text-secondary antialiased" id="homepage-app">
@@ -170,6 +191,12 @@ export default function App() {
         onOpenInquiry={handleOpenInquiry}
         onChangePage={(page) => {
           setActivePage(page);
+          setSelectedProperty(null);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onAdminAccess={() => {
+          setActivePage('admin');
+          setAdminSubView('login');
           setSelectedProperty(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}

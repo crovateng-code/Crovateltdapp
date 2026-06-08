@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Landmark, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Home, Building2, Info, Compass, Phone } from 'lucide-react';
+import CrovationLogo from './CrovationLogo';
 
 interface NavbarProps {
   onOpenInquiry: (subject?: string) => void;
@@ -29,79 +30,72 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage }: Navb
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getActiveStyles = (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => {
+  const getLinkStyles = (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => {
     const isActive = activePage === page;
     if (isScrolled) {
       return isActive 
-        ? 'text-primary font-bold' 
-        : 'text-gray-300 hover:text-primary transition-colors';
+        ? 'text-primary bg-white/5 border border-white/10 px-4 py-1.5 rounded-full font-semibold shadow-inner' 
+        : 'text-gray-300 hover:text-primary hover:bg-white/5 border border-transparent hover:border-white/5 px-4 py-1.5 rounded-full transition-all duration-300';
     } else {
       return isActive 
-        ? 'text-secondary font-bold underline decoration-primary decoration-2 underline-offset-4' 
-        : 'text-gray-600 hover:text-secondary hover:underline hover:decoration-primary/55 hover:decoration-2 hover:underline-offset-4 transition-all';
+        ? 'text-secondary bg-slate-900/5 border border-slate-950/5 px-4 py-1.5 rounded-full font-bold shadow-sm' 
+        : 'text-slate-600 hover:text-secondary hover:bg-slate-50 border border-transparent hover:border-slate-200/50 px-4 py-1.5 rounded-full transition-all duration-300';
     }
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 md:px-8 transition-all duration-300">
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3 md:px-6 lg:px-8 transition-all duration-300">
       <div
         id="navbar-container"
         className={`mx-auto max-w-7xl rounded-2xl border transition-all duration-300 ${
           isScrolled
-            ? 'border-white/15 bg-secondary/85 backdrop-blur-md shadow-2xl py-3 px-6 text-white'
-            : 'border-black/5 bg-white/70 backdrop-blur-md shadow-sm py-4 px-6 text-secondary'
+            ? 'border-white/10 bg-secondary/90 backdrop-blur-md shadow-2xl py-2.5 px-6 text-white'
+            : 'border-slate-200/40 bg-white/80 backdrop-blur-md shadow-sm py-3 px-6 text-secondary'
         }`}
       >
         <div className="flex items-center justify-between">
           {/* Logo */}
           <button
             onClick={() => handleNavigate('home')}
-            className="flex items-center gap-2.5 font-bold text-lg md:text-xl tracking-tight transition-transform active:scale-98 cursor-pointer text-left"
+            className="flex items-center transition-transform active:scale-98 cursor-pointer focus:outline-none"
             id="nav-logo"
           >
-            <div className={`p-1.5 rounded-lg flex items-center justify-center transition-colors ${
-              isScrolled ? 'bg-primary text-secondary' : 'bg-secondary text-primary'
-            }`}>
-              <Landmark className="h-5 w-5" />
-            </div>
-            <span className="font-semibold text-secondary">
-              Crovation <span className="font-light text-primary">Limited</span>
-            </span>
+            <CrovationLogo isDarkTheme={isScrolled} height={35} />
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8 font-medium text-sm">
+          <nav className="hidden md:flex items-center gap-2 font-medium text-xs lg:text-sm">
             <button
               onClick={() => handleNavigate('home')}
-              className={`cursor-pointer ${getActiveStyles('home')}`}
+              className={`cursor-pointer ${getLinkStyles('home')}`}
               id="link-home"
             >
               Home
             </button>
             <button
               onClick={() => handleNavigate('properties')}
-              className={`cursor-pointer ${getActiveStyles('properties')}`}
+              className={`cursor-pointer ${getLinkStyles('properties')}`}
               id="link-properties"
             >
               Properties
             </button>
             <button
               onClick={() => handleNavigate('about')}
-              className={`cursor-pointer ${getActiveStyles('about')}`}
+              className={`cursor-pointer ${getLinkStyles('about')}`}
               id="link-about"
             >
               About
             </button>
             <button
               onClick={() => handleNavigate('services')}
-              className={`cursor-pointer ${getActiveStyles('services')}`}
+              className={`cursor-pointer ${getLinkStyles('services')}`}
               id="link-services"
             >
               Services
             </button>
             <button
               onClick={() => handleNavigate('contact')}
-              className={`cursor-pointer ${getActiveStyles('contact')}`}
+              className={`cursor-pointer ${getLinkStyles('contact')}`}
               id="link-contact"
             >
               Contact
@@ -112,10 +106,14 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage }: Navb
           <div className="hidden md:flex items-center gap-4">
             <button
               onClick={() => onOpenInquiry('Investor Partnership / Listing with Crovation')}
-              className="bg-primary hover:bg-[#00e1ff] text-secondary px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider hover:shadow-[0_0_20px_rgba(2,206,237,0.4)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              className={`px-4.5 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer ${
+                isScrolled
+                  ? 'bg-primary text-secondary hover:bg-[#00e1ff] hover:shadow-[0_0_15px_rgba(2,206,237,0.3)]'
+                  : 'bg-secondary text-white hover:bg-primary hover:text-secondary'
+              }`}
               id="btn-list-with-us"
             >
-              List With Us
+              <span>List With Us</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -124,13 +122,15 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage }: Navb
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                isScrolled ? 'border-white/10 text-white' : 'border-black/5 text-secondary'
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                isScrolled 
+                  ? 'border-white/10 text-white bg-white/5 hover:bg-white/10' 
+                  : 'border-slate-200 text-secondary bg-slate-50 hover:bg-slate-100'
               }`}
               id="btn-mobile-menu"
               aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
             </button>
           </div>
         </div>
@@ -139,58 +139,74 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage }: Navb
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div
-          className="absolute top-20 left-4 right-4 z-40 md:hidden bg-[#00090a] text-white rounded-2xl border border-white/10 p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-200"
+          className="absolute top-20 left-4 right-4 z-40 md:hidden bg-[#00090a]/95 backdrop-blur-lg text-white rounded-2xl border border-white/10 p-5 shadow-2xl flex flex-col gap-2.5 animate-in fade-in slide-in-from-top-4 duration-200"
           id="mobile-drawer"
         >
+          <div className="border-b border-white/5 pb-2.5 mb-1 flex items-center justify-between">
+            <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold">Navigation Bureau</span>
+            <span className="text-[9px] font-mono text-gray-500">CROVATION LIMITED</span>
+          </div>
+
           <button
             onClick={() => handleNavigate('home')}
-            className={`flex items-center justify-between py-2.5 text-left font-medium border-b border-white/5 cursor-pointer ${
-              activePage === 'home' ? 'text-primary' : 'hover:text-primary text-gray-300'
+            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activePage === 'home' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary' : 'hover:bg-white/5 text-gray-300'
             }`}
           >
-            Home
+            <Home className="h-4 w-4" />
+            <span>Home Showcase</span>
           </button>
+
           <button
             onClick={() => handleNavigate('properties')}
-            className={`flex items-center justify-between py-2.5 text-left font-medium border-b border-white/5 cursor-pointer ${
-              activePage === 'properties' ? 'text-primary' : 'hover:text-primary text-gray-300'
+            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activePage === 'properties' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary' : 'hover:bg-white/5 text-gray-300'
             }`}
           >
-            Properties
+            <Building2 className="h-4 w-4" />
+            <span>Properties Catalog</span>
           </button>
+
           <button
             onClick={() => handleNavigate('about')}
-            className={`flex items-center justify-between py-2.5 text-left font-medium border-b border-white/5 cursor-pointer ${
-              activePage === 'about' ? 'text-primary' : 'hover:text-primary text-gray-300'
+            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activePage === 'about' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary' : 'hover:bg-white/5 text-gray-300'
             }`}
           >
-            About
+            <Info className="h-4 w-4" />
+            <span>About Lineage</span>
           </button>
+
           <button
             onClick={() => handleNavigate('services')}
-            className={`flex items-center justify-between py-2.5 text-left font-medium border-b border-white/5 cursor-pointer ${
-              activePage === 'services' ? 'text-primary' : 'hover:text-primary text-gray-300'
+            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activePage === 'services' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary' : 'hover:bg-white/5 text-gray-300'
             }`}
           >
-            Services
+            <Compass className="h-4 w-4" />
+            <span>Premium Services</span>
           </button>
+
           <button
             onClick={() => handleNavigate('contact')}
-            className={`flex items-center justify-between py-2.5 text-left font-medium border-b border-white/5 cursor-pointer relative ${
-              activePage === 'contact' ? 'text-primary' : 'hover:text-primary text-gray-300'
+            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activePage === 'contact' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary' : 'hover:bg-white/5 text-gray-300'
             }`}
           >
-            Contact
+            <Phone className="h-4 w-4" />
+            <span>Contact Bureau</span>
           </button>
-          <div className="pt-2">
+
+          <div className="pt-3 border-t border-white/5 mt-1.5">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenInquiry('Listing with Crovation Limited');
               }}
-              className="w-full bg-primary text-secondary text-center font-bold uppercase tracking-wider text-xs py-3.5 rounded-xl hover:bg-white transition-colors cursor-pointer"
+              className="w-full bg-primary hover:bg-[#00e1ff] text-secondary text-center font-bold uppercase tracking-widest text-xs py-3.5 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
-              List With Us
+              <span>List With Us Now</span>
+              <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         </div>
