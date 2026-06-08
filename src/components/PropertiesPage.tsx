@@ -5,6 +5,7 @@ import { PROPERTIES } from '../data';
 
 interface PropertiesPageProps {
   onOpenInquiry: (subject?: string) => void;
+  onSelectProperty: (property: Property) => void;
   initialFilters?: {
     location: string;
     type: string;
@@ -13,7 +14,7 @@ interface PropertiesPageProps {
   };
 }
 
-export default function PropertiesPage({ onOpenInquiry, initialFilters }: PropertiesPageProps) {
+export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initialFilters }: PropertiesPageProps) {
   // Local state for full catalog filtering
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLocation, setFilterLocation] = useState(initialFilters?.location || 'All');
@@ -284,7 +285,10 @@ export default function PropertiesPage({ onOpenInquiry, initialFilters }: Proper
                     className="group bg-white rounded-3xl border border-black/[0.04] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.015)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1"
                   >
                     {/* Img frame */}
-                    <div className="relative aspect-[16/11] bg-slate-100 overflow-hidden">
+                    <div 
+                      onClick={() => onSelectProperty(prop)}
+                      className="relative aspect-[16/11] bg-slate-100 overflow-hidden cursor-pointer"
+                    >
                       <img
                         src={prop.image}
                         alt={prop.title}
@@ -308,7 +312,10 @@ export default function PropertiesPage({ onOpenInquiry, initialFilters }: Proper
                         <span className="truncate">{prop.location}</span>
                       </div>
 
-                      <h3 className="font-extrabold text-base text-secondary group-hover:text-primary transition-colors cursor-pointer">
+                      <h3 
+                        onClick={() => onSelectProperty(prop)}
+                        className="font-extrabold text-base text-secondary group-hover:text-primary transition-colors cursor-pointer"
+                      >
                         {prop.title}
                       </h3>
 
@@ -345,10 +352,10 @@ export default function PropertiesPage({ onOpenInquiry, initialFilters }: Proper
 
                       {/* CTA trigger */}
                       <button
-                        onClick={() => onOpenInquiry(`Inquiry request for ${prop.title} (${prop.type} - $${prop.price.toLocaleString()})`)}
+                        onClick={() => onSelectProperty(prop)}
                         className="w-full bg-slate-50 border border-slate-200 text-secondary hover:border-primary hover:bg-primary hover:text-secondary py-2.5 rounded-xl font-bold uppercase tracking-wider text-[10px] duration-300 transition-all flex items-center justify-center gap-1 cursor-pointer"
                       >
-                        Request Private Tour
+                        View Asset Details
                         <ArrowUpRight className="h-3.5 w-3.5" />
                       </button>
                     </div>

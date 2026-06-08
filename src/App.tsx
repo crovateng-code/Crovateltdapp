@@ -15,9 +15,12 @@ import PropertiesPage from './components/PropertiesPage';
 import AboutPage from './components/AboutPage';
 import ServicesPage from './components/ServicesPage';
 import ContactPage from './components/ContactPage';
+import PropertyDetail from './components/PropertyDetail';
+import { Property } from './types';
 
 export default function App() {
   const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact'>('home');
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   const [searchFilters, setSearchFilters] = useState({
     location: 'All',
@@ -60,6 +63,12 @@ export default function App() {
   // Switch to Properties page
   const handleExploreClick = () => {
     setActivePage('properties');
+    setSelectedProperty(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectProperty = (property: Property) => {
+    setSelectedProperty(property);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -72,72 +81,91 @@ export default function App() {
         activePage={activePage}
         onChangePage={(page) => {
           setActivePage(page);
-          // If a search filter is reset when moving pages (optional, keep filters so catalog shows custom choices)
+          setSelectedProperty(null);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
 
       {/* Main Flow Sections based on Active Page */}
       <main className="relative min-h-[70vh]">
-        {activePage === 'home' && (
-          <>
-            {/* HERO SECTION / PROPERTY SEARCH CARD */}
-            <Hero 
-              onSearch={handleSearch} 
-              onOpenInquiry={handleOpenInquiry} 
-              onExploreClick={handleExploreClick} 
-            />
-
-            {/* WHY CHOOSE CROVATION SECTION */}
-            <WhyChoose />
-
-            {/* FEATURED PROPERTIES SECTION WITH LIVE FILTER */}
-            <FeaturedProperties 
-              filters={searchFilters} 
-              onResetFilters={handleResetFilters} 
-              onOpenInquiry={handleOpenInquiry} 
-            />
-
-            {/* NUMBERS ACHIEVEMENT STATS BANNER */}
-            <Numbers />
-
-            {/* BESPOKE ADVISORY SERVICES SHORT PREVIEW */}
-            <Services />
-
-            {/* TRUSTWORTHY TESTIMONIAL AUDIT CARDS */}
-            <Testimonials />
-
-            {/* CORE DARK CALL-TO-ACTION SECTION */}
-            <CTA 
-              onOpenInquiry={handleOpenInquiry} 
-              onExploreProperties={handleExploreClick} 
-            />
-          </>
-        )}
-
-        {activePage === 'properties' && (
-          <PropertiesPage 
-            onOpenInquiry={handleOpenInquiry} 
-            initialFilters={searchFilters} 
+        {selectedProperty ? (
+          <PropertyDetail 
+            property={selectedProperty} 
+            onBack={() => {
+              setSelectedProperty(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
-        )}
+        ) : (
+          <>
+            {activePage === 'home' && (
+              <>
+                {/* HERO SECTION / PROPERTY SEARCH CARD */}
+                <Hero 
+                  onSearch={handleSearch} 
+                  onOpenInquiry={handleOpenInquiry} 
+                  onExploreClick={handleExploreClick} 
+                />
 
-        {activePage === 'about' && (
-          <AboutPage onOpenInquiry={handleOpenInquiry} />
-        )}
+                {/* WHY CHOOSE CROVATION SECTION */}
+                <WhyChoose />
 
-        {activePage === 'services' && (
-          <ServicesPage onOpenInquiry={handleOpenInquiry} />
-        )}
+                {/* FEATURED PROPERTIES SECTION WITH LIVE FILTER */}
+                <FeaturedProperties 
+                  filters={searchFilters} 
+                  onResetFilters={handleResetFilters} 
+                  onOpenInquiry={handleOpenInquiry} 
+                  onSelectProperty={handleSelectProperty}
+                />
 
-        {activePage === 'contact' && (
-          <ContactPage onOpenInquiry={handleOpenInquiry} />
+                {/* NUMBERS ACHIEVEMENT STATS BANNER */}
+                <Numbers />
+
+                {/* BESPOKE ADVISORY SERVICES SHORT PREVIEW */}
+                <Services />
+
+                {/* TRUSTWORTHY TESTIMONIAL AUDIT CARDS */}
+                <Testimonials />
+
+                {/* CORE DARK CALL-TO-ACTION SECTION */}
+                <CTA 
+                  onOpenInquiry={handleOpenInquiry} 
+                  onExploreProperties={handleExploreClick} 
+                />
+              </>
+            )}
+
+            {activePage === 'properties' && (
+              <PropertiesPage 
+                onOpenInquiry={handleOpenInquiry}
+                onSelectProperty={handleSelectProperty}
+                initialFilters={searchFilters} 
+              />
+            )}
+
+            {activePage === 'about' && (
+              <AboutPage onOpenInquiry={handleOpenInquiry} />
+            )}
+
+            {activePage === 'services' && (
+              <ServicesPage onOpenInquiry={handleOpenInquiry} />
+            )}
+
+            {activePage === 'contact' && (
+              <ContactPage onOpenInquiry={handleOpenInquiry} />
+            )}
+          </>
         )}
       </main>
 
       {/* FOOTER BLOCK */}
       <Footer 
         onOpenInquiry={handleOpenInquiry}
-        onChangePage={setActivePage}
+        onChangePage={(page) => {
+          setActivePage(page);
+          setSelectedProperty(null);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       {/* PRIVATE CLIENT CONCIERGE MODAL SYSTEM */}

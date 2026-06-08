@@ -12,9 +12,10 @@ interface FeaturedPropertiesProps {
   };
   onResetFilters: () => void;
   onOpenInquiry: (propertyName: string) => void;
+  onSelectProperty: (property: Property) => void;
 }
 
-export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry }: FeaturedPropertiesProps) {
+export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty }: FeaturedPropertiesProps) {
   const [selectedTypeTab, setSelectedTypeTab] = useState<string>('All');
 
   const filteredProperties = useMemo(() => {
@@ -143,7 +144,10 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
                 id={`property-card-${prop.id}`}
               >
                 {/* Image & Badge Area */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                <div 
+                  onClick={() => onSelectProperty(prop)}
+                  className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 cursor-pointer"
+                >
                   <img
                     src={prop.image}
                     alt={prop.title}
@@ -177,7 +181,10 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-extrabold text-lg text-secondary mb-2 group-hover:text-primary transition-colors cursor-pointer capitalize">
+                  <h3 
+                    onClick={() => onSelectProperty(prop)}
+                    className="font-extrabold text-lg text-secondary mb-2 group-hover:text-primary transition-colors cursor-pointer capitalize"
+                  >
                     {prop.title}
                   </h3>
 
@@ -220,10 +227,10 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
 
                     {/* Button inquiry trigger */}
                     <button
-                      onClick={() => onOpenInquiry(`Inquiry for ${prop.title} (${prop.type} at ${prop.location})`)}
+                      onClick={() => onSelectProperty(prop)}
                       className="w-full bg-slate-50 border border-slate-200 hover:border-primary hover:bg-primary hover:text-secondary text-secondary font-bold text-xs uppercase tracking-wider py-3 rounded-xl flex items-center justify-center gap-1.5 duration-300 transition-all cursor-pointer"
                     >
-                      View Property
+                      View Property Details
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
