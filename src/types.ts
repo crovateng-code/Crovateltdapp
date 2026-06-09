@@ -19,6 +19,8 @@ export interface Property {
   status?: 'Available' | 'Sold Out';
   amenities?: string[];
   diligenceSummary?: { label: string; value: string }[];
+  listerName?: string;
+  listerBio?: string;
 }
 
 export interface FeatureCard {

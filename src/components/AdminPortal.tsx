@@ -258,7 +258,9 @@ export default function AdminPortal({
     gallery5: '',
     status: 'Available' as 'Available' | 'Sold Out',
     amenities: [] as string[],
-    diligenceSummary: [] as { label: string; value: string }[]
+    diligenceSummary: [] as { label: string; value: string }[],
+    listerName: '',
+    listerBio: ''
   });
 
   // Property Editing State
@@ -394,7 +396,7 @@ export default function AdminPortal({
     const { 
       title, type, location, price, bedrooms, bathrooms, size, image, description, currency, 
       whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3, gallery4, gallery5, 
-      status, amenities, diligenceSummary 
+      status, amenities, diligenceSummary, listerName, listerBio 
     } = newProperty;
 
     if (!title || !location || !price || !size || !image || !description) {
@@ -434,7 +436,9 @@ export default function AdminPortal({
       videoLink: videoLink.trim() || undefined,
       status: status || 'Available',
       amenities: cleanAmenities.length > 0 ? cleanAmenities : undefined,
-      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined
+      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined,
+      listerName: listerName.trim() || undefined,
+      listerBio: listerBio.trim() || undefined
     };
 
     const updatedCatalog = [created, ...properties];
@@ -461,7 +465,9 @@ export default function AdminPortal({
       gallery5: '',
       status: 'Available',
       amenities: [],
-      diligenceSummary: []
+      diligenceSummary: [],
+      listerName: '',
+      listerBio: ''
     });
     setIsAddFormOpen(false);
 
@@ -505,7 +511,9 @@ export default function AdminPortal({
     const sanitizedEditing: Property = {
       ...editingProperty,
       amenities: cleanAmenities.length > 0 ? cleanAmenities : undefined,
-      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined
+      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined,
+      listerName: editingProperty.listerName?.trim() || undefined,
+      listerBio: editingProperty.listerBio?.trim() || undefined
     };
 
     const updatedCatalog = properties.map(p => p.id === id ? sanitizedEditing : p);
@@ -1667,6 +1675,40 @@ export default function AdminPortal({
                   </div>
                 </div>
 
+                {/* Property Lister Details */}
+                <div className="grid-cols-1 sm:col-span-2 border-t border-slate-100 pt-5 mt-2">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-[#00090a] mb-3 flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                    Property Lister Details (Optional)
+                  </h4>
+                  <div className="grid grid-cols-1 gap-4 bg-slate-50 border border-slate-150 p-4 rounded-2xl">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Lister Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Elizabeth Crovath"
+                        value={newProperty.listerName}
+                        onChange={(e) => setNewProperty({ ...newProperty, listerName: e.target.value })}
+                        className="w-full text-xs font-sans text-slate-800 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-slate-300"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Lister Brief Bio
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="Elizabeth works as an Investment Advisor with 10+ years specializing in prime coastal developments..."
+                        value={newProperty.listerBio}
+                        onChange={(e) => setNewProperty({ ...newProperty, listerBio: e.target.value })}
+                        className="w-full text-xs font-sans text-slate-800 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-slate-300"
+                      />
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3.5 border-t border-slate-100">
@@ -2105,6 +2147,40 @@ export default function AdminPortal({
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+
+                {/* Property Lister Details for Editing */}
+                <div className="grid-cols-1 sm:col-span-2 border-t border-slate-100 pt-5 mt-2">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-[#00090a] mb-3 flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#00090a] animate-pulse" />
+                    Property Lister Details (Optional)
+                  </h4>
+                  <div className="grid grid-cols-1 gap-4 bg-slate-50 border border-slate-150 p-4 rounded-2xl">
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Lister Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Elizabeth Crovath"
+                        value={editingProperty.listerName || ''}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, listerName: e.target.value })}
+                        className="w-full text-xs font-sans text-slate-800 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-slate-300"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Lister Brief Bio
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="Elizabeth works as an Investment Advisor with 10+ years specializing in prime coastal developments..."
+                        value={editingProperty.listerBio || ''}
+                        onChange={(e) => setEditingProperty({ ...editingProperty, listerBio: e.target.value })}
+                        className="w-full text-xs font-sans text-slate-800 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-slate-300"
+                      />
+                    </div>
                   </div>
                 </div>
 

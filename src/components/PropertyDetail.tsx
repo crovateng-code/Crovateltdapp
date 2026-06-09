@@ -410,6 +410,35 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               </div>
             )}
 
+            {/* Associate Representative / Property Lister details */}
+            {property.listerName && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
+                  Associate Representative
+                </h3>
+                <div className="bg-slate-50 border border-black/[0.02] hover:border-black/[0.05] p-5 rounded-2xl transition duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-[#00090a] text-primary h-11 w-11 rounded-xl flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                      {property.listerName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="space-y-1 text-left flex-1">
+                      <h4 className="font-extrabold text-sm text-secondary tracking-tight">
+                        {property.listerName}
+                      </h4>
+                      <p className="text-[10px] font-mono uppercase text-primary font-bold">
+                        Property Lister & Advisor
+                      </p>
+                      {property.listerBio && (
+                        <p className="text-xs text-slate-600 font-sans leading-relaxed pt-2.5 mt-2 border-t border-black/[0.03]">
+                          {property.listerBio}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* RIGHT HUB: Sticky Contact Concierge Form (Col span 5/12) */}
