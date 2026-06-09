@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WhyChoose from './components/WhyChoose';
@@ -141,10 +141,78 @@ export default function App() {
     return sampleSubs;
   });
 
+  // Synchronization with server backend to share state between Desktop and Mobile
+  useEffect(() => {
+    async function syncWithServer() {
+      try {
+        // Sync properties
+        const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
+        if (propsRes && propsRes.success && Array.isArray(propsRes.properties) && propsRes.properties.length > 0) {
+          setDynamicProperties(propsRes.properties);
+          localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
+        } else {
+          // Seeds the server on startup if the server has empty properties storage
+          await fetch('/api/properties', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ properties: dynamicProperties })
+          }).catch(() => null);
+        }
+
+        // Sync locations
+        const locsRes = await fetch('/api/locations').then(r => r.json()).catch(() => null);
+        if (locsRes && locsRes.success && Array.isArray(locsRes.locations) && locsRes.locations.length > 0) {
+          setLocations(locsRes.locations);
+          localStorage.setItem('crovation_custom_locations', JSON.stringify(locsRes.locations));
+        } else {
+          await fetch('/api/locations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ locations: locations })
+          }).catch(() => null);
+        }
+
+        // Sync inquiries
+        const inquiriesRes = await fetch('/api/inquiries').then(r => r.json()).catch(() => null);
+        if (inquiriesRes && inquiriesRes.success && Array.isArray(inquiriesRes.inquiries) && inquiriesRes.inquiries.length > 0) {
+          setLocalInquiries(inquiriesRes.inquiries);
+          localStorage.setItem('crovation_local_inquiries', JSON.stringify(inquiriesRes.inquiries));
+        } else {
+          await fetch('/api/inquiries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ inquiries: localInquiries })
+          }).catch(() => null);
+        }
+
+        // Sync newsletter subscriptions
+        const subsRes = await fetch('/api/subs').then(r => r.json()).catch(() => null);
+        if (subsRes && subsRes.success && Array.isArray(subsRes.subs) && subsRes.subs.length > 0) {
+          setLocalSubs(subsRes.subs);
+          localStorage.setItem('crovation_local_subs', JSON.stringify(subsRes.subs));
+        } else {
+          await fetch('/api/subs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subs: localSubs })
+          }).catch(() => null);
+        }
+      } catch (err) {
+        console.warn('Silent server synchronization failure:', err);
+      }
+    }
+    syncWithServer();
+  }, []);
+
   const handleAddInquiry = (inquiry: any) => {
     setLocalInquiries(prev => {
       const updated = [inquiry, ...prev];
       localStorage.setItem('crovation_local_inquiries', JSON.stringify(updated));
+      fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inquiries: updated })
+      }).catch((e) => console.error(e));
       return updated;
     });
   };
@@ -157,6 +225,11 @@ export default function App() {
       }
       const updated = [sub, ...prev];
       localStorage.setItem('crovation_local_subs', JSON.stringify(updated));
+      fetch('/api/subs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subs: updated })
+      }).catch((e) => console.error(e));
       return updated;
     });
   };
@@ -165,6 +238,11 @@ export default function App() {
     setLocalInquiries(prev => {
       const updated = prev.filter(item => item.id !== id);
       localStorage.setItem('crovation_local_inquiries', JSON.stringify(updated));
+      fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inquiries: updated })
+      }).catch((e) => console.error(e));
       return updated;
     });
   };
@@ -173,6 +251,11 @@ export default function App() {
     setLocalSubs(prev => {
       const updated = prev.filter(item => item.id !== id);
       localStorage.setItem('crovation_local_subs', JSON.stringify(updated));
+      fetch('/api/subs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subs: updated })
+      }).catch((e) => console.error(e));
       return updated;
     });
   };
@@ -181,12 +264,22 @@ export default function App() {
   const saveProperties = (updated: Property[]) => {
     setDynamicProperties(updated);
     localStorage.setItem('crovation_local_properties', JSON.stringify(updated));
+    fetch('/api/properties', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ properties: updated })
+    }).catch((e) => console.error(e));
   };
 
   // Helper to persist updated locations list
   const saveLocations = (newLocs: string[]) => {
     setLocations(newLocs);
     localStorage.setItem('crovation_custom_locations', JSON.stringify(newLocs));
+    fetch('/api/locations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ locations: newLocs })
+    }).catch((e) => console.error(e));
   };
 
   // Handle dynamic queries from search section and transition directly to the Properties catalog
