@@ -6,9 +6,10 @@ interface InquiryModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultSubject?: string;
+  onAddInquiry?: (inquiry: any) => void;
 }
 
-export default function InquiryModal({ isOpen, onClose, defaultSubject = '' }: InquiryModalProps) {
+export default function InquiryModal({ isOpen, onClose, defaultSubject = '', onAddInquiry }: InquiryModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,14 +44,18 @@ export default function InquiryModal({ isOpen, onClose, defaultSubject = '' }: I
       createdAt: new Date().toISOString()
     };
 
-    // Backup to local storage directory so the Administrator receives the lead in real-time
-    try {
-      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
-      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
-      currentList.unshift(newInquiry);
-      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
-    } catch (e) {
-      console.warn('LocalStorage listing backup failed:', e);
+    if (onAddInquiry) {
+      onAddInquiry(newInquiry);
+    } else {
+      // Backup to local storage directory so the Administrator receives the lead in real-time
+      try {
+        const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+        const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+        currentList.unshift(newInquiry);
+        localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+      } catch (e) {
+        console.warn('LocalStorage listing backup failed:', e);
+      }
     }
 
     if (isSupabaseConfigured) {

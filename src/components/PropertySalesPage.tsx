@@ -4,9 +4,10 @@ import { BadgeDollarSign, ArrowLeft, Shield, UserCheck, Calendar, Sparkles, Send
 interface PropertySalesPageProps {
   onBack: () => void;
   onOpenInquiry: (subject?: string) => void;
+  onAddInquiry?: (inquiry: any) => void;
 }
 
-export default function PropertySalesPage({ onBack, onOpenInquiry }: PropertySalesPageProps) {
+export default function PropertySalesPage({ onBack, onOpenInquiry, onAddInquiry }: PropertySalesPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,14 +40,18 @@ export default function PropertySalesPage({ onBack, onOpenInquiry }: PropertySal
       createdAt: new Date().toISOString()
     };
 
-    try {
-      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
-      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
-      currentList.unshift(newInquiry);
-      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
-      window.dispatchEvent(new Event('storage'));
-    } catch (err) {
-      console.warn('LocalStorage sales lead backup failed:', err);
+    if (onAddInquiry) {
+      onAddInquiry(newInquiry);
+    } else {
+      try {
+        const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+        const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+        currentList.unshift(newInquiry);
+        localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+        window.dispatchEvent(new Event('storage'));
+      } catch (err) {
+        console.warn('LocalStorage sales lead backup failed:', err);
+      }
     }
 
     setTimeout(() => {

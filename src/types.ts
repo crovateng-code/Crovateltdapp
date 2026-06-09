@@ -15,6 +15,7 @@ export interface Property {
   currency?: 'USD' | 'NGN';
   whatsappLink?: string;
   phoneNumber?: string;
+  videoLink?: string;
 }
 
 export interface FeatureCard {

@@ -3,9 +3,10 @@ import { Mail, Phone, MapPin, Check, Facebook, Instagram, Linkedin, MessageCircl
 
 interface ContactPageProps {
   onOpenInquiry: (subject?: string) => void;
+  onAddInquiry?: (inquiry: any) => void;
 }
 
-export default function ContactPage({ onOpenInquiry }: ContactPageProps) {
+export default function ContactPage({ onOpenInquiry, onAddInquiry }: ContactPageProps) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -43,14 +44,18 @@ export default function ContactPage({ onOpenInquiry }: ContactPageProps) {
       createdAt: new Date().toISOString()
     };
 
-    try {
-      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
-      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
-      currentList.unshift(newInquiry);
-      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
-      window.dispatchEvent(new Event('storage'));
-    } catch (err) {
-      console.warn('LocalStorage contact lead backup failed:', err);
+    if (onAddInquiry) {
+      onAddInquiry(newInquiry);
+    } else {
+      try {
+        const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+        const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+        currentList.unshift(newInquiry);
+        localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+        window.dispatchEvent(new Event('storage'));
+      } catch (err) {
+        console.warn('LocalStorage contact lead backup failed:', err);
+      }
     }
 
     setTimeout(() => {

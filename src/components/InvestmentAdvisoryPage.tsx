@@ -4,9 +4,10 @@ import { LineChart, ArrowLeft, TrendingUp, BarChart3, HelpCircle, Sparkles, Send
 interface InvestmentAdvisoryPageProps {
   onBack: () => void;
   onOpenInquiry: (subject?: string) => void;
+  onAddInquiry?: (inquiry: any) => void;
 }
 
-export default function InvestmentAdvisoryPage({ onBack, onOpenInquiry }: InvestmentAdvisoryPageProps) {
+export default function InvestmentAdvisoryPage({ onBack, onOpenInquiry, onAddInquiry }: InvestmentAdvisoryPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,14 +40,18 @@ export default function InvestmentAdvisoryPage({ onBack, onOpenInquiry }: Invest
       createdAt: new Date().toISOString()
     };
 
-    try {
-      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
-      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
-      currentList.unshift(newInquiry);
-      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
-      window.dispatchEvent(new Event('storage'));
-    } catch (err) {
-      console.warn('LocalStorage advisory lead backup failed:', err);
+    if (onAddInquiry) {
+      onAddInquiry(newInquiry);
+    } else {
+      try {
+        const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+        const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+        currentList.unshift(newInquiry);
+        localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+        window.dispatchEvent(new Event('storage'));
+      } catch (err) {
+        console.warn('LocalStorage advisory lead backup failed:', err);
+      }
     }
 
     setTimeout(() => {

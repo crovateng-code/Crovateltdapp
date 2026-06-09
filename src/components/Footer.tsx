@@ -6,9 +6,10 @@ interface FooterProps {
   onOpenInquiry: (subject?: string) => void;
   onChangePage: (page: 'home' | 'properties' | 'about' | 'services' | 'contact' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
   onAdminAccess?: () => void;
+  onAddSub?: (sub: any) => void;
 }
 
-export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess }: FooterProps) {
+export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onAddSub }: FooterProps) {
   
   const [emailInput, setEmailInput] = React.useState('');
   const [showThankYou, setShowThankYou] = React.useState(false);
@@ -22,24 +23,27 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess }: F
     e.preventDefault();
     if (!emailInput.trim()) return;
 
-    const savedSubs = localStorage.getItem('crovation_local_subs');
-    let subsArray = [];
-    if (savedSubs) {
-      try {
-        subsArray = JSON.parse(savedSubs);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    
     const newSub = {
       id: `sub-${Date.now()}`,
       email: emailInput.trim(),
       createdAt: new Date().toISOString()
     };
-    
-    subsArray.push(newSub);
-    localStorage.setItem('crovation_local_subs', JSON.stringify(subsArray));
+
+    if (onAddSub) {
+      onAddSub(newSub);
+    } else {
+      const savedSubs = localStorage.getItem('crovation_local_subs');
+      let subsArray = [];
+      if (savedSubs) {
+        try {
+          subsArray = JSON.parse(savedSubs);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      subsArray.push(newSub);
+      localStorage.setItem('crovation_local_subs', JSON.stringify(subsArray));
+    }
 
     setEmailInput('');
     setShowThankYou(true);

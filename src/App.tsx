@@ -80,6 +80,102 @@ export default function App() {
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [inquirySubject, setInquirySubject] = useState('');
 
+  // Unified, live client leads database
+  const [localInquiries, setLocalInquiries] = useState<any[]>(() => {
+    const saved = localStorage.getItem('crovation_local_inquiries');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    const sampleInquiries = [
+      {
+        id: 'lead-1',
+        name: 'Lady Henrietta Cavendish',
+        email: 'henrietta@cavendish-estates.co.uk',
+        phone: '+44 20 7946 0912',
+        message: 'Interested in placing an immediate private equity trade on Orchid Manor Villa. Please coordinate with my Midtown asset directors.',
+        propertyName: 'The Obsidian Pavilion',
+        createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString()
+      },
+      {
+        id: 'lead-2',
+        name: 'Marcus Sterling',
+        email: 'm.sterling@sterlingholdings.com',
+        phone: '+1 (212) 555-8902',
+        message: 'Querying maximum floor loads and structural glass envelope specifications of Penthouse Apex.',
+        propertyName: 'Summit Ritz Penthouse',
+        createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString()
+      }
+    ];
+    localStorage.setItem('crovation_local_inquiries', JSON.stringify(sampleInquiries));
+    return sampleInquiries;
+  });
+
+  // Unified, live email subscribers database
+  const [localSubs, setLocalSubs] = useState<any[]>(() => {
+    const saved = localStorage.getItem('crovation_local_subs');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    const sampleSubs = [
+      {
+        id: 'sub-1',
+        email: 'investor.relations@heirsholdings.ng',
+        createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString()
+      },
+      {
+        id: 'sub-2',
+        email: 'alao.b@dan-group.com',
+        createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString()
+      }
+    ];
+    localStorage.setItem('crovation_local_subs', JSON.stringify(sampleSubs));
+    return sampleSubs;
+  });
+
+  const handleAddInquiry = (inquiry: any) => {
+    setLocalInquiries(prev => {
+      const updated = [inquiry, ...prev];
+      localStorage.setItem('crovation_local_inquiries', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleAddSub = (sub: any) => {
+    setLocalSubs(prev => {
+      // Avoid duplicate subscriptions
+      if (prev.some(s => s.email.toLowerCase() === sub.email.toLowerCase())) {
+        return prev;
+      }
+      const updated = [sub, ...prev];
+      localStorage.setItem('crovation_local_subs', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleClearInquiry = (id: string) => {
+    setLocalInquiries(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      localStorage.setItem('crovation_local_inquiries', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleClearSub = (id: string) => {
+    setLocalSubs(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      localStorage.setItem('crovation_local_subs', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   // Persist properties state changes
   const saveProperties = (updated: Property[]) => {
     setDynamicProperties(updated);
@@ -149,6 +245,10 @@ export default function App() {
             setSelectedProperty(null);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
+          localInquiries={localInquiries}
+          onClearInquiry={handleClearInquiry}
+          localSubs={localSubs}
+          onClearSub={handleClearSub}
         />
       </div>
     );
@@ -264,6 +364,7 @@ export default function App() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
+                onAddInquiry={handleAddInquiry}
               />
             )}
 
@@ -274,6 +375,7 @@ export default function App() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
+                onAddInquiry={handleAddInquiry}
               />
             )}
 
@@ -284,6 +386,7 @@ export default function App() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
+                onAddInquiry={handleAddInquiry}
               />
             )}
 
@@ -294,11 +397,15 @@ export default function App() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
+                onAddInquiry={handleAddInquiry}
               />
             )}
 
             {activePage === 'contact' && (
-              <ContactPage onOpenInquiry={handleOpenInquiry} />
+              <ContactPage 
+                onOpenInquiry={handleOpenInquiry} 
+                onAddInquiry={handleAddInquiry}
+              />
             )}
           </>
         )}
@@ -318,6 +425,7 @@ export default function App() {
           setSelectedProperty(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        onAddSub={handleAddSub}
       />
 
       {/* PRIVATE CLIENT CONCIERGE MODAL SYSTEM */}
@@ -325,6 +433,7 @@ export default function App() {
         isOpen={isInquiryOpen} 
         onClose={() => setIsInquiryOpen(false)} 
         defaultSubject={inquirySubject} 
+        onAddInquiry={handleAddInquiry}
       />
       
     </div>

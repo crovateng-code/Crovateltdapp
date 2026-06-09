@@ -4,9 +4,10 @@ import { Building2, ArrowLeft, ShieldCheck, Zap, Laptop, Sparkles, Send } from '
 interface CommercialRealEstatePageProps {
   onBack: () => void;
   onOpenInquiry: (subject?: string) => void;
+  onAddInquiry?: (inquiry: any) => void;
 }
 
-export default function CommercialRealEstatePage({ onBack, onOpenInquiry }: CommercialRealEstatePageProps) {
+export default function CommercialRealEstatePage({ onBack, onOpenInquiry, onAddInquiry }: CommercialRealEstatePageProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,14 +40,18 @@ export default function CommercialRealEstatePage({ onBack, onOpenInquiry }: Comm
       createdAt: new Date().toISOString()
     };
 
-    try {
-      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
-      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
-      currentList.unshift(newInquiry);
-      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
-      window.dispatchEvent(new Event('storage'));
-    } catch (err) {
-      console.warn('LocalStorage commercial lead backup failed:', err);
+    if (onAddInquiry) {
+      onAddInquiry(newInquiry);
+    } else {
+      try {
+        const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+        const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+        currentList.unshift(newInquiry);
+        localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+        window.dispatchEvent(new Event('storage'));
+      } catch (err) {
+        console.warn('LocalStorage commercial lead backup failed:', err);
+      }
     }
 
     setTimeout(() => {

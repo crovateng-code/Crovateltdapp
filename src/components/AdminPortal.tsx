@@ -44,6 +44,10 @@ interface AdminPortalProps {
   onLocationsUpdated: (newLocations: string[]) => void;
   loggedInAdmin: any;
   onLoggedInAdminChange: (admin: any) => void;
+  localInquiries: any[];
+  onClearInquiry: (id: string) => void;
+  localSubs: any[];
+  onClearSub: (id: string) => void;
 }
 
 export default function AdminPortal({ 
@@ -55,7 +59,11 @@ export default function AdminPortal({
   locations,
   onLocationsUpdated,
   loggedInAdmin,
-  onLoggedInAdminChange
+  onLoggedInAdminChange,
+  localInquiries,
+  onClearInquiry,
+  localSubs,
+  onClearSub
 }: AdminPortalProps) {
   
   // Auth Form State
@@ -97,7 +105,11 @@ export default function AdminPortal({
     description: '',
     currency: 'USD' as 'USD' | 'NGN',
     whatsappLink: '',
-    phoneNumber: ''
+    phoneNumber: '',
+    videoLink: '',
+    gallery1: '',
+    gallery2: '',
+    gallery3: ''
   });
 
   // Property Editing State
@@ -105,8 +117,6 @@ export default function AdminPortal({
 
   // Local administrative credentials database
   const [registeredAdmin, setRegisteredAdmin] = useState<any>(null);
-  const [localInquiries, setLocalInquiries] = useState<any[]>([]);
-  const [localSubs, setLocalSubs] = useState<any[]>([]);
 
   // Check login session & samples on mount
   useEffect(() => {
@@ -137,76 +147,11 @@ export default function AdminPortal({
         console.error(e);
       }
     }
-
-    loadLocalInquiries();
-    loadLocalSubs();
   }, []);
-
-  const loadLocalInquiries = () => {
-    const savedInquiries = localStorage.getItem('crovation_local_inquiries');
-    if (savedInquiries) {
-      try {
-        setLocalInquiries(JSON.parse(savedInquiries));
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      const sampleInquiries = [
-        {
-          id: 'lead-1',
-          name: 'Lady Henrietta Cavendish',
-          email: 'henrietta@cavendish-estates.co.uk',
-          phone: '+44 20 7946 0912',
-          message: 'Interested in placing an immediate private equity trade on Orchid Manor Villa. Please coordinate with my Midtown asset directors.',
-          propertyName: 'The Obsidian Pavilion',
-          createdAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString()
-        },
-        {
-          id: 'lead-2',
-          name: 'Marcus Sterling',
-          email: 'm.sterling@sterlingholdings.com',
-          phone: '+1 (212) 555-8902',
-          message: 'Querying maximum floor loads and structural glass envelope specifications of Penthouse Apex.',
-          propertyName: 'Summit Ritz Penthouse',
-          createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString()
-        }
-      ];
-      setLocalInquiries(sampleInquiries);
-      localStorage.setItem('crovation_local_inquiries', JSON.stringify(sampleInquiries));
-    }
-  };
-
-  const loadLocalSubs = () => {
-    const savedSubs = localStorage.getItem('crovation_local_subs');
-    if (savedSubs) {
-      try {
-        setLocalSubs(JSON.parse(savedSubs));
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      const sampleSubs = [
-        {
-          id: 'sub-1',
-          email: 'investor.relations@heirsholdings.ng',
-          createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString()
-        },
-        {
-          id: 'sub-2',
-          email: 'alao.b@dan-group.com',
-          createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString()
-        }
-      ];
-      setLocalSubs(sampleSubs);
-      localStorage.setItem('crovation_local_subs', JSON.stringify(sampleSubs));
-    }
-  };
 
   const handleClearSub = (id: string) => {
     if (!window.confirm('Remove this email subscriber from the registered database?')) return;
-    const updated = localSubs.filter(sub => sub.id !== id);
-    setLocalSubs(updated);
-    localStorage.setItem('crovation_local_subs', JSON.stringify(updated));
+    onClearSub(id);
   };
 
   // Sign In submit
@@ -297,12 +242,20 @@ export default function AdminPortal({
   // Add new dynamic property listing file supporting Naira NGN, whatsapp, and phone
   const handleAddPropertySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber } = newProperty;
+    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3 } = newProperty;
 
     if (!title || !location || !price || !size || !image || !description) {
       alert('Kindly compile all core specifications to complete the listing.');
       return;
     }
+
+    const inputGallery = [
+      gallery1.trim(),
+      gallery2.trim(),
+      gallery3.trim()
+    ].filter(Boolean);
+
+    const galleryImages = inputGallery.length > 0 ? inputGallery : [image];
 
     const created: Property = {
       id: `prop-${Date.now()}`,
@@ -314,11 +267,12 @@ export default function AdminPortal({
       bathrooms: type === 'Land' ? 0 : parseInt(bathrooms || '0', 10),
       size: parseInt(size, 10),
       image,
-      images: [image],
+      images: galleryImages,
       description,
       currency: currency as 'USD' | 'NGN',
       whatsappLink: whatsappLink || undefined,
-      phoneNumber: phoneNumber || undefined
+      phoneNumber: phoneNumber || undefined,
+      videoLink: videoLink.trim() || undefined
     };
 
     const updatedCatalog = [created, ...properties];
@@ -336,7 +290,11 @@ export default function AdminPortal({
       description: '',
       currency: 'USD',
       whatsappLink: '',
-      phoneNumber: ''
+      phoneNumber: '',
+      videoLink: '',
+      gallery1: '',
+      gallery2: '',
+      gallery3: ''
     });
     setIsAddFormOpen(false);
 
@@ -352,7 +310,7 @@ export default function AdminPortal({
           bathrooms: created.bathrooms,
           size: created.size,
           image: created.image,
-          images: [created.image],
+          images: galleryImages,
           description: created.description
         }]);
       } catch (err) {
@@ -399,9 +357,7 @@ export default function AdminPortal({
 
   const handleClearInquiry = (id: string) => {
     if (!window.confirm('Delete this client registration lead?')) return;
-    const updated = localInquiries.filter(liq => liq.id !== id);
-    setLocalInquiries(updated);
-    localStorage.setItem('crovation_local_inquiries', JSON.stringify(updated));
+    onClearInquiry(id);
   };
 
   // Calculations for analytics metrics
@@ -1272,6 +1228,61 @@ export default function AdminPortal({
                   />
                 </div>
 
+                {/* Image Gallery (three spaces) */}
+                <div className="grid grid-cols-1 sm:col-span-2 gap-3.5 border border-dashed border-slate-200 p-3 rounded-2xl bg-slate-50/50">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">
+                    Image Gallery Exhibition (Link Format)
+                  </span>
+                  <p className="text-[10px] text-slate-400 -mt-2">Paste up to three luxury image links to construct the immersive gallery carousel.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 1</label>
+                      <input
+                        type="url"
+                        value={newProperty.gallery1}
+                        onChange={(e) => setNewProperty({...newProperty, gallery1: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 2</label>
+                      <input
+                        type="url"
+                        value={newProperty.gallery2}
+                        onChange={(e) => setNewProperty({...newProperty, gallery2: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 3</label>
+                      <input
+                        type="url"
+                        value={newProperty.gallery3}
+                        onChange={(e) => setNewProperty({...newProperty, gallery3: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Video Link */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#ea580c] mb-1.5 flex items-center gap-1">
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Walkthrough Video Link (e.g. YouTube, Vimeo, direct MP4 URL)</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={newProperty.videoLink}
+                    onChange={(e) => setNewProperty({...newProperty, videoLink: e.target.value})}
+                    placeholder="e.g. https://www.youtube.com/watch?v=... or direct MP4 link"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-850 placeholder-slate-400 focus:border-[#ea580c]/50 focus:outline-none font-mono"
+                  />
+                </div>
+
                 {/* WhatsApp call to action */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-1.5 flex items-center gap-1">
@@ -1499,6 +1510,76 @@ export default function AdminPortal({
                     onChange={(e) => setEditingProperty({...editingProperty, image: e.target.value})}
                     placeholder="https://images.unsplash.com/..."
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-slate-310 focus:outline-none font-mono"
+                  />
+                </div>
+
+                {/* Gallery Images (three spaces) */}
+                <div className="grid grid-cols-1 sm:col-span-2 gap-3.5 border border-dashed border-slate-200 p-3 rounded-2xl bg-slate-50/50">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">
+                    Image Gallery Exhibition (Link Format)
+                  </span>
+                  <p className="text-[10px] text-slate-400 -mt-2">Paste up to three luxury image links to construct the immersive gallery carousel.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 1</label>
+                      <input
+                        type="url"
+                        value={editingProperty.images?.[0] || ''}
+                        onChange={(e) => {
+                          const imgs = editingProperty.images ? [...editingProperty.images] : [];
+                          while (imgs.length <= 0) imgs.push('');
+                          imgs[0] = e.target.value.trim();
+                          setEditingProperty({ ...editingProperty, images: imgs });
+                        }}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 2</label>
+                      <input
+                        type="url"
+                        value={editingProperty.images?.[1] || ''}
+                        onChange={(e) => {
+                          const imgs = editingProperty.images ? [...editingProperty.images] : [];
+                          while (imgs.length <= 1) imgs.push('');
+                          imgs[1] = e.target.value.trim();
+                          setEditingProperty({ ...editingProperty, images: imgs });
+                        }}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 3</label>
+                      <input
+                        type="url"
+                        value={editingProperty.images?.[2] || ''}
+                        onChange={(e) => {
+                          const imgs = editingProperty.images ? [...editingProperty.images] : [];
+                          while (imgs.length <= 2) imgs.push('');
+                          imgs[2] = e.target.value.trim();
+                          setEditingProperty({ ...editingProperty, images: imgs });
+                        }}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Video Link */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[#ea580c] mb-1.5 flex items-center gap-1">
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Walkthrough Video Link (e.g. YouTube, Vimeo, direct MP4 URL)</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={editingProperty.videoLink || ''}
+                    onChange={(e) => setEditingProperty({...editingProperty, videoLink: e.target.value})}
+                    placeholder="e.g. https://www.youtube.com/watch?v=... or direct MP4 link"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-850 placeholder-slate-400 focus:border-[#ea580c]/50 focus:outline-none font-mono"
                   />
                 </div>
 

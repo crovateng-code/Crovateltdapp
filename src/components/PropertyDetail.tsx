@@ -275,6 +275,81 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               </p>
             </div>
 
+            {/* Cinematic Tour Walkthrough Segment */}
+            {property.videoLink && (
+              <div className="space-y-4 animate-fade-in">
+                <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
+                  Cinematic Private Tour & Walkthrough
+                </h3>
+                <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden bg-[#00090a] border border-black/[0.05] shadow-lg">
+                  {(() => {
+                    const embed = (() => {
+                      const url = property.videoLink || '';
+                      
+                      // YouTube match
+                      const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                      const ytMatch = url.match(ytRegex);
+                      if (ytMatch && ytMatch[1]) {
+                        return { type: 'youtube', src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&rel=0` };
+                      }
+
+                      // Vimeo match
+                      const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/;
+                      const vimeoMatch = url.match(vimeoRegex);
+                      if (vimeoMatch && vimeoMatch[1]) {
+                        return { type: 'vimeo', src: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+                      }
+
+                      // Check if it's direct mp4, webm or ogg
+                      if (url.toLowerCase().match(/\.(mp4|webm|ogg)$/) || url.includes('/mp4') || url.includes('video/mp4')) {
+                        return { type: 'direct', src: url };
+                      }
+
+                      return { type: 'generic', src: url };
+                    })();
+
+                    if (embed.type === 'youtube' || embed.type === 'vimeo') {
+                      return (
+                        <iframe
+                          src={embed.src}
+                          title={`${property.title} video cinematic tour`}
+                          className="w-full h-full border-0 absolute inset-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      );
+                    } else if (embed.type === 'direct') {
+                      return (
+                        <video
+                          src={embed.src}
+                          controls
+                          className="w-full h-full object-cover absolute inset-0"
+                          poster={property.image}
+                        />
+                      );
+                    } else {
+                      // Fallback for general website/generic link - render a premium play link card
+                      return (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#00090a] to-slate-900 text-white">
+                          <span className="text-[10px] font-mono tracking-widest text-[#00e1ff] uppercase font-bold mb-2">Private Stream Channel</span>
+                          <h4 className="text-base font-bold mb-2">{property.title} Walkthrough Cinematic</h4>
+                          <p className="text-xs text-gray-400 max-w-sm mb-6 leading-relaxed">An exclusive, protected asset tour is hosted externally. Please launch the full video walkthrough stream to examine structural configurations.</p>
+                          <a
+                            href={property.videoLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2.5 bg-primary hover:bg-[#00e1ff] text-secondary text-xs font-extrabold uppercase tracking-wider px-6 py-3.5 rounded-xl transition duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+                          >
+                            <span>Launch Cinematic Virtual Tour</span>
+                          </a>
+                        </div>
+                      );
+                    }
+                  })()}
+                </div>
+              </div>
+            )}
+
             {/* Elite Premium Amenities list */}
             <div className="space-y-4">
               <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
