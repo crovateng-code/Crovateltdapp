@@ -77,30 +77,40 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // Mock luxury sub-features that are dynamically populated based on category
-  const amenities = property.type === 'Commercial' ? [
-    'LEED Platinum Smart Microgrid Energy Systems',
-    'Executive Boardroom with Panoramic Glazing',
-    'Ultra-Secure Fiber Optics & High-Density Node Hub',
-    'Biometric Turnstiles & 24/7 Security Operations',
-    'Triple-Insulated Thermal Acoustic Noise Mitigation',
-    'Private Helicopter Deck Routing Approvals'
-  ] : [
-    'Integrated Crestron Smart Home System & Ambient Lighting',
-    'Custom Invisible Cantilever Dual-Helix Staircases',
-    'Premium Calacatta Marble Kitchen with Wolf Sub-Zero Suite',
-    'Under-Floor Thermal Zoning & Air Filtration Filtration',
-    'Professional High-Lumen Home Cinema & Media Vault',
-    'Private Yacht Slip with Smart Water Recirculation'
-  ];
+  // Amenities can be overridden by property.amenities
+  // If property.amenities is explicitly provided, we use it. If it is empty, we hide the section.
+  // If property.amenities is undefined (not set at all), we can fallback to default.
+  const hasAmenities = property.amenities !== undefined ? property.amenities.filter(Boolean).length > 0 : true;
+  const amenities = property.amenities !== undefined ? property.amenities.filter(Boolean) : (
+    property.type === 'Commercial' ? [
+      'LEED Platinum Smart Microgrid Energy Systems',
+      'Executive Boardroom with Panoramic Glazing',
+      'Ultra-Secure Fiber Optics & High-Density Node Hub',
+      'Biometric Turnstiles & 24/7 Security Operations',
+      'Triple-Insulated Thermal Acoustic Noise Mitigation',
+      'Private Helicopter Deck Routing Approvals'
+    ] : [
+      'Integrated Crestron Smart Home System & Ambient Lighting',
+      'Custom Invisible Cantilever Dual-Helix Staircases',
+      'Premium Calacatta Marble Kitchen with Wolf Sub-Zero Suite',
+      'Under-Floor Thermal Zoning & Air Filtration Filtration',
+      'Professional High-Lumen Home Cinema & Media Vault',
+      'Private Yacht Slip with Smart Water Recirculation'
+    ]
+  );
 
-  // Specific highlight bullet points based on unique property data
-  const highlights = [
-    { label: 'Asset ID', value: `CRV-${property.id.toUpperCase()}-2025` },
-    { label: 'Financing Grade', value: property.price > 10000000 ? 'Sovereign Institutional' : 'Generational Private' },
-    { label: 'Deed Category', value: 'Clean Title / Handover Ready' },
-    { label: 'Taxation Level', value: 'Special LLC Structured Exemptions Ready' }
-  ];
+  // Diligence summary highlights
+  const hasDiligence = property.diligenceSummary !== undefined 
+    ? property.diligenceSummary.filter(item => item.label && item.value).length > 0 
+    : true;
+  const highlights = property.diligenceSummary !== undefined 
+    ? property.diligenceSummary.filter(item => item.label && item.value) 
+    : [
+      { label: 'Asset ID', value: `CRV-${property.id.toUpperCase()}-2025` },
+      { label: 'Financing Grade', value: property.price > 10000000 ? 'Sovereign Institutional' : 'Generational Private' },
+      { label: 'Deed Category', value: 'Clean Title / Handover Ready' },
+      { label: 'Taxation Level', value: 'Special LLC Structured Exemptions Ready' }
+    ];
 
   return (
     <div className="pt-24 min-h-screen bg-brandbg text-[#00090a] pb-16 text-left" id="property-detail-container">
@@ -359,42 +369,46 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
             )}
 
             {/* Elite Premium Amenities list */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
-                Structural Amenities & Specifications
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {amenities.map((amenity, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-2.5 bg-slate-50 border border-black/[0.02] p-3.5 rounded-xl text-xs font-sans text-secondary"
-                  >
-                    <div className="p-1 rounded bg-[#00090a] text-primary mt-0.5 flex-shrink-0">
-                      <Check className="h-3 w-3" />
+            {hasAmenities && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
+                  Structural Amenities & Specifications
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {amenities.map((amenity, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2.5 bg-slate-50 border border-black/[0.02] p-3.5 rounded-xl text-xs font-sans text-secondary"
+                    >
+                      <div className="p-1 rounded bg-[#00090a] text-primary mt-0.5 flex-shrink-0">
+                        <Check className="h-3 w-3" />
+                      </div>
+                      <span>{amenity}</span>
                     </div>
-                    <span>{amenity}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Investor Highlights Table */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
-                Diligence Summary
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {highlights.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex justify-between items-center py-2.5 px-3 bg-white border border-black/[0.03] rounded-xl text-xs"
-                  >
-                    <span className="text-gray-450 font-sans font-medium">{item.label}</span>
-                    <span className="font-mono font-bold text-secondary text-right">{item.value}</span>
-                  </div>
-                ))}
+            {hasDiligence && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
+                  Diligence Summary
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {highlights.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center py-2.5 px-3 bg-white border border-black/[0.03] rounded-xl text-xs"
+                    >
+                      <span className="text-gray-450 font-sans font-medium">{item.label}</span>
+                      <span className="font-mono font-bold text-secondary text-right">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
 

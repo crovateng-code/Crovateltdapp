@@ -17,6 +17,8 @@ export interface Property {
   phoneNumber?: string;
   videoLink?: string;
   status?: 'Available' | 'Sold Out';
+  amenities?: string[];
+  diligenceSummary?: { label: string; value: string }[];
 }
 
 export interface FeatureCard {

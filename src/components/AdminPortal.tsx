@@ -256,7 +256,9 @@ export default function AdminPortal({
     gallery3: '',
     gallery4: '',
     gallery5: '',
-    status: 'Available' as 'Available' | 'Sold Out'
+    status: 'Available' as 'Available' | 'Sold Out',
+    amenities: [] as string[],
+    diligenceSummary: [] as { label: string; value: string }[]
   });
 
   // Property Editing State
@@ -389,7 +391,11 @@ export default function AdminPortal({
   // Add new dynamic property listing file supporting Naira NGN, whatsapp, and phone
   const handleAddPropertySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3, gallery4, gallery5, status } = newProperty;
+    const { 
+      title, type, location, price, bedrooms, bathrooms, size, image, description, currency, 
+      whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3, gallery4, gallery5, 
+      status, amenities, diligenceSummary 
+    } = newProperty;
 
     if (!title || !location || !price || !size || !image || !description) {
       alert('Kindly compile all core specifications to complete the listing.');
@@ -405,6 +411,10 @@ export default function AdminPortal({
     ].filter(Boolean);
 
     const galleryImages = inputGallery.length > 0 ? inputGallery : [image];
+
+    // Filter elements
+    const cleanAmenities = amenities.map(a => a.trim()).filter(Boolean);
+    const cleanDiligence = diligenceSummary.filter(item => item.label.trim() && item.value.trim());
 
     const created: Property = {
       id: `prop-${Date.now()}`,
@@ -422,7 +432,9 @@ export default function AdminPortal({
       whatsappLink: whatsappLink || undefined,
       phoneNumber: phoneNumber || undefined,
       videoLink: videoLink.trim() || undefined,
-      status: status || 'Available'
+      status: status || 'Available',
+      amenities: cleanAmenities.length > 0 ? cleanAmenities : undefined,
+      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined
     };
 
     const updatedCatalog = [created, ...properties];
@@ -447,7 +459,9 @@ export default function AdminPortal({
       gallery3: '',
       gallery4: '',
       gallery5: '',
-      status: 'Available'
+      status: 'Available',
+      amenities: [],
+      diligenceSummary: []
     });
     setIsAddFormOpen(false);
 
@@ -485,7 +499,16 @@ export default function AdminPortal({
       return;
     }
 
-    const updatedCatalog = properties.map(p => p.id === id ? editingProperty : p);
+    const cleanAmenities = (editingProperty.amenities || []).map(a => a.trim()).filter(Boolean);
+    const cleanDiligence = (editingProperty.diligenceSummary || []).filter(item => item.label.trim() && item.value.trim());
+
+    const sanitizedEditing: Property = {
+      ...editingProperty,
+      amenities: cleanAmenities.length > 0 ? cleanAmenities : undefined,
+      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined
+    };
+
+    const updatedCatalog = properties.map(p => p.id === id ? sanitizedEditing : p);
     onPropertiesUpdated(updatedCatalog);
     setEditingProperty(null);
 
@@ -1588,6 +1611,62 @@ export default function AdminPortal({
                   )}
                 </div>
 
+                {/* Custom Structural Amenities */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Structural Amenities & Specifications</span>
+                    <span className="text-[9px] font-mono text-slate-400 uppercase tracking-tight font-bold">Write each amenity on a new line (optional)</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={newProperty.amenities.join('\n')}
+                    onChange={(e) => setNewProperty({ ...newProperty, amenities: e.target.value.split('\n') })}
+                    placeholder="e.g.&#10;Integrated Crestron Smart Home System & Ambient Lighting&#10;Custom Invisible Cantilever Dual-Helix Staircases&#10;Premium Calacatta Marble Kitchen with Wolf Sub-Zero Suite"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-sans"
+                  />
+                </div>
+
+                {/* Custom Diligence Summary Checklist */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Diligence Summary Checklist & Highlights (Optional Key-Value Pairs)</span>
+                    <span className="text-[9px] font-mono text-slate-400 uppercase tracking-tight font-bold">Max 4 items</span>
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 bg-slate-50 border border-slate-150 p-4 rounded-2xl">
+                    {Array.from({ length: 4 }).map((_, i) => {
+                      const item = newProperty.diligenceSummary[i] || { label: '', value: '' };
+                      return (
+                        <div key={i} className="flex gap-2 bg-white border border-slate-100 p-2.5 rounded-xl shadow-sm">
+                          <input
+                            type="text"
+                            placeholder={`Label ${i + 1} (e.g. Deed Category)`}
+                            value={item.label}
+                            onChange={(e) => {
+                              const list = [...newProperty.diligenceSummary];
+                              while (list.length <= i) list.push({ label: '', value: '' });
+                              list[i] = { ...list[i], label: e.target.value };
+                              setNewProperty({ ...newProperty, diligenceSummary: list });
+                            }}
+                            className="w-1/2 text-xs font-sans text-slate-700 bg-slate-50 rounded px-2 py-1.5 focus:outline-none border border-slate-100"
+                          />
+                          <input
+                            type="text"
+                            placeholder={`Value ${i + 1} (e.g. Clean Deed)`}
+                            value={item.value}
+                            onChange={(e) => {
+                              const list = [...newProperty.diligenceSummary];
+                              while (list.length <= i) list.push({ label: '', value: '' });
+                              list[i] = { ...list[i], value: e.target.value };
+                              setNewProperty({ ...newProperty, diligenceSummary: list });
+                            }}
+                            className="w-1/2 text-xs font-mono font-bold text-slate-805 bg-slate-50 rounded px-2 py-1.5 focus:outline-none border border-slate-100"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </div>
 
               <div className="pt-4 flex items-center justify-end gap-3.5 border-t border-slate-100">
@@ -1971,6 +2050,62 @@ export default function AdminPortal({
                       />
                     </div>
                   )}
+                </div>
+
+                {/* Custom Structural Amenities for Editing */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Structural Amenities & Specifications</span>
+                    <span className="text-[9px] font-mono text-slate-400 uppercase tracking-tight font-bold">Write each amenity on a new line (optional)</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={(editingProperty.amenities || []).join('\n')}
+                    onChange={(e) => setEditingProperty({ ...editingProperty, amenities: e.target.value.split('\n') })}
+                    placeholder="e.g.&#10;Integrated Crestron Smart Home System & Ambient Lighting&#10;Custom Invisible Cantilever Dual-Helix Staircases&#10;Premium Calacatta Marble Kitchen with Wolf Sub-Zero Suite"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-sans"
+                  />
+                </div>
+
+                {/* Custom Diligence Summary Checklist for Editing */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Diligence Summary Checklist & Highlights (Optional Key-Value Pairs)</span>
+                    <span className="text-[9px] font-mono text-slate-400 uppercase tracking-tight font-bold">Max 4 items</span>
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 bg-slate-50 border border-slate-150 p-4 rounded-2xl">
+                    {Array.from({ length: 4 }).map((_, i) => {
+                      const item = (editingProperty.diligenceSummary || [])[i] || { label: '', value: '' };
+                      return (
+                        <div key={i} className="flex gap-2 bg-white border border-slate-100 p-2.5 rounded-xl shadow-sm">
+                          <input
+                            type="text"
+                            placeholder={`Label ${i + 1} (e.g. Deed Category)`}
+                            value={item.label}
+                            onChange={(e) => {
+                              const list = [...(editingProperty.diligenceSummary || [])];
+                              while (list.length <= i) list.push({ label: '', value: '' });
+                              list[i] = { ...list[i], label: e.target.value };
+                              setEditingProperty({ ...editingProperty, diligenceSummary: list });
+                            }}
+                            className="w-1/2 text-xs font-sans text-slate-700 bg-slate-50 rounded px-2 py-1.5 focus:outline-none border border-slate-100"
+                          />
+                          <input
+                            type="text"
+                            placeholder={`Value ${i + 1} (e.g. Clean Deed)`}
+                            value={item.value}
+                            onChange={(e) => {
+                              const list = [...(editingProperty.diligenceSummary || [])];
+                              while (list.length <= i) list.push({ label: '', value: '' });
+                              list[i] = { ...list[i], value: e.target.value };
+                              setEditingProperty({ ...editingProperty, diligenceSummary: list });
+                            }}
+                            className="w-1/2 text-xs font-mono font-bold text-slate-805 bg-slate-50 rounded px-2 py-1.5 focus:outline-none border border-slate-100"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
               </div>
