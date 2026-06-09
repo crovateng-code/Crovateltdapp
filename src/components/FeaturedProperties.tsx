@@ -3,6 +3,12 @@ import { BedDouble, Bath, Maximize2, MapPin, Undo2, ArrowUpRight } from 'lucide-
 import { Property, PropertyType } from '../types';
 import { PROPERTIES } from '../data';
 
+function stripHtml(html: string): string {
+  if (!html) return '';
+  // Replace HTML tags with spaces to avoid joining adjacent words together
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 interface FeaturedPropertiesProps {
   filters: {
     location: string;
@@ -163,9 +169,20 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
                   <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
 
                   {/* Property Type Badge Left */}
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-black/[0.05] shadow-sm">
-                    <span className="text-[10px] uppercase font-semibold text-secondary tracking-widest">
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-black/[0.05] shadow-sm z-10">
+                    <span className="text-[10px] uppercase font-bold text-secondary tracking-widest">
                       {prop.type}
+                    </span>
+                  </div>
+
+                  {/* Absolute Availability Status Badge Right */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <span className={`inline-block px-3.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border shadow-md ${
+                      (prop.status || 'Available') === 'Available'
+                        ? 'bg-emerald-600 border-emerald-500 text-white'
+                        : 'bg-red-600 border-red-500 text-white'
+                    }`}>
+                      {(prop.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}
                     </span>
                   </div>
 
@@ -195,7 +212,7 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
 
                   {/* Custom Description */}
                   <p className="text-xs text-gray-400 mb-6 leading-relaxed line-clamp-2">
-                    {prop.description}
+                    {stripHtml(prop.description)}
                   </p>
 
                   <div className="mt-auto">

@@ -26,3 +26,56 @@ body {
   color: var(--color-secondary);
   overflow-x: hidden;
 }
+
+/* WP Classic Editor style outputs */
+.description-rich-text {
+  font-family: var(--font-sans);
+}
+.description-rich-text strong, .description-rich-text b {
+  font-weight: 800 !important;
+  color: var(--color-secondary, #00090a) !important;
+}
+.description-rich-text em, .description-rich-text i {
+  font-style: italic !important;
+}
+.description-rich-text u {
+  text-decoration: underline !important;
+}
+.description-rich-text blockquote {
+  padding-left: 1rem !important;
+  border-left: 4px solid var(--color-primary, #02ceed) !important;
+  margin: 1.25rem 0 !important;
+  font-style: italic !important;
+  color: #4b5563 !important;
+  background-color: rgba(2, 206, 237, 0.05) !important;
+  border-radius: 0 0.5rem 0.5rem 0 !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+.description-rich-text a {
+  color: #02ceed !important;
+  text-decoration: underline !important;
+  font-weight: 700 !important;
+  transition: opacity 150ms ease-in-out;
+}
+.description-rich-text a:hover {
+  opacity: 0.75 !important;
+}
+.description-rich-text ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+  display: block !important;
+}
+.description-rich-text ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+  display: block !important;
+}
+.description-rich-text li {
+  margin-bottom: 0.35rem !important;
+}
+

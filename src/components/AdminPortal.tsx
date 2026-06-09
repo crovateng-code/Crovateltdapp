@@ -33,6 +33,143 @@ import { Property, PropertyType } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import CrovationLogo from './CrovationLogo';
 
+interface RichTextToolbarProps {
+  value: string;
+  onChange: (val: string) => void;
+  textareaId: string;
+}
+
+function RichTextToolbar({ value, onChange, textareaId }: RichTextToolbarProps) {
+  const insertTag = (before: string, after: string) => {
+    const textarea = document.getElementById(textareaId) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = value.substring(start, end);
+    const beforeText = value.substring(0, start);
+    const afterText = value.substring(end);
+
+    const replacement = before + (selectedText || 'text') + after;
+    onChange(beforeText + replacement + afterText);
+
+    // Refocus and set selection
+    setTimeout(() => {
+      textarea.focus();
+      const insertPos = start + before.length;
+      textarea.setSelectionRange(insertPos, insertPos + (selectedText || 'text').length);
+    }, 50);
+  };
+
+  const handleLink = () => {
+    const url = prompt('Enter hyperlink URL destination:', 'https://');
+    if (url === null) return;
+    insertTag(`<a href="${url}" target="_blank" rel="noopener noreferrer">`, '</a>');
+  };
+
+  const handleTextColor = (color: string) => {
+    insertTag(`<span style="color: ${color}">`, '</span>');
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 p-1.5 border border-slate-200 border-b-0 bg-slate-100 rounded-t-xl select-none animate-in fade-in duration-200">
+      <button
+        type="button"
+        onClick={() => insertTag('<strong>', '</strong>')}
+        className="px-2.5 py-1 text-xs font-black bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-800 cursor-pointer transition active:scale-95"
+        title="Bold font-bold (strong)"
+      >
+        B
+      </button>
+      <button
+        type="button"
+        onClick={() => insertTag('<em>', '</em>')}
+        className="px-2.5 py-1 text-xs italic bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-800 cursor-pointer transition active:scale-95"
+        title="Italic font-italic (em)"
+      >
+        I
+      </button>
+      <button
+        type="button"
+        onClick={() => insertTag('<u>', '</u>')}
+        className="px-2.5 py-1 text-xs underline bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-800 cursor-pointer transition active:scale-95"
+        title="Underline line"
+      >
+        U
+      </button>
+      <button
+        type="button"
+        onClick={() => insertTag('<blockquote>\n  ', '\n</blockquote>')}
+        className="px-2.5 py-1 text-xs font-mono bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-800 cursor-pointer transition active:scale-95"
+        title="Blockquote paragraph"
+      >
+        Quote
+      </button>
+      <button
+        type="button"
+        onClick={handleLink}
+        className="px-2.5 py-1 text-xs text-[#02ceed] font-bold underline bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 cursor-pointer transition active:scale-95"
+        title="Insert raw link anchor tag"
+      >
+        Link
+      </button>
+      <button
+        type="button"
+        onClick={() => insertTag('<ul>\n  <li>', '</li>\n</ul>')}
+        className="px-2.5 py-1 text-xs bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-800 cursor-pointer transition active:scale-95"
+        title="Unordered list bullet"
+      >
+        • list
+      </button>
+      <button
+        type="button"
+        onClick={() => insertTag('<ol>\n  <li>', '</li>\n</ol>')}
+        className="px-1.5 py-1 text-xs bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-800 cursor-pointer transition active:scale-95"
+        title="Ordered list numerical"
+      >
+        1. list
+      </button>
+      <button
+        type="button"
+        onClick={() => insertTag('<br />\n', '')}
+        className="px-1.5 py-1 text-xs font-mono bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-500 cursor-pointer transition active:scale-95"
+        title="New line break"
+      >
+        ↵ break
+      </button>
+
+      <div className="w-px h-4.5 bg-slate-300 mx-1" />
+
+      {/* WordPress highlight color pills */}
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight block mr-1 font-mono">Tones:</span>
+      <button
+        type="button"
+        onClick={() => handleTextColor('#02ceed')}
+        className="h-4 w-4 rounded-full bg-[#02ceed] border border-slate-300 hover:scale-105 active:scale-95 transition cursor-pointer"
+        title="Highlight Cyan Accent"
+      />
+      <button
+        type="button"
+        onClick={() => handleTextColor('#ea580c')}
+        className="h-4 w-4 rounded-full bg-[#ea580c] border border-slate-300 hover:scale-105 active:scale-95 transition cursor-pointer"
+        title="Highlight Orange CTA"
+      />
+      <button
+        type="button"
+        onClick={() => handleTextColor('#10b981')}
+        className="h-4 w-4 rounded-full bg-emerald-500 border border-slate-300 hover:scale-105 active:scale-95 transition cursor-pointer"
+        title="Highlight Emerald Status"
+      />
+      <button
+        type="button"
+        onClick={() => handleTextColor('#ef4444')}
+        className="h-4 w-4 rounded-full bg-red-500 border border-slate-300 hover:scale-105 active:scale-95 transition cursor-pointer"
+        title="Highlight Crimson Red"
+      />
+    </div>
+  );
+}
+
 interface AdminPortalProps {
   properties: Property[];
   onPropertiesUpdated: (updatedProperties: Property[]) => void;
@@ -118,7 +255,8 @@ export default function AdminPortal({
     gallery2: '',
     gallery3: '',
     gallery4: '',
-    gallery5: ''
+    gallery5: '',
+    status: 'Available' as 'Available' | 'Sold Out'
   });
 
   // Property Editing State
@@ -251,7 +389,7 @@ export default function AdminPortal({
   // Add new dynamic property listing file supporting Naira NGN, whatsapp, and phone
   const handleAddPropertySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3, gallery4, gallery5 } = newProperty;
+    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3, gallery4, gallery5, status } = newProperty;
 
     if (!title || !location || !price || !size || !image || !description) {
       alert('Kindly compile all core specifications to complete the listing.');
@@ -283,7 +421,8 @@ export default function AdminPortal({
       currency: currency as 'USD' | 'NGN',
       whatsappLink: whatsappLink || undefined,
       phoneNumber: phoneNumber || undefined,
-      videoLink: videoLink.trim() || undefined
+      videoLink: videoLink.trim() || undefined,
+      status: status || 'Available'
     };
 
     const updatedCatalog = [created, ...properties];
@@ -307,7 +446,8 @@ export default function AdminPortal({
       gallery2: '',
       gallery3: '',
       gallery4: '',
-      gallery5: ''
+      gallery5: '',
+      status: 'Available'
     });
     setIsAddFormOpen(false);
 
@@ -324,7 +464,8 @@ export default function AdminPortal({
           size: created.size,
           image: created.image,
           images: galleryImages,
-          description: created.description
+          description: created.description,
+          status: created.status
         }]);
       } catch (err) {
         console.error('Error syncing dynamic insertion to Supabase:', err);
@@ -337,7 +478,7 @@ export default function AdminPortal({
     e.preventDefault();
     if (!editingProperty) return;
 
-    const { id, title, type, location, price, bedrooms, bathrooms, size, image, description } = editingProperty;
+    const { id, title, type, location, price, bedrooms, bathrooms, size, image, description, status } = editingProperty;
 
     if (!title || !location || !price || !size || !image || !description) {
       alert('All structural attributes must be verified and filled.');
@@ -359,7 +500,8 @@ export default function AdminPortal({
           bathrooms: parseInt(bathrooms as any),
           size: parseInt(size as any),
           image,
-          description
+          description,
+          status
         }).eq('id', id);
         console.log('Supabase real-time update completed.');
       } catch (err) {
@@ -795,13 +937,14 @@ export default function AdminPortal({
                         <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Region Address</th>
                         <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Value</th>
                         <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">CTAs Connected</th>
+                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status Toggle</th>
                         <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Escrow Handlers</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-150">
                       {filteredListings.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-xs text-slate-400">
+                          <td colSpan={7} className="px-6 py-12 text-center text-xs text-slate-400">
                             No listings match the current criteria index. Register customized assets to start.
                           </td>
                         </tr>
@@ -842,6 +985,37 @@ export default function AdminPortal({
                                   Phone: {prop.phoneNumber ? 'Active' : 'Missing'}
                                 </span>
                               </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-xs">
+                              <button
+                                onClick={async () => {
+                                  const currentStatus = prop.status || 'Available';
+                                  const nextStatus = currentStatus === 'Available' ? 'Sold Out' : 'Available';
+                                  const updatedProp = { ...prop, status: nextStatus };
+                                  const updated = properties.map(p => p.id === prop.id ? updatedProp : p);
+                                  onPropertiesUpdated(updated);
+
+                                  if (isSupabaseConfigured && supabase) {
+                                    try {
+                                      await supabase.from('properties').update({ status: nextStatus }).eq('id', prop.id);
+                                      console.log('Synchronized inline status to Supabase.');
+                                    } catch (e) {
+                                      console.error(e);
+                                    }
+                                  }
+                                }}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 ${
+                                  (prop.status || 'Available') === 'Available'
+                                    ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200/90 border border-emerald-300'
+                                    : 'bg-rose-100 text-rose-800 hover:bg-rose-200/90 border border-rose-300'
+                                }`}
+                                title="Click to instant flip availability"
+                              >
+                                <span className={`h-1.5 w-1.5 rounded-full ${
+                                  (prop.status || 'Available') === 'Available' ? 'bg-emerald-500' : 'bg-rose-500'
+                                }`} />
+                                <span>{(prop.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}</span>
+                              </button>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-xs text-right space-x-2">
                               {/* Edit Trigger */}
@@ -1346,17 +1520,72 @@ export default function AdminPortal({
                   />
                 </div>
 
-                {/* Description */}
+                {/* Property status picker */}
                 <div className="grid-cols-1 sm:col-span-2">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Asset narrative dossier description</label>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#ea580c] mb-1.5 font-sans">
+                    Initial Property Status Label
+                  </span>
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setNewProperty({...newProperty, status: 'Available'})}
+                      className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-wider text-xs border text-center transition duration-200 cursor-pointer ${
+                        newProperty.status === 'Available'
+                          ? 'bg-emerald-100 border-emerald-400 text-emerald-800'
+                          : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'
+                      }`}
+                    >
+                      🟢 Available
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewProperty({...newProperty, status: 'Sold Out'})}
+                      className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-wider text-xs border text-center transition duration-200 cursor-pointer ${
+                        newProperty.status === 'Sold Out'
+                          ? 'bg-rose-100 border-rose-400 text-rose-800'
+                          : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'
+                      }`}
+                    >
+                      🔴 Sold Out
+                    </button>
+                  </div>
+                </div>
+
+                {/* Description with WP Classic Rich Text Toolbar */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Asset Description Narrative (WordPress Classic Editor Mode)</span>
+                    <span className="text-[9px] font-mono font-bold text-primary lowercase">HTML format enabled</span>
+                  </label>
+                  
+                  <RichTextToolbar 
+                    value={newProperty.description}
+                    onChange={(val) => setNewProperty({...newProperty, description: val})}
+                    textareaId="new-property-desc-textarea"
+                  />
+                  
                   <textarea
+                    id="new-property-desc-textarea"
                     required
-                    rows={3}
+                    rows={4}
                     value={newProperty.description}
                     onChange={(e) => setNewProperty({...newProperty, description: e.target.value})}
                     placeholder="Describe surrounding landscape, construction grade, interior architectural pairings in bullet points detail..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-slate-310 focus:outline-none font-sans"
+                    className="w-full rounded-b-xl border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-sans"
                   />
+
+                  {/* WordPress visual preview output container */}
+                  {newProperty.description && (
+                    <div className="mt-3 p-3 bg-slate-50 border border-slate-200/60 rounded-2xl animate-in fade-in slide-in-from-top-1">
+                      <span className="block text-[9px] font-mono tracking-wider uppercase text-slate-400 mb-2 font-black">
+                        Visual Editor Preview (WordPress Style Output)
+                      </span>
+                      <div 
+                        className="text-xs text-slate-600 leading-relaxed font-sans description-rich-text space-y-2 border-l-2 border-primary/40 pl-3.5 py-1 bg-white p-2.5 rounded-xl min-h-[50px]"
+                        dangerouslySetInnerHTML={{ __html: newProperty.description }}
+                      />
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -1676,17 +1905,72 @@ export default function AdminPortal({
                   />
                 </div>
 
-                {/* Description */}
+                {/* Edit Property status picker */}
                 <div className="grid-cols-1 sm:col-span-2">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Asset narrative dossier description</label>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-[#ea580c] mb-1.5 font-sans">
+                    Modify Property Availability Status
+                  </span>
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setEditingProperty({...editingProperty, status: 'Available'})}
+                      className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-wider text-xs border text-center transition duration-200 cursor-pointer ${
+                        (editingProperty.status || 'Available') === 'Available'
+                          ? 'bg-emerald-100 border-emerald-400 text-emerald-800'
+                          : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'
+                      }`}
+                    >
+                      🟢 Available
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingProperty({...editingProperty, status: 'Sold Out'})}
+                      className={`flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-wider text-xs border text-center transition duration-200 cursor-pointer ${
+                        (editingProperty.status || 'Available') === 'Sold Out'
+                          ? 'bg-rose-100 border-rose-400 text-rose-800'
+                          : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'
+                      }`}
+                    >
+                      🔴 Sold Out
+                    </button>
+                  </div>
+                </div>
+
+                {/* Description with WP Classic Rich Text Toolbar */}
+                <div className="grid-cols-1 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Asset Description Narrative (WordPress Classic Editor Mode)</span>
+                    <span className="text-[9px] font-mono font-bold text-primary lowercase">HTML format enabled</span>
+                  </label>
+                  
+                  <RichTextToolbar 
+                    value={editingProperty.description}
+                    onChange={(val) => setEditingProperty({...editingProperty, description: val})}
+                    textareaId="edit-property-desc-textarea"
+                  />
+                  
                   <textarea
+                    id="edit-property-desc-textarea"
                     required
-                    rows={3}
+                    rows={4}
                     value={editingProperty.description}
                     onChange={(e) => setEditingProperty({...editingProperty, description: e.target.value})}
                     placeholder="Describe surrounding landscape, construction grade, interior architectural pairings in bullet points detail..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-slate-310 focus:outline-none font-sans"
+                    className="w-full rounded-b-xl border border-t-0 border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none font-sans"
                   />
+
+                  {/* WordPress visual preview output container */}
+                  {editingProperty.description && (
+                    <div className="mt-3 p-3 bg-slate-50 border border-slate-200/60 rounded-2xl animate-in fade-in slide-in-from-top-1">
+                      <span className="block text-[9px] font-mono tracking-wider uppercase text-slate-400 mb-2 font-black">
+                        Visual Editor Preview (WordPress Style Output)
+                      </span>
+                      <div 
+                        className="text-xs text-slate-600 leading-relaxed font-sans description-rich-text space-y-2 border-l-2 border-primary/40 pl-3.5 py-1 bg-white p-2.5 rounded-xl min-h-[50px]"
+                        dangerouslySetInnerHTML={{ __html: editingProperty.description }}
+                      />
+                    </div>
+                  )}
                 </div>
 
               </div>

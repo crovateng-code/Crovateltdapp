@@ -3,6 +3,11 @@ import { Search, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, ArrowUpDown, S
 import { Property, PropertyType } from '../types';
 import { PROPERTIES } from '../data';
 
+function stripHtml(html: string): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 interface PropertiesPageProps {
   onOpenInquiry: (subject?: string) => void;
   onSelectProperty: (property: Property) => void;
@@ -299,9 +304,20 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                         referrerPolicy="no-referrer"
                       />
                       {/* Floating tags */}
-                      <span className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest text-[#00090a] uppercase shadow-sm">
+                      <span className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest text-[#00090a] uppercase shadow-sm z-10">
                         {prop.type}
                       </span>
+
+                      {/* Absolute Availability Status Badge Right */}
+                      <div className="absolute top-4 right-4 z-10">
+                        <span className={`inline-block px-3.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border shadow-md ${
+                          (prop.status || 'Available') === 'Available'
+                            ? 'bg-emerald-600 border-emerald-500 text-white'
+                            : 'bg-red-600 border-red-500 text-white'
+                        }`}>
+                          {(prop.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}
+                        </span>
+                      </div>
                       
                       <div className="absolute bottom-4 right-4 bg-[#00090a]/90 text-white font-mono text-xs font-semibold px-3 py-1 bg-secondary/80 rounded-lg">
                         {formatPrice(prop.price, prop.currency)}
@@ -323,7 +339,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                       </h3>
 
                       <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
-                        {prop.description}
+                        {stripHtml(prop.description)}
                       </p>
 
                       {/* Specs section */}

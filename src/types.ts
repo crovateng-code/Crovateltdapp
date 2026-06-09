@@ -16,6 +16,7 @@ export interface Property {
   whatsappLink?: string;
   phoneNumber?: string;
   videoLink?: string;
+  status?: 'Available' | 'Sold Out';
 }
 
 export interface FeatureCard {

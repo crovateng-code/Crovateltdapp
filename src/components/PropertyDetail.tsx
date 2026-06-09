@@ -125,6 +125,13 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               <Sparkles className="h-3 w-3" />
               <span>{property.type} Space</span>
             </span>
+            <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full border shadow-sm ${
+              (property.status || 'Available') === 'Available'
+                ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                : 'bg-rose-100 border-rose-300 text-rose-800'
+            }`}>
+              {(property.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}
+            </span>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-secondary">
               {property.title}
             </h1>
@@ -267,11 +274,12 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
                 The Estate Overview
               </h3>
-              <p className="text-xs md:text-sm text-gray-500 leading-relaxed font-sans">
-                {property.description} This unique legacy asset boasts custom exterior layouts specifically arranged with sun angles in mind. Seamless structural integrity coordinates directly with upscale materials to manifest timeless luxury of structural execution.
-              </p>
-              <p className="text-xs md:text-sm text-gray-500 leading-relaxed font-sans">
-                Each room features tailored space configurations suited for family office advisory operations, high-end private corporate entertaining, or isolated wellness sequences. Extensive spatial tests have been executed under global standards to promise complete alignment.
+              <div 
+                className="text-xs md:text-sm text-gray-500 leading-relaxed font-sans description-rich-text space-y-3"
+                dangerouslySetInnerHTML={{ __html: property.description || '' }}
+              />
+              <p className="text-xs md:text-sm text-gray-400 italic leading-relaxed font-sans border-t border-black/[0.02] pt-3">
+                This unique legacy asset boasts custom exterior layouts specifically arranged with sun angles in mind. Seamless structural integrity coordinates directly with upscale materials to manifest timeless luxury. Extensive spatial tests have been executed under global standards to promise complete alignment.
               </p>
             </div>
 
