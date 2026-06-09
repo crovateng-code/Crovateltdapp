@@ -66,7 +66,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
       const text = `Greetings Crovation Limited, I am interested in exploring "${property.title}" located in ${property.location} (Listed at ${formatPrice(property.price)}). Please provide private access credentials and organize a schedule.`;
       return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
     }
-    const phone = '18005552768'; // Crovation official line
+    const phone = '2348088727277'; // Crovation official line
     const text = `Greetings Crovation Limited, I am interested in exploring "${property.title}" located in ${property.location} (Listed at ${formatPrice(property.price)}). Please provide private access credentials and organize a schedule.`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   };
@@ -369,7 +369,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
 
                   {/* Phone Call CTA button */}
                   <a
-                    href={property.phoneNumber ? `tel:${property.phoneNumber.replace(/[^0-9+]/g, '')}` : "tel:+18005552768"}
+                    href={property.phoneNumber ? `tel:${property.phoneNumber.replace(/[^0-9+]/g, '')}` : "tel:08088727277"}
                     className="w-full bg-primary hover:bg-[#00e1ff] text-secondary font-extrabold uppercase tracking-wider text-xs py-4 rounded-2xl flex items-center justify-center gap-2.5 duration-300 shadow-md transform hover:-translate-y-0.5 active:translate-y-0"
                     id="btn-phone-call"
                   >

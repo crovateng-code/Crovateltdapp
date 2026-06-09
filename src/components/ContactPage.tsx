@@ -33,6 +33,26 @@ export default function ContactPage({ onOpenInquiry }: ContactPageProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const newInquiry = {
+      id: `lead-contact-${Date.now()}`,
+      name: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      phone: formData.phone,
+      message: `Desired Tier: ${formData.tier}. ${selectedSlot ? `Instant Call Slot requested: ${selectedSlot}. ` : ''}Client message: ${formData.message}`,
+      propertyName: `Liaison: ${formData.tier}`,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+      const currentList = savedInquiries ? JSON.parse(savedInquiries) : [];
+      currentList.unshift(newInquiry);
+      localStorage.setItem('crovation_local_inquiries', JSON.stringify(currentList));
+      window.dispatchEvent(new Event('storage'));
+    } catch (err) {
+      console.warn('LocalStorage contact lead backup failed:', err);
+    }
+
     setTimeout(() => {
       setIsSubmitting(false);
       setSuccess(true);
@@ -82,50 +102,18 @@ export default function ContactPage({ onOpenInquiry }: ContactPageProps) {
 
             {/* Location Cards */}
             <div className="space-y-4">
-              {/* NYC */}
+              {/* HQ */}
               <div className="bg-white rounded-2xl border border-black/[0.03] p-5 flex items-start gap-4 hover:shadow-md duration-300 transition-shadow">
                 <div className="p-3 rounded-xl bg-slate-50 text-secondary border border-black/[0.02]">
                   <MapPin className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm text-secondary">Midtown Manhattan (HQ)</h4>
+                  <h4 className="font-extrabold text-sm text-secondary">Crovation Headquarters (HQ)</h4>
                   <p className="text-[11px] text-gray-400 leading-normal mt-1 leading-relaxed font-sans">
-                    Olympic Tower, Suite 850, Fifth Avenue, NY, New York
+                    No 4 Lanre Awolokun Street, Gbagada Phase 2
                   </p>
-                  <a href="tel:+18005552768" className="text-[10px] text-primary hover:underline font-mono font-medium block mt-1">
-                    +1 (800) 555-CROV (ext. 101)
-                  </a>
-                </div>
-              </div>
-
-              {/* Beverly Hills */}
-              <div className="bg-white rounded-2xl border border-black/[0.03] p-5 flex items-start gap-4 hover:shadow-md duration-300 transition-shadow">
-                <div className="p-3 rounded-xl bg-slate-50 text-secondary border border-black/[0.02]">
-                  <MapPin className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-sm text-secondary">Los Angeles Office</h4>
-                  <p className="text-[11px] text-gray-400 leading-normal mt-1 leading-relaxed font-sans">
-                    Trousdale Estates Elite Pavilion, Beverly Hills, California
-                  </p>
-                  <a href="tel:+13105553950" className="text-[10px] text-primary hover:underline font-mono font-medium block mt-1">
-                    +1 (310) 555-3950
-                  </a>
-                </div>
-              </div>
-
-              {/* Dubai */}
-              <div className="bg-white rounded-2xl border border-black/[0.03] p-5 flex items-start gap-4 hover:shadow-md duration-300 transition-shadow">
-                <div className="p-3 rounded-xl bg-slate-50 text-secondary border border-black/[0.02]">
-                  <MapPin className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-sm text-secondary">Dubai Crescent Bureau</h4>
-                  <p className="text-[11px] text-gray-400 leading-normal mt-1 leading-relaxed font-sans">
-                    The Marina Gateway Towers, Palm Jumeirah, Dubai UAE
-                  </p>
-                  <a href="mailto:dubai@crovation.com" className="text-[10px] text-primary hover:underline font-mono font-medium block mt-1">
-                    dubai.bureau@crovation.com
+                  <a href="tel:08088727277" className="text-[10px] text-primary hover:underline font-mono font-medium block mt-1">
+                    08088727277
                   </a>
                 </div>
               </div>
@@ -135,17 +123,17 @@ export default function ContactPage({ onOpenInquiry }: ContactPageProps) {
             <div className="bg-slate-50 rounded-2xl p-6 border border-black/[0.02] space-y-4">
               <h4 className="font-extrabold text-sm text-secondary">Real-Time Channels</h4>
               
-              <div className="grid grid-cols-2 gap-4">
-                <a href="mailto:concierge@crovation.com" className="p-4 rounded-xl bg-white border border-black/[0.02] hover:border-primary duration-300 transition-all flex flex-col items-start gap-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="mailto:Support@crovationlimited.com" className="p-4 rounded-xl bg-white border border-black/[0.02] hover:border-primary duration-300 transition-all flex flex-col items-start gap-1">
                   <Mail className="h-4 w-4 text-primary" />
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Email Liaison</span>
-                  <span className="text-[11px] font-mono text-secondary truncate w-full font-medium">concierge@crovation.com</span>
+                  <span className="text-[11px] font-mono text-secondary truncate w-full font-medium">Support@crovationlimited.com</span>
                 </a>
 
-                <a href="tel:+18005552768" className="p-4 rounded-xl bg-white border border-black/[0.02] hover:border-primary duration-300 transition-all flex flex-col items-start gap-1">
+                <a href="tel:08088727277" className="p-4 rounded-xl bg-white border border-black/[0.02] hover:border-primary duration-300 transition-all flex flex-col items-start gap-1">
                   <Phone className="h-4 w-4 text-primary" />
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Telephone</span>
-                  <span className="text-[11px] font-mono text-secondary truncate w-full font-medium">+1 800-555-CROV</span>
+                  <span className="text-[11px] font-mono text-secondary truncate w-full font-medium">08088727277</span>
                 </a>
               </div>
 

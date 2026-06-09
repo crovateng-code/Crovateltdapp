@@ -47,15 +47,7 @@ export default function Testimonials() {
               </p>
 
               {/* Client Profile and Credits */}
-              <div className="flex items-center gap-4 border-t border-black/[0.03] pt-6">
-                <div className="h-12 w-12 rounded-full overflow-hidden border border-black/10 bg-slate-50 flex-shrink-0">
-                  <img
-                    src={t.image}
-                    alt={t.name}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
+              <div className="border-t border-black/[0.03] pt-6">
                 <div>
                   <h4 className="font-extrabold text-sm text-secondary">
                     {t.name}

@@ -18,11 +18,15 @@ import ServicesPage from './components/ServicesPage';
 import ContactPage from './components/ContactPage';
 import PropertyDetail from './components/PropertyDetail';
 import AdminPortal from './components/AdminPortal';
+import PropertySalesPage from './components/PropertySalesPage';
+import PropertyManagementPage from './components/PropertyManagementPage';
+import InvestmentAdvisoryPage from './components/InvestmentAdvisoryPage';
+import CommercialRealEstatePage from './components/CommercialRealEstatePage';
 import { Property } from './types';
 import { PROPERTIES } from './data';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin'>('home');
+  const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial'>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
 
@@ -213,7 +217,10 @@ export default function App() {
                 <Numbers />
 
                 {/* BESPOKE ADVISORY SERVICES SHORT PREVIEW */}
-                <Services />
+                <Services onChangePage={(page) => {
+                  setActivePage(page);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} />
 
                 {/* TRUSTWORTHY TESTIMONIAL AUDIT CARDS */}
                 <Testimonials />
@@ -241,7 +248,53 @@ export default function App() {
             )}
 
             {activePage === 'services' && (
-              <ServicesPage onOpenInquiry={handleOpenInquiry} />
+              <ServicesPage 
+                onOpenInquiry={handleOpenInquiry} 
+                onNavigateToFullPage={(page) => {
+                  setActivePage(page);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            )}
+
+            {activePage === 'services/sales' && (
+              <PropertySalesPage 
+                onBack={() => {
+                  setActivePage('services');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+                onOpenInquiry={handleOpenInquiry} 
+              />
+            )}
+
+            {activePage === 'services/management' && (
+              <PropertyManagementPage 
+                onBack={() => {
+                  setActivePage('services');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+                onOpenInquiry={handleOpenInquiry} 
+              />
+            )}
+
+            {activePage === 'services/advisory' && (
+              <InvestmentAdvisoryPage 
+                onBack={() => {
+                  setActivePage('services');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+                onOpenInquiry={handleOpenInquiry} 
+              />
+            )}
+
+            {activePage === 'services/commercial' && (
+              <CommercialRealEstatePage 
+                onBack={() => {
+                  setActivePage('services');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+                onOpenInquiry={handleOpenInquiry} 
+              />
             )}
 
             {activePage === 'contact' && (

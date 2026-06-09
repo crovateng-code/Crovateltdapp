@@ -181,23 +181,23 @@ export const SERVICES: ServiceItem[] = [
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: 'test-1',
-    name: 'Alessandra Moretti',
-    position: 'Architectural Director & Advisor',
-    review: 'Crovation Limited redefined our scaling strategy. The level of confidentiality, attention to bespoke spatial structural alignment, and speed are unmatched in modern real estate.',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80'
+    name: 'Engr. Babajide Olatunji',
+    position: 'Managing Director, Olatunji Developments',
+    review: 'We have partnered with Crovation on multiple luxury residential developments. Their construction precision, structural finishing, and unwavering transparency are completely exemplary in the marketplace.',
+    image: ''
   },
   {
     id: 'test-2',
-    name: 'Marcus Vance',
-    position: 'Founder, Vance Equity Group',
-    review: 'Buying with Crovation felt like a high-end private banking flight. No noise, just authenticated high-yield assets and direct transactions backed by incredible local legal care.',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    name: 'Dr. Amara Nwosu',
+    position: 'Infrastructural Investment Trustee',
+    review: 'Acquiring prime estate through Crovation Limited has been an exceptionally seamless experience. Their documentation review and asset verification give diaspora investors maximum security.',
+    image: ''
   },
   {
     id: 'test-3',
-    name: 'Sophie Dubois',
-    position: 'High-Yield Investor',
-    review: 'Their investment advisory division is sensational. I secured two pre-launch beach duplexes that appreciated by 32% before structural foundation laying was even complete.',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80'
+    name: 'Chief Olumide Adebayo',
+    position: 'Principal Partner, Adebayo Holdings',
+    review: 'Crovation has consistently delivered top-tier commercial office spaces and premium family duplexes. Their bespoke post-sale support and management division set them apart.',
+    image: ''
   }
 ];

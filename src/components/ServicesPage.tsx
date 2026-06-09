@@ -3,9 +3,10 @@ import { BadgeDollarSign, KeyRound, LineChart, Building2, Landmark, CheckCircle,
 
 interface ServicesPageProps {
   onOpenInquiry: (subject?: string) => void;
+  onNavigateToFullPage: (page: 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
 }
 
-export default function ServicesPage({ onOpenInquiry }: ServicesPageProps) {
+export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: ServicesPageProps) {
   const [activeTab, setActiveTab] = useState<'sales' | 'management' | 'advisory' | 'commercial'>('sales');
 
   const clientProtocols = {
@@ -210,12 +211,20 @@ export default function ServicesPage({ onOpenInquiry }: ServicesPageProps) {
                 </p>
               </div>
 
-              <button
-                onClick={() => onOpenInquiry(`Initiation request for: ${selectedProtocol.title}`)}
-                className="bg-secondary hover:bg-primary text-white hover:text-secondary px-5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider duration-300 transition-colors flex-shrink-0"
-              >
-                Initiate Protocol
-              </button>
+              <div className="flex flex-wrap gap-2.5 flex-shrink-0">
+                <button
+                  onClick={() => onNavigateToFullPage(`services/${activeTab}` as any)}
+                  className="border border-secondary hover:bg-slate-100 text-secondary px-4 py-3 rounded-xl font-extrabold text-[10px] uppercase tracking-wider duration-300 transition-colors"
+                >
+                  Learn Protocol Details
+                </button>
+                <button
+                  onClick={() => onOpenInquiry(`Initiation request for: ${selectedProtocol.title}`)}
+                  className="bg-secondary hover:bg-primary text-white hover:text-secondary px-5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider duration-300 transition-colors"
+                >
+                  Initiate Protocol
+                </button>
+              </div>
             </div>
 
           </div>

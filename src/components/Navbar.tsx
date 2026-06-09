@@ -4,8 +4,8 @@ import CrovationLogo from './CrovationLogo';
 
 interface NavbarProps {
   onOpenInquiry: (subject?: string) => void;
-  activePage: 'home' | 'properties' | 'about' | 'services' | 'contact';
-  onChangePage: (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => void;
+  activePage: 'home' | 'properties' | 'about' | 'services' | 'contact' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial';
+  onChangePage: (page: 'home' | 'properties' | 'about' | 'services' | 'contact' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
   loggedInAdmin?: any;
   onBackToAdmin?: () => void;
 }
@@ -26,14 +26,14 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNavigate = (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => {
+  const handleNavigate = (page: 'home' | 'properties' | 'about' | 'services' | 'contact' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => {
     setMobileMenuOpen(false);
     onChangePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getLinkStyles = (page: 'home' | 'properties' | 'about' | 'services' | 'contact') => {
-    const isActive = activePage === page;
+    const isActive = activePage === page || (page === 'services' && activePage.startsWith('services/'));
     if (isScrolled) {
       return isActive 
         ? 'text-primary bg-white/5 border border-white/10 px-4 py-1.5 rounded-full font-semibold shadow-inner' 

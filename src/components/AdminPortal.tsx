@@ -72,7 +72,7 @@ export default function AdminPortal({
   const [isSingleAdminRegistered, setIsSingleAdminRegistered] = useState(false);
 
   // Dashboard Active Tab & Sidebar State
-  const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads'>('analytics');
+  const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs'>('analytics');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -106,6 +106,7 @@ export default function AdminPortal({
   // Local administrative credentials database
   const [registeredAdmin, setRegisteredAdmin] = useState<any>(null);
   const [localInquiries, setLocalInquiries] = useState<any[]>([]);
+  const [localSubs, setLocalSubs] = useState<any[]>([]);
 
   // Check login session & samples on mount
   useEffect(() => {
@@ -138,6 +139,7 @@ export default function AdminPortal({
     }
 
     loadLocalInquiries();
+    loadLocalSubs();
   }, []);
 
   const loadLocalInquiries = () => {
@@ -172,6 +174,39 @@ export default function AdminPortal({
       setLocalInquiries(sampleInquiries);
       localStorage.setItem('crovation_local_inquiries', JSON.stringify(sampleInquiries));
     }
+  };
+
+  const loadLocalSubs = () => {
+    const savedSubs = localStorage.getItem('crovation_local_subs');
+    if (savedSubs) {
+      try {
+        setLocalSubs(JSON.parse(savedSubs));
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      const sampleSubs = [
+        {
+          id: 'sub-1',
+          email: 'investor.relations@heirsholdings.ng',
+          createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString()
+        },
+        {
+          id: 'sub-2',
+          email: 'alao.b@dan-group.com',
+          createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString()
+        }
+      ];
+      setLocalSubs(sampleSubs);
+      localStorage.setItem('crovation_local_subs', JSON.stringify(sampleSubs));
+    }
+  };
+
+  const handleClearSub = (id: string) => {
+    if (!window.confirm('Remove this email subscriber from the registered database?')) return;
+    const updated = localSubs.filter(sub => sub.id !== id);
+    setLocalSubs(updated);
+    localStorage.setItem('crovation_local_subs', JSON.stringify(updated));
   };
 
   // Sign In submit
@@ -383,9 +418,10 @@ export default function AdminPortal({
       avgPrice,
       commercialCount,
       residentialCount,
-      totalInquiries: localInquiries.length
+      totalInquiries: localInquiries.length,
+      totalSubs: localSubs.length
     };
-  }, [properties, localInquiries]);
+  }, [properties, localInquiries, localSubs]);
 
   // Handle local lists search inside Listings Manager
   const filteredListings = useMemo(() => {
@@ -623,8 +659,27 @@ export default function AdminPortal({
               {!isSidebarCollapsed && (
                 <div className="flex items-center justify-between w-full">
                   <span>Client leads</span>
-                  <span className="bg-red-500 text-white font-mono text-[9px] font-bold h-4 px-1.5 rounded-full flex items-center justify-center">
+                  <span className="bg-red-500 text-white font-mono text-[9px] font-bold h-4 px-1.5 rounded-full flex items-center justify-center font-sans">
                     {localInquiries.length}
+                  </span>
+                </div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setDashTab('subs')}
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-left text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                dashTab === 'subs' 
+                  ? 'bg-slate-900 text-white shadow-md' 
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+              }`}
+            >
+              <Mail className="h-4.5 w-4.5 flex-shrink-0" />
+              {!isSidebarCollapsed && (
+                <div className="flex items-center justify-between w-full">
+                  <span>Email Subs</span>
+                  <span className="bg-emerald-500 text-white font-mono text-[9px] font-bold h-4 px-1.5 rounded-full flex items-center justify-center font-sans">
+                    {localSubs.length}
                   </span>
                 </div>
               )}
@@ -655,29 +710,35 @@ export default function AdminPortal({
               </div>
 
               {/* Bento Grid Analytics Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
                 <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm space-y-2">
                   <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Total Holdings File</span>
                   <div className="text-3xl font-extrabold text-slate-800">{analyticsData.totalProperties} Active</div>
-                  <p className="text-[11px] text-slate-400">Total catalog assets registered securely.</p>
+                  <p className="text-[11px] text-slate-400">Total assets registered.</p>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm space-y-2">
                   <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Total Capital Outlay</span>
-                  <div className="text-3xl font-extrabold text-slate-800">{formatPrice(analyticsData.totalInvestmentInPlay, 'USD')}</div>
-                  <p className="text-[11px] text-slate-400">Cumulative property value on display.</p>
+                  <div className="text-3xl font-extrabold text-slate-800 text-ellipsis overflow-hidden">{formatPrice(analyticsData.totalInvestmentInPlay, 'USD')}</div>
+                  <p className="text-[11px] text-slate-400">Cumulative catalog value.</p>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm space-y-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Average Holding Valuation</span>
-                  <div className="text-3xl font-extrabold text-slate-800">{formatPrice(analyticsData.avgPrice, 'USD')}</div>
-                  <p className="text-[11px] text-slate-400">Mean trading price across sectors.</p>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Average holding</span>
+                  <div className="text-3xl font-extrabold text-slate-800 text-ellipsis overflow-hidden">{formatPrice(analyticsData.avgPrice, 'USD')}</div>
+                  <p className="text-[11px] text-slate-400">Mean trading value.</p>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm space-y-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Total Escrow Leads</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Escrow leads</span>
                   <div className="text-3xl font-extrabold text-[#00090a]">{analyticsData.totalInquiries} Records</div>
-                  <p className="text-[11px] text-slate-400">Captured customer partnership inquiries.</p>
+                  <p className="text-[11px] text-slate-400">Partnership requests.</p>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm space-y-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Email Subs</span>
+                  <div className="text-3xl font-extrabold text-emerald-600">{analyticsData.totalSubs} records</div>
+                  <p className="text-[11px] text-slate-400">Newsletter updates count.</p>
                 </div>
               </div>
 
@@ -983,6 +1044,62 @@ export default function AdminPortal({
                       </div>
                     </div>
                   ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: EMAIL SUBSCRIPTIONS RECORD */}
+          {dashTab === 'subs' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="border-b border-slate-205 pb-3">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">Subscribers</span>
+                <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight mt-0.5">Email Subscriptions (Email Subs)</h1>
+              </div>
+
+              <div className="space-y-5">
+                {localSubs.length === 0 ? (
+                  <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-xs text-slate-400">
+                    No active newsletter subscribers are currently captured.
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider font-mono">
+                            <th className="p-4 pl-6">Subscriber Email</th>
+                            <th className="p-4">Registered Date & Time</th>
+                            <th className="p-4 pr-6 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {localSubs.map((sub) => (
+                            <tr key={sub.id} className="hover:bg-slate-50/50 transition">
+                              <td className="p-4 pl-6 font-medium text-slate-800 font-sans">{sub.email}</td>
+                              <td className="p-4 text-slate-500 font-mono">{new Date(sub.createdAt).toLocaleString()}</td>
+                              <td className="p-4 pr-6 text-right">
+                                <div className="flex justify-end gap-3">
+                                  <a
+                                    href={`mailto:${sub.email}?subject=Crovation Exclusive Property Updates`}
+                                    className="text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition cursor-pointer"
+                                  >
+                                    Send Newsletter
+                                  </a>
+                                  <button
+                                    onClick={() => handleClearSub(sub.id)}
+                                    className="text-red-500 hover:bg-red-50 hover:text-red-650 px-3 py-1.5 rounded-lg border border-red-100 hover:border-red-200 text-[10px] font-bold uppercase tracking-wider transition cursor-pointer"
+                                  >
+                                    Remove sub
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

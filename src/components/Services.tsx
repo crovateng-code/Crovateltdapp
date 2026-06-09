@@ -2,7 +2,18 @@ import React from 'react';
 import * as Icons from 'lucide-react';
 import { SERVICES } from '../data';
 
-export default function Services() {
+interface ServicesProps {
+  onChangePage: (page: 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
+}
+
+export default function Services({ onChangePage }: ServicesProps) {
+  const getPageKey = (id: string): 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial' => {
+    if (id === 'srv-1') return 'services/sales';
+    if (id === 'srv-2') return 'services/management';
+    if (id === 'srv-3') return 'services/advisory';
+    return 'services/commercial';
+  };
+
   return (
     <section className="py-20 bg-white" id="services-section">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -25,11 +36,13 @@ export default function Services() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {SERVICES.map((srv) => {
             const IconComponent = (Icons as any)[srv.iconName] || Icons.HelpCircle;
+            const targetPage = getPageKey(srv.id);
 
             return (
               <div 
                 key={srv.id}
-                className="group relative bg-slate-50/50 rounded-3xl border border-black/[0.03] p-6 lg:p-7 transition-all duration-300 hover:bg-white hover:border-black/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] flex flex-col justify-between"
+                onClick={() => onChangePage(targetPage)}
+                className="group relative bg-slate-50/50 rounded-3xl border border-black/[0.03] p-6 lg:p-7 transition-all duration-300 hover:bg-white hover:border-black/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer"
                 id={`srv-block-${srv.id}`}
               >
                 {/* Header info */}
@@ -42,13 +55,13 @@ export default function Services() {
                     {srv.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500 leading-relaxed font-sans">
+                  <p className="text-xs text-slate-500 leading-relaxed font-sans text-left">
                     {srv.description}
                   </p>
                 </div>
 
                 {/* Micro accent arrow footer */}
-                <div className="pt-6 mt-6 border-t border-black/[0.02] flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors cursor-pointer justify-between">
+                <div className="pt-6 mt-6 border-t border-black/[0.02] flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors justify-between">
                   <span>Learn Protocol</span>
                   <Icons.ArrowRight className="h-3 w-3 transform group-hover:translate-x-1 duration-200 transition-transform" />
                 </div>
