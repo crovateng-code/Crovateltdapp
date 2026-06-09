@@ -107,18 +107,18 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onA
             {/* Social Links block */}
             <div className="flex items-center gap-3 pt-2">
               <a 
-                href="https://facebook.com"
+                href="https://www.facebook.com/J3crovation"
                 target="_blank" 
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300"
                 aria-label="Facebook"
               >
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/crovationlimited?igsh=MWo2ZjJ1NnV3MnBsOA==" 
                 target="_blank" 
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300"
                 aria-label="Instagram"
               >
@@ -127,16 +127,16 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onA
               <a 
                 href="https://linkedin.com" 
                 target="_blank" 
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-4 w-4" />
               </a>
               <a 
-                href="https://wa.me" 
+                href="https://wa.me/2348088727277?text=Hello%20Crovation%20Limited" 
                 target="_blank" 
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300"
                 aria-label="WhatsApp"
               >

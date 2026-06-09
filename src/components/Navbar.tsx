@@ -108,18 +108,20 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
 
           {/* Header Action CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <button
-              onClick={() => onOpenInquiry('Investor Partnership / Listing with Crovation')}
-              className={`px-4.5 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer ${
+            <a
+              href="https://wa.me/2348088727277?text=Hello%20Crovation%20Limited,%20I'd%20like%20to%20make%20a%20quick%20enquiry."
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`px-4.5 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center gap-1.5 cursor-pointer decoration-transparent ${
                 isScrolled
                   ? 'bg-primary text-secondary hover:bg-[#00e1ff] hover:shadow-[0_0_15px_rgba(2,206,237,0.3)]'
                   : 'bg-secondary text-white hover:bg-primary hover:text-secondary'
               }`}
-              id="btn-list-with-us"
+              id="btn-quick-enquiry"
             >
-              <span>List With Us</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+              <span>Quick Enquiry</span>
+              <MessageCircle className="h-3.5 w-3.5" />
+            </a>
 
             {loggedInAdmin && onBackToAdmin && (
               <div className="relative" id="header-admin-dropdown">
@@ -468,16 +470,16 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
                 </div>
               </div>
             )}
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenInquiry('Listing with Crovation Limited');
-              }}
-              className="w-full bg-primary hover:bg-[#00e1ff] text-secondary text-center font-bold uppercase tracking-widest text-xs py-3.5 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            <a
+              href="https://wa.me/2348088727277?text=Hello%20Crovation%20Limited,%20I'd%20like%20to%20make%20a%20quick%20enquiry."
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full bg-primary hover:bg-[#00e1ff] text-secondary text-center font-bold uppercase tracking-widest text-xs py-3.5 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer decoration-transparent"
             >
-              <span>List With Us Now</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
+              <span>Quick Enquiry</span>
+              <MessageCircle className="h-4 w-4" />
+            </a>
           </div>
         </div>
       )}

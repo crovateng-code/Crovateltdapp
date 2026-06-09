@@ -29,7 +29,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial'>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
-  const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs'>('analytics');
+  const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs' | 'security'>('analytics');
 
   // Load properties permanently from LocalStorage with fallback to initial data
   const [dynamicProperties, setDynamicProperties] = useState<Property[]>(() => {

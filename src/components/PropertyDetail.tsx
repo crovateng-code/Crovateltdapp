@@ -13,6 +13,18 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  // Touch Swipe handlers for main inline gallery with horizontal swipe detection
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+  const [touchEndY, setTouchEndY] = useState<number | null>(null);
+
+  // Touch Swipe handlers for Lightbox with horizontal swipe detection
+  const [lightboxStartX, setLightboxStartX] = useState<number | null>(null);
+  const [lightboxStartY, setLightboxStartY] = useState<number | null>(null);
+  const [lightboxEndX, setLightboxEndX] = useState<number | null>(null);
+  const [lightboxEndY, setLightboxEndY] = useState<number | null>(null);
+
   // Fallback if images array doesn't exist on Property
   const galleryImages = property.images && property.images.length > 0
     ? property.images
@@ -24,6 +36,76 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
 
   const handleNextLightbox = () => {
     setLightboxIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchStartY(e.targetTouches[0].clientY);
+    setTouchEndX(null);
+    setTouchEndY(null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+    setTouchEndY(e.targetTouches[0].clientY);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null || touchStartY === null || touchEndY === null) return;
+    const diffX = touchStartX - touchEndX;
+    const diffY = touchStartY - touchEndY;
+    const absDiffX = Math.abs(diffX);
+    const absDiffY = Math.abs(diffY);
+    
+    // Ensure the swipe is primarily horizontal and exceeds the threshold
+    if (absDiffX > 40 && absDiffX > absDiffY) {
+      if (diffX > 0) {
+        // Swiped left -> Next image
+        setActiveImageIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+      } else {
+        // Swiped right -> Previous image
+        setActiveImageIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+      }
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+    setTouchStartY(null);
+    setTouchEndY(null);
+  };
+
+  const handleLightboxTouchStart = (e: React.TouchEvent) => {
+    setLightboxStartX(e.targetTouches[0].clientX);
+    setLightboxStartY(e.targetTouches[0].clientY);
+    setLightboxEndX(null);
+    setLightboxEndY(null);
+  };
+
+  const handleLightboxTouchMove = (e: React.TouchEvent) => {
+    setLightboxEndX(e.targetTouches[0].clientX);
+    setLightboxEndY(e.targetTouches[0].clientY);
+  };
+
+  const handleLightboxTouchEnd = () => {
+    if (lightboxStartX === null || lightboxEndX === null || lightboxStartY === null || lightboxEndY === null) return;
+    const diffX = lightboxStartX - lightboxEndX;
+    const diffY = lightboxStartY - lightboxEndY;
+    const absDiffX = Math.abs(diffX);
+    const absDiffY = Math.abs(diffY);
+    
+    // Ensure the swipe is primarily horizontal and exceeds the threshold
+    if (absDiffX > 40 && absDiffX > absDiffY) {
+      if (diffX > 0) {
+        // Swiped left -> Next image
+        handleNextLightbox();
+      } else {
+        // Swiped right -> Previous image
+        handlePrevLightbox();
+      }
+    }
+    setLightboxStartX(null);
+    setLightboxEndX(null);
+    setLightboxStartY(null);
+    setLightboxEndY(null);
   };
 
   // Listen for escape and arrow key navigation when lightbox is open
@@ -172,8 +254,11 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               setLightboxIndex(activeImageIndex);
               setIsLightboxOpen(true);
             }}
-            className="group relative aspect-[16/9] bg-slate-100 rounded-3xl overflow-hidden border border-black/[0.04] shadow-md cursor-pointer"
-            title="Click to zoom / view full-screen lightbox"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="group relative aspect-[16/9] bg-slate-100 rounded-3xl overflow-hidden border border-black/[0.04] shadow-md cursor-pointer touch-pan-y"
+            title="Click to zoom / view full-screen lightbox (Swipe left/right on mobile)"
           >
             <img
               src={galleryImages[activeImageIndex]}
@@ -193,6 +278,11 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               <h3 className="text-white text-lg font-bold drop-shadow-md mt-1">
                 {property.title}
               </h3>
+            </div>
+
+            {/* On-screen visual hint for swipe on mobile */}
+            <div className="absolute top-4 left-4 z-10 bg-[#00090a]/85 backdrop-blur-md text-white text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md md:hidden animate-pulse">
+              <span>← Swipe to Explore →</span>
             </div>
 
             {/* Floating Live counter badge */}
@@ -577,7 +667,12 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
             </button>
 
             {/* Main Stage Image wrapper */}
-            <div className="relative max-w-5xl max-h-[64vh] w-full h-full flex items-center justify-center select-none overflow-hidden rounded-2xl p-2">
+            <div 
+              onTouchStart={handleLightboxTouchStart}
+              onTouchMove={handleLightboxTouchMove}
+              onTouchEnd={handleLightboxTouchEnd}
+              className="relative max-w-5xl max-h-[64vh] w-full h-full flex items-center justify-center select-none overflow-hidden rounded-2xl p-2 touch-pan-y"
+            >
               <img
                 src={galleryImages[lightboxIndex]}
                 alt={`${property.title} view ${lightboxIndex + 1}`}
@@ -606,7 +701,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
             {galleryImages.length > 1 && (
               <div className="flex justify-center items-center gap-2.5 overflow-x-auto py-2 px-4 max-w-xl mx-auto scrollbar-thin">
                 {galleryImages.map((imgUrl, idx) => (
-                  <button
+                   <button
                     key={idx}
                     onClick={() => setLightboxIndex(idx)}
                     className={`relative w-16 md:w-20 aspect-[4/3] rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300 cursor-pointer border ${
@@ -627,10 +722,12 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
             )}
             
             {/* Navigational Tooltip Guidance */}
-            <div className="flex justify-center items-center gap-4 text-[10px] text-gray-500 font-mono tracking-wider">
-              <span>Use keyboard <kbd className="bg-white/10 border border-white/5 px-1 rounded text-gray-300 font-sans font-semibold">←</kbd> and <kbd className="bg-white/10 border border-white/5 px-1 rounded text-gray-300 font-sans font-semibold">→</kbd> keys</span>
-              <span className="text-white/10">|</span>
-              <span>Press <kbd className="bg-white/10 border border-white/5 px-1.5 py-0.5 rounded text-gray-300 font-sans font-semibold">Esc</kbd> to return</span>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-[10px] text-gray-400 font-mono tracking-wider text-center">
+              <span>Use desktop keyboard <kbd className="bg-white/10 border border-white/5 px-1 rounded text-gray-300 font-sans font-semibold">←</kbd> and <kbd className="bg-white/10 border border-white/5 px-1 rounded text-gray-300 font-sans font-semibold">→</kbd> keys</span>
+              <span className="hidden sm:inline text-white/15">|</span>
+              <span className="text-primary font-bold">Swipe left/right on mobile</span>
+              <span className="hidden sm:inline text-white/15">|</span>
+              <span>Press <kbd className="bg-white/10 border border-white/5 px-1.5 py-0.5 rounded text-gray-300 font-sans font-semibold">Esc</kbd> or X to close</span>
             </div>
           </div>
 
