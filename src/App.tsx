@@ -29,6 +29,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial'>('home');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
+  const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs'>('analytics');
 
   // Load properties permanently from LocalStorage with fallback to initial data
   const [dynamicProperties, setDynamicProperties] = useState<Property[]>(() => {
@@ -236,6 +237,8 @@ export default function App() {
           onPropertiesUpdated={saveProperties}
           activeSubView={adminSubView}
           onNavigateSubView={(sub) => setAdminSubView(sub)}
+          dashTab={dashTab}
+          onDashTabChange={(tab) => setDashTab(tab)}
           locations={locations}
           onLocationsUpdated={saveLocations}
           loggedInAdmin={loggedInAdmin}
@@ -267,9 +270,12 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         loggedInAdmin={loggedInAdmin}
-        onBackToAdmin={() => {
+        onBackToAdmin={(tab) => {
           setActivePage('admin');
           setAdminSubView('dashboard');
+          if (tab) {
+            setDashTab(tab);
+          }
           setSelectedProperty(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}

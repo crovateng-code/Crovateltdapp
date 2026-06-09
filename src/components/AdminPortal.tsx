@@ -48,6 +48,8 @@ interface AdminPortalProps {
   onClearInquiry: (id: string) => void;
   localSubs: any[];
   onClearSub: (id: string) => void;
+  dashTab?: 'analytics' | 'listings' | 'locations' | 'leads' | 'subs';
+  onDashTabChange?: (tab: 'analytics' | 'listings' | 'locations' | 'leads' | 'subs') => void;
 }
 
 export default function AdminPortal({ 
@@ -63,7 +65,9 @@ export default function AdminPortal({
   localInquiries,
   onClearInquiry,
   localSubs,
-  onClearSub
+  onClearSub,
+  dashTab: propsDashTab,
+  onDashTabChange: propsOnDashTabChange
 }: AdminPortalProps) {
   
   // Auth Form State
@@ -80,7 +84,10 @@ export default function AdminPortal({
   const [isSingleAdminRegistered, setIsSingleAdminRegistered] = useState(false);
 
   // Dashboard Active Tab & Sidebar State
-  const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs'>('analytics');
+  const [localDashTab, setLocalDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs'>('analytics');
+  const dashTab = propsDashTab !== undefined ? propsDashTab : localDashTab;
+  const setDashTab = propsOnDashTabChange !== undefined ? propsOnDashTabChange : setLocalDashTab;
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -109,7 +116,9 @@ export default function AdminPortal({
     videoLink: '',
     gallery1: '',
     gallery2: '',
-    gallery3: ''
+    gallery3: '',
+    gallery4: '',
+    gallery5: ''
   });
 
   // Property Editing State
@@ -242,7 +251,7 @@ export default function AdminPortal({
   // Add new dynamic property listing file supporting Naira NGN, whatsapp, and phone
   const handleAddPropertySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3 } = newProperty;
+    const { title, type, location, price, bedrooms, bathrooms, size, image, description, currency, whatsappLink, phoneNumber, videoLink, gallery1, gallery2, gallery3, gallery4, gallery5 } = newProperty;
 
     if (!title || !location || !price || !size || !image || !description) {
       alert('Kindly compile all core specifications to complete the listing.');
@@ -252,7 +261,9 @@ export default function AdminPortal({
     const inputGallery = [
       gallery1.trim(),
       gallery2.trim(),
-      gallery3.trim()
+      gallery3.trim(),
+      gallery4.trim(),
+      gallery5.trim()
     ].filter(Boolean);
 
     const galleryImages = inputGallery.length > 0 ? inputGallery : [image];
@@ -294,7 +305,9 @@ export default function AdminPortal({
       videoLink: '',
       gallery1: '',
       gallery2: '',
-      gallery3: ''
+      gallery3: '',
+      gallery4: '',
+      gallery5: ''
     });
     setIsAddFormOpen(false);
 
@@ -1228,13 +1241,13 @@ export default function AdminPortal({
                   />
                 </div>
 
-                {/* Image Gallery (three spaces) */}
+                {/* Image Gallery (five spaces) */}
                 <div className="grid grid-cols-1 sm:col-span-2 gap-3.5 border border-dashed border-slate-200 p-3 rounded-2xl bg-slate-50/50">
                   <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">
                     Image Gallery Exhibition (Link Format)
                   </span>
-                  <p className="text-[10px] text-slate-400 -mt-2">Paste up to three luxury image links to construct the immersive gallery carousel.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <p className="text-[10px] text-slate-400 -mt-2">Paste up to five luxury image links to construct the immersive gallery carousel.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
                     <div>
                       <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 1</label>
                       <input
@@ -1242,7 +1255,7 @@ export default function AdminPortal({
                         value={newProperty.gallery1}
                         onChange={(e) => setNewProperty({...newProperty, gallery1: e.target.value})}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
                       />
                     </div>
                     <div>
@@ -1252,7 +1265,7 @@ export default function AdminPortal({
                         value={newProperty.gallery2}
                         onChange={(e) => setNewProperty({...newProperty, gallery2: e.target.value})}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
                       />
                     </div>
                     <div>
@@ -1262,7 +1275,27 @@ export default function AdminPortal({
                         value={newProperty.gallery3}
                         onChange={(e) => setNewProperty({...newProperty, gallery3: e.target.value})}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 4</label>
+                      <input
+                        type="url"
+                        value={newProperty.gallery4}
+                        onChange={(e) => setNewProperty({...newProperty, gallery4: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 5</label>
+                      <input
+                        type="url"
+                        value={newProperty.gallery5}
+                        onChange={(e) => setNewProperty({...newProperty, gallery5: e.target.value})}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
                       />
                     </div>
                   </div>
@@ -1513,13 +1546,13 @@ export default function AdminPortal({
                   />
                 </div>
 
-                {/* Gallery Images (three spaces) */}
+                {/* Gallery Images (five spaces) */}
                 <div className="grid grid-cols-1 sm:col-span-2 gap-3.5 border border-dashed border-slate-200 p-3 rounded-2xl bg-slate-50/50">
                   <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">
                     Image Gallery Exhibition (Link Format)
                   </span>
-                  <p className="text-[10px] text-slate-400 -mt-2">Paste up to three luxury image links to construct the immersive gallery carousel.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <p className="text-[10px] text-slate-400 -mt-2">Paste up to five luxury image links to construct the immersive gallery carousel.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
                     <div>
                       <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 1</label>
                       <input
@@ -1532,7 +1565,7 @@ export default function AdminPortal({
                           setEditingProperty({ ...editingProperty, images: imgs });
                         }}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
                       />
                     </div>
                     <div>
@@ -1547,7 +1580,7 @@ export default function AdminPortal({
                           setEditingProperty({ ...editingProperty, images: imgs });
                         }}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
                       />
                     </div>
                     <div>
@@ -1562,7 +1595,37 @@ export default function AdminPortal({
                           setEditingProperty({ ...editingProperty, images: imgs });
                         }}
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 4</label>
+                      <input
+                        type="url"
+                        value={editingProperty.images?.[3] || ''}
+                        onChange={(e) => {
+                          const imgs = editingProperty.images ? [...editingProperty.images] : [];
+                          while (imgs.length <= 3) imgs.push('');
+                          imgs[3] = e.target.value.trim();
+                          setEditingProperty({ ...editingProperty, images: imgs });
+                        }}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-semibold text-slate-400 mb-1">Gallery Image 5</label>
+                      <input
+                        type="url"
+                        value={editingProperty.images?.[4] || ''}
+                        onChange={(e) => {
+                          const imgs = editingProperty.images ? [...editingProperty.images] : [];
+                          while (imgs.length <= 4) imgs.push('');
+                          imgs[4] = e.target.value.trim();
+                          setEditingProperty({ ...editingProperty, images: imgs });
+                        }}
+                        placeholder="https://images.unsplash.com/..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-850 placeholder-slate-400 focus:outline-none font-mono"
                       />
                     </div>
                   </div>
