@@ -125,7 +125,7 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onA
                 <Instagram className="h-4 w-4" />
               </a>
               <a 
-                href="https://linkedin.com" 
+                href="https://www.linkedin.com/company/crovation-limited/?viewAsMember=true" 
                 target="_blank" 
                 rel="noreferrer noopener"
                 className="p-2.5 rounded-xl bg-white/5 border border-white/5 hover:bg-primary hover:text-secondary hover:border-primary transition-all duration-300"
