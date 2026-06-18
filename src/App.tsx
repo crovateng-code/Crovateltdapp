@@ -31,6 +31,22 @@ export default function App() {
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
   const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs' | 'security'>('analytics');
 
+  // Client-side path-routing system
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    window.history.pushState(null, '', path);
+    setCurrentPath(path);
+  };
+
   // Load properties permanently from LocalStorage with fallback to initial data
   const [dynamicProperties, setDynamicProperties] = useState<Property[]>(() => {
     const saved = localStorage.getItem('crovation_local_properties');
@@ -56,6 +72,15 @@ export default function App() {
       return null;
     }
   });
+
+  // Redirect rule matching for security & authenticated console pages
+  useEffect(() => {
+    if (currentPath === '/admin-dashboard' && !loggedInAdmin) {
+      navigateTo('/');
+    } else if (currentPath === '/Executive-Console' && loggedInAdmin) {
+      navigateTo('/admin-dashboard');
+    }
+  }, [currentPath, loggedInAdmin]);
 
   // Unique list of customizable locations, with sensible defaults
   const [locations, setLocations] = useState<string[]>(() => {
@@ -303,22 +328,36 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (activePage === 'admin') {
+  const isAdminPath = currentPath === '/Executive-Console' || currentPath === '/admin-dashboard';
+
+  if (isAdminPath) {
+    const subViewToRender = currentPath === '/Executive-Console' ? 'login' : 'dashboard';
     return (
       <div className="relative min-h-screen bg-[#f8fafc] selection:bg-primary selection:text-secondary antialiased" id="admin-workspace-page">
         <AdminPortal 
           properties={dynamicProperties}
           onPropertiesUpdated={saveProperties}
-          activeSubView={adminSubView}
-          onNavigateSubView={(sub) => setAdminSubView(sub)}
+          activeSubView={subViewToRender}
+          onNavigateSubView={(sub) => {
+            if (sub === 'login') {
+              navigateTo('/');
+            } else {
+              navigateTo('/admin-dashboard');
+            }
+          }}
           dashTab={dashTab}
           onDashTabChange={(tab) => setDashTab(tab)}
           locations={locations}
           onLocationsUpdated={saveLocations}
           loggedInAdmin={loggedInAdmin}
-          onLoggedInAdminChange={(admin) => setLoggedInAdmin(admin)}
+          onLoggedInAdminChange={(admin) => {
+            setLoggedInAdmin(admin);
+            if (!admin) {
+              navigateTo('/');
+            }
+          }}
           onBackToSite={() => {
-            setActivePage('home');
+            navigateTo('/');
             setSelectedProperty(null);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
@@ -337,16 +376,18 @@ export default function App() {
       {/* Dynamic Navigation Bar Header */}
       <Navbar 
         onOpenInquiry={handleOpenInquiry} 
-        activePage={activePage === 'admin' ? 'home' : activePage}
+        activePage={activePage}
         onChangePage={(page) => {
           setActivePage(page);
           setSelectedProperty(null);
+          if (currentPath !== '/') {
+            navigateTo('/');
+          }
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         loggedInAdmin={loggedInAdmin}
         onBackToAdmin={(tab) => {
-          setActivePage('admin');
-          setAdminSubView('dashboard');
+          navigateTo('/admin-dashboard');
           if (tab) {
             setDashTab(tab);
           }
@@ -500,8 +541,7 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onAdminAccess={() => {
-          setActivePage('admin');
-          setAdminSubView('login');
+          navigateTo('/Executive-Console');
           setSelectedProperty(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
