@@ -141,7 +141,7 @@ export default function App() {
     return sampleSubs;
   });
 
-  // Synchronization with server backend to share state between Desktop and Mobile
+  // Synchronization with server backend to share state live between Desktop and Mobile
   useEffect(() => {
     async function syncWithServer() {
       try {
@@ -150,13 +150,6 @@ export default function App() {
         if (propsRes && propsRes.success && Array.isArray(propsRes.properties) && propsRes.properties.length > 0) {
           setDynamicProperties(propsRes.properties);
           localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
-        } else {
-          // Seeds the server on startup if the server has empty properties storage
-          await fetch('/api/properties', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ properties: dynamicProperties })
-          }).catch(() => null);
         }
 
         // Sync locations
@@ -164,12 +157,6 @@ export default function App() {
         if (locsRes && locsRes.success && Array.isArray(locsRes.locations) && locsRes.locations.length > 0) {
           setLocations(locsRes.locations);
           localStorage.setItem('crovation_custom_locations', JSON.stringify(locsRes.locations));
-        } else {
-          await fetch('/api/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ locations: locations })
-          }).catch(() => null);
         }
 
         // Sync inquiries
@@ -177,12 +164,6 @@ export default function App() {
         if (inquiriesRes && inquiriesRes.success && Array.isArray(inquiriesRes.inquiries) && inquiriesRes.inquiries.length > 0) {
           setLocalInquiries(inquiriesRes.inquiries);
           localStorage.setItem('crovation_local_inquiries', JSON.stringify(inquiriesRes.inquiries));
-        } else {
-          await fetch('/api/inquiries', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ inquiries: localInquiries })
-          }).catch(() => null);
         }
 
         // Sync newsletter subscriptions
@@ -190,18 +171,18 @@ export default function App() {
         if (subsRes && subsRes.success && Array.isArray(subsRes.subs) && subsRes.subs.length > 0) {
           setLocalSubs(subsRes.subs);
           localStorage.setItem('crovation_local_subs', JSON.stringify(subsRes.subs));
-        } else {
-          await fetch('/api/subs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subs: localSubs })
-          }).catch(() => null);
         }
       } catch (err) {
         console.warn('Silent server synchronization failure:', err);
       }
     }
+
+    // Run initial sync right away on load
     syncWithServer();
+
+    // Setup active background polling (every 8 seconds) to keep laptop/desktop and mobile phones perfectly harmonized
+    const syncInterval = setInterval(syncWithServer, 8000);
+    return () => clearInterval(syncInterval);
   }, []);
 
   const handleAddInquiry = (inquiry: any) => {
