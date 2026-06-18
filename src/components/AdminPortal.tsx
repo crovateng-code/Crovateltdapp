@@ -286,18 +286,34 @@ export default function AdminPortal({
     if (adminCheck) {
       try {
         const parsed = JSON.parse(adminCheck);
-        if (!parsed.password) {
-          parsed.password = "admin";
-          localStorage.setItem('crovation_registered_admin', JSON.stringify(parsed));
+        // Force-migrate/override if storing the old database credentials
+        if (
+          parsed.email === "admin@crovations.com" || 
+          parsed.password === "admin" || 
+          !parsed.password ||
+          parsed.name === "Elizabeth Crovath"
+        ) {
+          const defaultAdmin = { 
+            name: "Crovation Listing", 
+            email: "crovateng@gmail.com", 
+            password: "Crovateng_247" 
+          };
+          localStorage.setItem('crovation_registered_admin', JSON.stringify(defaultAdmin));
+          setRegisteredAdmin(defaultAdmin);
+        } else {
+          setRegisteredAdmin(parsed);
         }
-        setRegisteredAdmin(parsed);
         setIsSingleAdminRegistered(true);
       } catch (e) {
         console.error(e);
       }
     } else {
       // Pre-seed an admin if none exists so they can register or sign-in easily
-      const defaultAdmin = { name: "Elizabeth Crovath", email: "admin@crovations.com", password: "admin" };
+      const defaultAdmin = { 
+        name: "Crovation Listing", 
+        email: "crovateng@gmail.com", 
+        password: "Crovateng_247" 
+      };
       localStorage.setItem('crovation_registered_admin', JSON.stringify(defaultAdmin));
       setRegisteredAdmin(defaultAdmin);
       setIsSingleAdminRegistered(true);
@@ -335,12 +351,12 @@ export default function AdminPortal({
       return;
     }
 
-    const adminEmail = registeredAdmin?.email?.toLowerCase().trim() || 'admin@crovations.com';
-    const adminPassword = registeredAdmin?.password || 'admin';
+    const adminEmail = registeredAdmin?.email?.toLowerCase().trim() || 'crovateng@gmail.com';
+    const adminPassword = registeredAdmin?.password || 'Crovateng_247';
 
     // Match credential checks - NO GUEST BYPASS, make it rock-solid!
     if (signInEmail.toLowerCase().trim() === adminEmail && signInPassword === adminPassword) {
-      const userName = signInName || registeredAdmin?.name || 'Elizabeth Crovath';
+      const userName = signInName || registeredAdmin?.name || 'Crovation Listing';
       const user = { name: userName, email: signInEmail.toLowerCase().trim() };
       localStorage.setItem('crovation_logged_in_admin', JSON.stringify(user));
       onLoggedInAdminChange(user);
@@ -741,7 +757,7 @@ export default function AdminPortal({
                     type="email"
                     value={signInEmail}
                     onChange={(e) => setSignInEmail(e.target.value)}
-                    placeholder="admin@crovations.com"
+                    placeholder="crovateng@gmail.com"
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-sans"
                     required
                   />
@@ -1534,7 +1550,7 @@ export default function AdminPortal({
                         required
                         value={profileEmail}
                         onChange={(e) => setProfileEmail(e.target.value)}
-                        placeholder="admin@crovations.com"
+                        placeholder="crovateng@gmail.com"
                         className="w-full text-xs font-sans text-slate-800 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-slate-300"
                       />
                     </div>
