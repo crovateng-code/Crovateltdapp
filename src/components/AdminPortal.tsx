@@ -562,8 +562,17 @@ export default function AdminPortal({
           image: created.image,
           images: galleryImages,
           description: created.description,
-          status: created.status
+          status: created.status,
+          currency: created.currency || 'USD',
+          whatsappLink: created.whatsappLink || null,
+          phoneNumber: created.phoneNumber || null,
+          videoLink: created.videoLink || null,
+          amenities: created.amenities || null,
+          diligenceSummary: created.diligenceSummary || null,
+          listerName: created.listerName || null,
+          listerBio: created.listerBio || null
         }]);
+        console.log('Saved new property to Supabase successfully');
       } catch (err) {
         console.error('Error syncing dynamic insertion to Supabase:', err);
       }
@@ -608,8 +617,17 @@ export default function AdminPortal({
           bathrooms: parseInt(bathrooms as any),
           size: parseInt(size as any),
           image,
+          images: sanitizedEditing.images || [image],
           description,
-          status
+          status,
+          currency: sanitizedEditing.currency || 'USD',
+          whatsappLink: sanitizedEditing.whatsappLink || null,
+          phoneNumber: sanitizedEditing.phoneNumber || null,
+          videoLink: sanitizedEditing.videoLink || null,
+          amenities: sanitizedEditing.amenities || null,
+          diligenceSummary: sanitizedEditing.diligenceSummary || null,
+          listerName: sanitizedEditing.listerName || null,
+          listerBio: sanitizedEditing.listerBio || null
         }).eq('id', id);
         console.log('Supabase real-time update completed.');
       } catch (err) {

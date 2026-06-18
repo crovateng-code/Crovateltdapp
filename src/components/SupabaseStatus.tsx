@@ -95,8 +95,28 @@ create table properties (
   size int not null,
   image text not null,
   images text[] not null,
-  description text not null
+  description text not null,
+  status text,
+  currency text default 'USD',
+  "whatsappLink" text,
+  "phoneNumber" text,
+  "videoLink" text,
+  amenities text[],
+  "diligenceSummary" jsonb,
+  "listerName" text,
+  "listerBio" text
 );
+
+-- MIGRATION OPTION (If you already have a properties table, run this instead):
+-- alter table properties add column if not exists status text;
+-- alter table properties add column if not exists currency text default 'USD';
+-- alter table properties add column if not exists "whatsappLink" text;
+-- alter table properties add column if not exists "phoneNumber" text;
+-- alter table properties add column if not exists "videoLink" text;
+-- alter table properties add column if not exists amenities text[];
+-- alter table properties add column if not exists "diligenceSummary" jsonb;
+-- alter table properties add column if not exists "listerName" text;
+-- alter table properties add column if not exists "listerBio" text;
 
 -- 2. Create the inquiries leads table
 create table inquiries (

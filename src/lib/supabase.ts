@@ -69,7 +69,16 @@ export async function seedPropertiesIntoSupabase(properties: Property[]): Promis
           size: p.size,
           image: p.image,
           images: p.images || [p.image],
-          description: p.description
+          description: p.description,
+          status: p.status || 'Available',
+          currency: p.currency || 'USD',
+          whatsappLink: p.whatsappLink || null,
+          phoneNumber: p.phoneNumber || null,
+          videoLink: p.videoLink || null,
+          amenities: p.amenities || null,
+          diligenceSummary: p.diligenceSummary || null,
+          listerName: p.listerName || null,
+          listerBio: p.listerBio || null
         })),
         { onConflict: 'id' }
       );
