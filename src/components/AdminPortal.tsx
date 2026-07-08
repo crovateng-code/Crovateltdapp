@@ -32,6 +32,7 @@ import {
 import { Property, PropertyType } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import CrovationLogo from './CrovationLogo';
+import ExecutiveConsoleAuth from './ExecutiveConsoleAuth';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -371,8 +372,15 @@ export default function AdminPortal({
   };
 
   // Log out of session
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem('crovation_logged_in_admin');
+    if (supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.error('Error signing out of Supabase:', err);
+      }
+    }
     onLoggedInAdminChange(null);
     onNavigateSubView('login');
   };
@@ -727,120 +735,11 @@ export default function AdminPortal({
   // Render Login page if not signed in
   if (activeSubView === 'login' && !loggedInAdmin) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-          <div className="flex justify-center mb-6">
-            <CrovationLogo isDarkTheme={false} height={40} />
-          </div>
-          <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">
-            Administrative Management Center
-          </h2>
-          <p className="mt-2 text-xs text-slate-550 leading-relaxed max-w-xs mx-auto">
-            Authorized private entrance. Access logs synchronized strictly for credential auditing.
-          </p>
-        </div>
-
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-10 px-6 sm:rounded-2xl shadow-xl border border-slate-100 relative">
-            
-            {/* Core credentials card panel */}
-            <form onSubmit={handleSignInSubmit} className="space-y-6">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-650 mb-1.5 flex items-center gap-1">
-                  <span>Sign In Identity</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                    <User className="h-4 w-4" />
-                  </span>
-                  <input
-                    type="text"
-                    value={signInName}
-                    onChange={(e) => setSignInName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-sans"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-650 mb-1.5 flex items-center gap-1">
-                  <span>Authorized Email address</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                    <Mail className="h-4 w-4" />
-                  </span>
-                  <input
-                    type="email"
-                    value={signInEmail}
-                    onChange={(e) => setSignInEmail(e.target.value)}
-                    placeholder="crovateng@gmail.com"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-sans"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-650 mb-1.5 flex items-center gap-1">
-                  <span>Secret Admin Passcode</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                    <Lock className="h-4 w-4" />
-                  </span>
-                  <input
-                    type="password"
-                    value={signInPassword}
-                    onChange={(e) => setSignInPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-xs text-slate-800 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-sans"
-                    required
-                  />
-                </div>
-              </div>
-
-
-
-              {authError && (
-                <div className="rounded-xl bg-red-50 border border-red-100 p-3 flex gap-2 text-[11px] text-red-650 items-start">
-                  <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                  <span>{authError}</span>
-                </div>
-              )}
-
-              {authSuccess && (
-                <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3 flex gap-2 text-[11px] text-emerald-650 items-start">
-                  <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                  <span>{authSuccess}</span>
-                </div>
-              )}
-
-              <div>
-                <button
-                  type="submit"
-                  className="w-full bg-[#00090a] hover:bg-primary hover:text-secondary text-white font-extrabold uppercase tracking-wider text-xs py-4 rounded-xl flex items-center justify-center gap-2 duration-300 shadow-md cursor-pointer"
-                >
-                  <Lock className="h-3.5 w-3.5" />
-                  <span>Decrypt Authorized Access</span>
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={onBackToSite}
-                className="w-full text-center text-xs text-slate-405 hover:text-slate-800 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                <span>Return back to Public Site</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ExecutiveConsoleAuth 
+        onLoggedInAdminChange={onLoggedInAdminChange}
+        onSuccessRedirect={() => onNavigateSubView('dashboard')}
+        onBackToSite={onBackToSite}
+      />
     );
   }
 
