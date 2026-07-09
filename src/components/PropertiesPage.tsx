@@ -59,7 +59,10 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
     fetchProperties();
   }, []);
 
-  const loadedProperties = dbProperties;
+  const loadedProperties = useMemo(() => {
+    const source = (isSupabaseConfigured && dbProperties.length > 0) ? dbProperties : (properties || []);
+    return source.filter(p => p && p.id && !p.id.toString().startsWith('prop-'));
+  }, [dbProperties, properties]);
 
   // Stats summary counted
   const totalInInventory = loadedProperties.length;

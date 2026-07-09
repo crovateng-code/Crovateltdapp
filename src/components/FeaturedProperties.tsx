@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { BedDouble, Bath, Maximize2, MapPin, Undo2, ArrowUpRight } from 'lucide-react';
 import { Property, PropertyType } from '../types';
-import { PROPERTIES } from '../data';
 
 function stripHtml(html: string): string {
   if (!html) return '';
@@ -26,7 +25,7 @@ interface FeaturedPropertiesProps {
 export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty, properties, locations }: FeaturedPropertiesProps) {
   const [selectedTypeTab, setSelectedTypeTab] = useState<string>('All');
 
-  const loadedProperties = properties || PROPERTIES;
+  const loadedProperties = (properties || []).filter(prop => prop && prop.id && !prop.id.toString().startsWith('prop-'));
 
   const filteredProperties = useMemo(() => {
     return loadedProperties.filter((prop) => {

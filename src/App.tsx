@@ -54,14 +54,15 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+        if (Array.isArray(parsed)) {
+          // Filter out demo properties
+          return parsed.filter(p => p && p.id && !p.id.toString().startsWith('prop-'));
         }
       } catch (e) {
         console.error('Error parsing local properties', e);
       }
     }
-    return PROPERTIES;
+    return [];
   });
 
   // Track the logged in admin state so we can render an avatar at the top in Navbar!
@@ -178,20 +179,22 @@ export default function App() {
         }
 
         if (fetchedProps && fetchedProps.length > 0) {
-          setDynamicProperties(fetchedProps);
-          localStorage.setItem('crovation_local_properties', JSON.stringify(fetchedProps));
+          const cleanProps = fetchedProps.filter(p => p && p.id && !p.id.toString().startsWith('prop-'));
+          setDynamicProperties(cleanProps);
+          localStorage.setItem('crovation_local_properties', JSON.stringify(cleanProps));
           // Keep backend JSON backup up to date too
           fetch('/api/properties', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ properties: fetchedProps })
+            body: JSON.stringify({ properties: cleanProps })
           }).catch(() => null);
         } else {
           // Fallback to local server backup if Supabase is empty or not configured
           const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
-          if (propsRes && propsRes.success && Array.isArray(propsRes.properties) && propsRes.properties.length > 0) {
-            setDynamicProperties(propsRes.properties);
-            localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
+          if (propsRes && propsRes.success && Array.isArray(propsRes.properties)) {
+            const cleanProps = propsRes.properties.filter((p: any) => p && p.id && !p.id.toString().startsWith('prop-'));
+            setDynamicProperties(cleanProps);
+            localStorage.setItem('crovation_local_properties', JSON.stringify(cleanProps));
           }
         }
 
