@@ -438,7 +438,11 @@ export default function AdminPortal({
       return;
     }
 
-    if (isSupabaseConfigured && supabase) {
+    const isDemoProperty = id.startsWith('prop-');
+
+    if (isDemoProperty) {
+      console.log('Detected demo property with local ID prefix. Skipping Supabase request and deleting from local state directly:', id);
+    } else if (isSupabaseConfigured && supabase) {
       try {
         const { error } = await supabase.from('properties').delete().eq('id', id);
         if (error) {
