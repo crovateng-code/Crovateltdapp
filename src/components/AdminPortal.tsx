@@ -119,7 +119,7 @@ function RichTextToolbar({ value, onChange, textareaId }: RichTextToolbarProps) 
       <button
         type="button"
         onClick={handleLink}
-        className="px-2.5 py-1 text-xs text-[#02ceed] font-bold underline bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 cursor-pointer transition active:scale-95"
+        className="px-2.5 py-1 text-xs text-[#5179bc] font-bold underline bg-white rounded border border-slate-200 shadow-sm hover:bg-slate-50 cursor-pointer transition active:scale-95"
         title="Insert raw link anchor tag"
       >
         Link
@@ -155,9 +155,9 @@ function RichTextToolbar({ value, onChange, textareaId }: RichTextToolbarProps) 
       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight block mr-1 font-mono">Tones:</span>
       <button
         type="button"
-        onClick={() => handleTextColor('#02ceed')}
-        className="h-4 w-4 rounded-full bg-[#02ceed] border border-slate-300 hover:scale-105 active:scale-95 transition cursor-pointer"
-        title="Highlight Cyan Accent"
+        onClick={() => handleTextColor('#5179bc')}
+        className="h-4 w-4 rounded-full bg-[#5179bc] border border-slate-300 hover:scale-105 active:scale-95 transition cursor-pointer"
+        title="Highlight Primary Accent"
       />
       <button
         type="button"
@@ -438,11 +438,8 @@ export default function AdminPortal({
       return;
     }
 
-    const isDemoProperty = id.startsWith('prop-');
-
-    if (isDemoProperty) {
-      console.log('Detected demo property with local ID prefix. Skipping Supabase request and deleting from local state directly:', id);
-    } else if (isSupabaseConfigured && supabase) {
+    // Always attempt deletion from Supabase if configured so that all listings (including demo listings synced to cloud) are permanently deleted
+    if (isSupabaseConfigured && supabase) {
       try {
         const { error } = await supabase.from('properties').delete().eq('id', id);
         if (error) {
@@ -452,8 +449,11 @@ export default function AdminPortal({
         alert('Property listing has been permanently deleted from the Supabase cloud database.');
       } catch (err: any) {
         console.error('Supabase deletion error:', err);
-        alert(`Failed to delete listing from the Supabase database: ${err?.message || err}`);
-        return; // Stop and do not filter from UI if the cloud deletion failed
+        // Only block UI deletion if it's not a demo property (since a demo property might not have been seeded/stored in Supabase yet)
+        if (!id.startsWith('prop-')) {
+          alert(`Failed to delete listing from the Supabase database: ${err?.message || err}`);
+          return;
+        }
       }
     }
 
@@ -809,7 +809,7 @@ export default function AdminPortal({
             className="flex items-center cursor-pointer focus:outline-none"
             title="Return to showcase"
           >
-            <CrovationLogo isDarkTheme={false} height={28} />
+            <CrovationLogo isDarkTheme={false} height={36} />
           </button>
           <span className="hidden sm:inline bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ml-1.5 font-mono">
             Control Room
@@ -982,7 +982,7 @@ export default function AdminPortal({
 
                 <div className="bg-white rounded-2xl border border-slate-200/60 p-5 shadow-sm space-y-2">
                   <span className="text-[10px] font-bold text-slate-400 uppercase font-mono tracking-wider">Escrow leads</span>
-                  <div className="text-3xl font-extrabold text-[#00090a]">{analyticsData.totalInquiries} Records</div>
+                  <div className="text-3xl font-extrabold text-[#000000]">{analyticsData.totalInquiries} Records</div>
                   <p className="text-[11px] text-slate-400">Partnership requests.</p>
                 </div>
 
@@ -1291,7 +1291,7 @@ export default function AdminPortal({
 
                   <button
                     type="submit"
-                    className="w-full bg-[#00090a] hover:bg-primary hover:text-secondary text-white font-bold uppercase text-xs tracking-wider py-3.5 rounded-xl transition duration-200 cursor-pointer text-center"
+                    className="w-full bg-[#000000] hover:bg-primary hover:text-secondary text-white font-bold uppercase text-xs tracking-wider py-3.5 rounded-xl transition duration-200 cursor-pointer text-center"
                   >
                     Authorize Region
                   </button>
@@ -1470,7 +1470,7 @@ export default function AdminPortal({
 
               <div className="max-w-xl bg-white border border-slate-200/85 p-6 md:p-8 rounded-3xl shadow-sm space-y-6">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#00090a] uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-[#000000] uppercase tracking-wider mb-2 flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-slate-900 animate-pulse" />
                     Secure Administration Details
                   </h3>
@@ -1547,7 +1547,7 @@ export default function AdminPortal({
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full bg-[#00090a] hover:bg-slate-800 text-white font-extrabold uppercase tracking-widest text-xs py-3.5 rounded-xl transition duration-300 shadow-md cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full bg-[#000000] hover:bg-slate-800 text-white font-extrabold uppercase tracking-widest text-xs py-3.5 rounded-xl transition duration-300 shadow-md cursor-pointer flex items-center justify-center gap-2"
                     >
                       <Check className="h-4 w-4 text-emerald-400" />
                       <span>Update & Sync Credentials</span>
@@ -1956,7 +1956,7 @@ export default function AdminPortal({
 
                 {/* Property Lister Details */}
                 <div className="grid-cols-1 sm:col-span-2 border-t border-slate-100 pt-5 mt-2">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-[#00090a] mb-3 flex items-center gap-2">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-[#000000] mb-3 flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
                     Property Lister Details (Optional)
                   </h4>
@@ -2431,8 +2431,8 @@ export default function AdminPortal({
 
                 {/* Property Lister Details for Editing */}
                 <div className="grid-cols-1 sm:col-span-2 border-t border-slate-100 pt-5 mt-2">
-                  <h4 className="text-xs font-black uppercase tracking-widest text-[#00090a] mb-3 flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#00090a] animate-pulse" />
+                  <h4 className="text-xs font-black uppercase tracking-widest text-[#000000] mb-3 flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#000000] animate-pulse" />
                     Property Lister Details (Optional)
                   </h4>
                   <div className="grid grid-cols-1 gap-4 bg-slate-50 border border-slate-150 p-4 rounded-2xl">

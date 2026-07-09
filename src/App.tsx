@@ -51,18 +51,17 @@ export default function App() {
   // Load properties permanently from LocalStorage with fallback to initial data
   const [dynamicProperties, setDynamicProperties] = useState<Property[]>(() => {
     const saved = localStorage.getItem('crovation_local_properties');
-    if (saved) {
+    if (saved !== null) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Filter out demo properties
-          return parsed.filter(p => p && p.id && !p.id.toString().startsWith('prop-'));
+          return parsed;
         }
       } catch (e) {
         console.error('Error parsing local properties', e);
       }
     }
-    return [];
+    return PROPERTIES;
   });
 
   const getSlug = (title: string): string => {
@@ -237,22 +236,20 @@ export default function App() {
         }
 
         if (fetchedProps && fetchedProps.length > 0) {
-          const cleanProps = fetchedProps.filter(p => p && p.id && !p.id.toString().startsWith('prop-'));
-          setDynamicProperties(cleanProps);
-          localStorage.setItem('crovation_local_properties', JSON.stringify(cleanProps));
+          setDynamicProperties(fetchedProps);
+          localStorage.setItem('crovation_local_properties', JSON.stringify(fetchedProps));
           // Keep backend JSON backup up to date too
           fetch('/api/properties', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ properties: cleanProps })
+            body: JSON.stringify({ properties: fetchedProps })
           }).catch(() => null);
         } else {
           // Fallback to local server backup if Supabase is empty or not configured
           const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
           if (propsRes && propsRes.success && Array.isArray(propsRes.properties)) {
-            const cleanProps = propsRes.properties.filter((p: any) => p && p.id && !p.id.toString().startsWith('prop-'));
-            setDynamicProperties(cleanProps);
-            localStorage.setItem('crovation_local_properties', JSON.stringify(cleanProps));
+            setDynamicProperties(propsRes.properties);
+            localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
           }
         }
 

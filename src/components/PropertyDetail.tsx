@@ -200,7 +200,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
     ];
 
   return (
-    <div className="pt-24 min-h-screen bg-brandbg text-[#00090a] pb-16 text-left" id="property-detail-container">
+    <div className="pt-24 min-h-screen bg-brandbg text-[#000000] pb-16 text-left" id="property-detail-container">
       {/* Upper Navigation Row */}
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-4">
         <button
@@ -218,7 +218,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
         {/* Title & Core Location Header */}
         <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
-            <span className="inline-flex items-center gap-1 bg-[#00090a] text-primary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1 bg-[#000000] text-primary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
               <Sparkles className="h-3 w-3" />
               <span>{property.type} Space</span>
             </span>
@@ -242,7 +242,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
             <span className="text-[10px] font-bold text-gray-405 uppercase tracking-wider block">
               Investment Pricing
             </span>
-            <div className="text-2xl md:text-3.5xl font-extrabold text-[#00090a]">
+            <div className="text-2xl md:text-3.5xl font-extrabold text-[#000000]">
               {formatPrice(property.price)}
             </div>
             <span className="text-[10px] text-green-500 font-semibold flex items-center gap-1 md:justify-end">
@@ -286,19 +286,19 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
             </div>
 
             {/* On-screen visual hint for swipe on mobile */}
-            <div className="absolute top-4 left-4 z-10 bg-[#00090a]/85 backdrop-blur-md text-white text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md md:hidden animate-pulse">
+            <div className="absolute top-4 left-4 z-10 bg-[#000000]/85 backdrop-blur-md text-white text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md md:hidden animate-pulse">
               <span>← Swipe to Explore →</span>
             </div>
 
             {/* Floating Live counter badge */}
-            <div className="absolute top-4 right-4 z-10 bg-[#00090a]/85 backdrop-blur-md text-white text-[11px] font-mono font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md">
+            <div className="absolute top-4 right-4 z-10 bg-[#000000]/85 backdrop-blur-md text-white text-[11px] font-mono font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md">
               <ZoomIn className="h-3.5 w-3.5 text-primary" />
               <span>{activeImageIndex + 1} / {galleryImages.length} Photos</span>
             </div>
 
             {/* Premium click Zoom action overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="bg-[#00090a]/90 text-white backdrop-blur-md text-xs font-extrabold uppercase tracking-widest px-5 py-3 rounded-2xl flex items-center gap-2 border border-white/10 shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+              <div className="bg-[#000000]/90 text-white backdrop-blur-md text-xs font-extrabold uppercase tracking-widest px-5 py-3 rounded-2xl flex items-center gap-2 border border-white/10 shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                 <ZoomIn className="h-4 w-4 text-primary" />
                 <span>Open Immersive Gallery Lightbox</span>
               </div>
@@ -394,7 +394,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                 <h3 className="text-lg font-extrabold text-secondary border-b border-black/[0.03] pb-2">
                   Cinematic Private Tour & Walkthrough
                 </h3>
-                <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden bg-[#00090a] border border-black/[0.05] shadow-lg">
+                <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden bg-[#000000] border border-black/[0.05] shadow-lg">
                   {(() => {
                     const embed = (() => {
                       const url = property.videoLink || '';
@@ -443,7 +443,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                     } else {
                       // Fallback for general website/generic link - render a premium play link card
                       return (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#00090a] to-slate-900 text-white">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#000000] to-slate-900 text-white">
                           <span className="text-[10px] font-mono tracking-widest text-[#00e1ff] uppercase font-bold mb-2">Private Stream Channel</span>
                           <h4 className="text-base font-bold mb-2">{property.title} Walkthrough Cinematic</h4>
                           <p className="text-xs text-gray-400 max-w-sm mb-6 leading-relaxed">An exclusive, protected asset tour is hosted externally. Please launch the full video walkthrough stream to examine structural configurations.</p>
@@ -475,7 +475,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                       key={idx}
                       className="flex items-start gap-2.5 bg-slate-50 border border-black/[0.02] p-3.5 rounded-xl text-xs font-sans text-secondary"
                     >
-                      <div className="p-1 rounded bg-[#00090a] text-primary mt-0.5 flex-shrink-0">
+                      <div className="p-1 rounded bg-[#000000] text-primary mt-0.5 flex-shrink-0">
                         <Check className="h-3 w-3" />
                       </div>
                       <span>{amenity}</span>
@@ -513,7 +513,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                 </h3>
                 <div className="bg-slate-50 border border-black/[0.02] hover:border-black/[0.05] p-5 rounded-2xl transition duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="bg-[#00090a] text-primary h-11 w-11 rounded-xl flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                    <div className="bg-[#000000] text-primary h-11 w-11 rounded-xl flex items-center justify-center font-bold text-base shadow-sm shrink-0">
                       {property.listerName.charAt(0).toUpperCase()}
                     </div>
                     <div className="space-y-1 text-left flex-1">
@@ -540,7 +540,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
           <aside className="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
             
             {/* The Private Concierge Officer Card */}
-            <div className="bg-[#00090a] text-white rounded-3xl p-6 border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
+            <div className="bg-[#000000] text-white rounded-3xl p-6 border border-white/5 space-y-6 shadow-xl relative overflow-hidden">
               {/* Decorative accent */}
               <div className="absolute right-0 bottom-0 text-white/5 select-none pointer-events-none translate-y-6 translate-x-3">
                 <Landmark className="h-44 w-44" />
@@ -665,7 +665,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                 e.stopPropagation();
                 handlePrevLightbox();
               }}
-              className="absolute left-2 md:left-6 p-4 rounded-full bg-black/40 hover:bg-[#00090a] text-white border border-white/10 hover:border-primary hover:text-primary transition-all duration-300 cursor-pointer z-35 backdrop-blur-sm"
+              className="absolute left-2 md:left-6 p-4 rounded-full bg-black/40 hover:bg-[#000000] text-white border border-white/10 hover:border-primary hover:text-primary transition-all duration-300 cursor-pointer z-35 backdrop-blur-sm"
               title="Previous Photo"
             >
               <ChevronLeft className="h-6 w-6" />
@@ -692,7 +692,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                 e.stopPropagation();
                 handleNextLightbox();
               }}
-              className="absolute right-2 md:right-6 p-4 rounded-full bg-black/40 hover:bg-[#00090a] text-white border border-white/10 hover:border-primary hover:text-primary transition-all duration-300 cursor-pointer z-35 backdrop-blur-sm"
+              className="absolute right-2 md:right-6 p-4 rounded-full bg-black/40 hover:bg-[#000000] text-white border border-white/10 hover:border-primary hover:text-primary transition-all duration-300 cursor-pointer z-35 backdrop-blur-sm"
               title="Next Photo"
             >
               <ChevronRight className="h-6 w-6" />

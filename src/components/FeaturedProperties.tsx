@@ -25,7 +25,7 @@ interface FeaturedPropertiesProps {
 export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty, properties, locations }: FeaturedPropertiesProps) {
   const [selectedTypeTab, setSelectedTypeTab] = useState<string>('All');
 
-  const loadedProperties = (properties || []).filter(prop => prop && prop.id && !prop.id.toString().startsWith('prop-'));
+  const loadedProperties = properties || [];
 
   const filteredProperties = useMemo(() => {
     return loadedProperties.filter((prop) => {

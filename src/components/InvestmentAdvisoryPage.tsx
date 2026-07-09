@@ -83,7 +83,7 @@ export default function InvestmentAdvisoryPage({ onBack, onOpenInquiry, onAddInq
       </div>
 
       {/* Hero section */}
-      <div className="bg-[#00090a] text-white py-16 md:py-20 relative overflow-hidden mt-4">
+      <div className="bg-[#000000] text-white py-16 md:py-20 relative overflow-hidden mt-4">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
         <div className="mx-auto max-w-7xl px-4 md:px-8 relative z-10 text-left space-y-3">
           <div className="p-3 mb-2 bg-white/5 rounded-2xl inline-flex text-primary">

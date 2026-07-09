@@ -75,7 +75,7 @@ export default function ContactPage({ onOpenInquiry, onAddInquiry }: ContactPage
   return (
     <div className="pt-24 min-h-screen bg-brandbg" id="contact-view-page">
       {/* Page header */}
-      <div className="bg-[#00090a] text-white py-16 md:py-20 relative overflow-hidden">
+      <div className="bg-[#000000] text-white py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-x-0 h-[250px] top-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent pointer-events-none" />
         <div className="mx-auto max-w-7xl px-4 md:px-8 relative z-10 text-left space-y-3">
           <span className="text-xs font-bold text-primary tracking-widest uppercase block animate-pulse">

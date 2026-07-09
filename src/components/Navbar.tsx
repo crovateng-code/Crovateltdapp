@@ -64,7 +64,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
             className="flex items-center transition-transform active:scale-98 cursor-pointer focus:outline-none"
             id="nav-logo"
           >
-            <CrovationLogo isDarkTheme={isScrolled} height={35} />
+            <CrovationLogo isDarkTheme={isScrolled} height={45} />
           </button>
 
           {/* Desktop Navigation */}
@@ -157,7 +157,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
                 {isDropdownOpen && (
                   <div className={`absolute right-0 mt-2.5 w-60 rounded-2xl border p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150 ${
                     isScrolled 
-                      ? 'border-white/10 bg-[#00090a]/95 text-white backdrop-blur-lg' 
+                      ? 'border-white/10 bg-[#000000]/95 text-white backdrop-blur-lg' 
                       : 'border-slate-200/60 bg-white text-secondary'
                   }`}>
                     <div className="px-3.5 py-2 border-b border-black/[0.03] dark:border-white/[0.05] mb-1">
@@ -268,7 +268,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
                 )}
 
                 {isMobileDropdownOpen && (
-                  <div className="absolute right-0 mt-2.5 w-52 rounded-2xl border p-2 shadow-xl z-50 bg-[#00090a]/95 text-white backdrop-blur-lg border-white/10 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 mt-2.5 w-52 rounded-2xl border p-2 shadow-xl z-50 bg-[#000000]/95 text-white backdrop-blur-lg border-white/10 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-3 py-1.5 border-b border-white/5 mb-1 text-[9px] font-mono tracking-widest text-[#00e1ff] uppercase font-bold text-center">
                       Control Room
                     </div>
@@ -360,7 +360,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
       >
         {/* Full-Screen Header */}
         <div className="flex items-center justify-between border-b border-white/5 pb-5 mb-8" id="mobile-menu-header">
-          <CrovationLogo isDarkTheme={true} height={32} />
+          <CrovationLogo isDarkTheme={true} height={42} />
           <button
             onClick={() => setMobileMenuOpen(false)}
             className="p-2 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40 active:scale-95"
@@ -372,7 +372,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
 
         {/* Minimalist Subheader */}
         <div className="mb-8" id="mobile-menu-bureau">
-          <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold block">
+          <span className="text-[10px] font-mono tracking-widest text-[#5179bc] uppercase font-bold block">
             Navigation Bureau
           </span>
           <p className="text-[9px] font-mono text-gray-400">CROVATION LIMITED • LUXURY PROPERTY CATALOG</p>
@@ -394,7 +394,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
                 onClick={() => handleNavigate(item.page as any)}
                 className="group flex items-baseline gap-4 text-left cursor-pointer focus:outline-none"
               >
-                <span className="text-[11px] font-mono text-[#02ceed]/80 tracking-wider font-semibold">
+                <span className="text-[11px] font-mono text-[#5179bc]/80 tracking-wider font-semibold">
                   {item.number} /
                 </span>
                 <span className={`text-3xl sm:text-4xl font-light tracking-tight transition-all duration-300 ${
@@ -474,17 +474,17 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
         <div className="pt-6 border-t border-white/5 mt-auto" id="mobile-menu-footer">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
-              <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold block mb-1">HQ Address</span>
+              <span className="text-[10px] font-mono tracking-widest text-[#5179bc] uppercase font-bold block mb-1">HQ Address</span>
               <p className="text-xs text-gray-400 font-sans leading-relaxed">
                 Victoria Island, Lagos, Nigeria <br />
                 Midtown, Manhattan, NY, USA
               </p>
             </div>
             <div>
-              <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold block mb-1">Concierge Office</span>
+              <span className="text-[10px] font-mono tracking-widest text-[#5179bc] uppercase font-bold block mb-1">Concierge Office</span>
               <p className="text-xs text-gray-400 font-sans leading-relaxed">
-                <a href="tel:+2348088727277" className="hover:text-[#02ceed] transition-colors">+234 (0) 808 872 7277</a> <br />
-                <a href="mailto:info@crovationlimited.com" className="hover:text-[#02ceed] transition-colors">info@crovationlimited.com</a>
+                <a href="tel:+2348088727277" className="hover:text-[#5179bc] transition-colors">+234 (0) 808 872 7277</a> <br />
+                <a href="mailto:info@crovationlimited.com" className="hover:text-[#5179bc] transition-colors">info@crovationlimited.com</a>
               </p>
             </div>
           </div>
@@ -494,7 +494,7 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileMenuOpen(false)}
-            className="w-full bg-primary hover:bg-[#00e1ff] text-secondary text-center font-bold uppercase tracking-widest text-xs py-4 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer decoration-transparent focus:ring-2 focus:ring-primary/40 active:scale-98"
+            className="w-full bg-primary hover:bg-[#6c93d4] text-secondary text-center font-bold uppercase tracking-widest text-xs py-4 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer decoration-transparent focus:ring-2 focus:ring-primary/40 active:scale-98"
           >
             <span>Quick Enquiry</span>
             <MessageCircle className="h-4 w-4" />

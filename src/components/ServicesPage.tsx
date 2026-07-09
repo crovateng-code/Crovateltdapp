@@ -61,7 +61,7 @@ export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: Se
   return (
     <div className="pt-24 min-h-screen bg-brandbg" id="services-view-page">
       {/* Page Title */}
-      <div className="bg-[#00090a] text-white py-16 md:py-20 relative overflow-hidden">
+      <div className="bg-[#000000] text-white py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
         <div className="mx-auto max-w-7xl px-4 md:px-8 relative z-10 text-left space-y-3">
           <span className="text-xs font-bold text-primary tracking-widest uppercase block">
@@ -130,7 +130,7 @@ export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: Se
             </div>
 
             {/* General Inquiry Direct Block */}
-            <div className="bg-[#00090a] rounded-2xl p-6 text-white text-left space-y-4 border border-white/5 relative overflow-hidden">
+            <div className="bg-[#000000] rounded-2xl p-6 text-white text-left space-y-4 border border-white/5 relative overflow-hidden">
               <div className="absolute right-0 bottom-0 text-white/5">
                 <Landmark className="h-28 w-28 translate-y-6 translate-x-3 pointer-events-none" />
               </div>

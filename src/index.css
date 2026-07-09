@@ -5,15 +5,15 @@
   --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-primary: #02ceed;
-  --color-secondary: #00090a;
+  --color-primary: #5179bc;
+  --color-secondary: #000000;
   --color-brandbg: #f8fafc;
 }
 
 /* Custom scrollbar and subtle global utilities */
 ::selection {
-  background-color: #02ceed;
-  color: #00090a;
+  background-color: #5179bc;
+  color: #000000;
 }
 
 html {
@@ -33,7 +33,7 @@ body {
 }
 .description-rich-text strong, .description-rich-text b {
   font-weight: 800 !important;
-  color: var(--color-secondary, #00090a) !important;
+  color: var(--color-secondary, #000000) !important;
 }
 .description-rich-text em, .description-rich-text i {
   font-style: italic !important;
@@ -43,17 +43,17 @@ body {
 }
 .description-rich-text blockquote {
   padding-left: 1rem !important;
-  border-left: 4px solid var(--color-primary, #02ceed) !important;
+  border-left: 4px solid var(--color-primary, #5179bc) !important;
   margin: 1.25rem 0 !important;
   font-style: italic !important;
   color: #4b5563 !important;
-  background-color: rgba(2, 206, 237, 0.05) !important;
+  background-color: rgba(81, 121, 188, 0.05) !important;
   border-radius: 0 0.5rem 0.5rem 0 !important;
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;
 }
 .description-rich-text a {
-  color: #02ceed !important;
+  color: #5179bc !important;
   text-decoration: underline !important;
   font-weight: 700 !important;
   transition: opacity 150ms ease-in-out;

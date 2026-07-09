@@ -9,7 +9,7 @@ export default function AboutPage({ onOpenInquiry }: AboutPageProps) {
   return (
     <div className="pt-24 min-h-screen bg-brandbg" id="about-view-page">
       {/* Editorial Hero Frame */}
-      <div className="bg-[#00090a] text-white py-20 md:py-28 relative overflow-hidden">
+      <div className="bg-[#000000] text-white py-20 md:py-28 relative overflow-hidden">
         {/* Subtle circular accents */}
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[40%] h-[40%] bg-primary/8 rounded-full blur-[100px] pointer-events-none" />
         
@@ -88,7 +88,7 @@ export default function AboutPage({ onOpenInquiry }: AboutPageProps) {
             <div className="relative pl-8 md:pl-12">
               <div className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 border-primary bg-secondary" />
               <div className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-8">
-                <span className="md:col-span-2 text-xl font-extrabold text-[#00090a] md:-ml-32 md:text-right md:block">
+                <span className="md:col-span-2 text-xl font-extrabold text-[#000000] md:-ml-32 md:text-right md:block">
                   2015
                 </span>
                 <div className="md:col-span-10 space-y-1.5">
@@ -104,7 +104,7 @@ export default function AboutPage({ onOpenInquiry }: AboutPageProps) {
             <div className="relative pl-8 md:pl-12">
               <div className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 border-primary bg-secondary" />
               <div className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-8">
-                <span className="md:col-span-2 text-xl font-extrabold text-[#00090a] md:-ml-32 md:text-right md:block">
+                <span className="md:col-span-2 text-xl font-extrabold text-[#000000] md:-ml-32 md:text-right md:block">
                   2018
                 </span>
                 <div className="md:col-span-10 space-y-1.5">
@@ -120,7 +120,7 @@ export default function AboutPage({ onOpenInquiry }: AboutPageProps) {
             <div className="relative pl-8 md:pl-12">
               <div className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 border-primary bg-secondary" />
               <div className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-8">
-                <span className="md:col-span-2 text-xl font-extrabold text-[#00090a] md:-ml-32 md:text-right md:block">
+                <span className="md:col-span-2 text-xl font-extrabold text-[#000000] md:-ml-32 md:text-right md:block">
                   2021
                 </span>
                 <div className="md:col-span-10 space-y-1.5">

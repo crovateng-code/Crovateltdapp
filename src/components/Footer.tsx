@@ -55,7 +55,7 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onA
   };
 
   return (
-    <footer className="bg-[#00090a] text-white pt-20 pb-12 border-t border-white/5 relative" id="contact-footer">
+    <footer className="bg-[#000000] text-white pt-20 pb-12 border-t border-white/5 relative" id="contact-footer">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         
         {/* Join our Newsletter Section */}
@@ -97,7 +97,7 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onA
               onClick={() => handleNavigate('home')}
               className="flex items-center text-white cursor-pointer hover:opacity-90 text-left focus:outline-none"
             >
-              <CrovationLogo isDarkTheme={true} height={42} />
+              <CrovationLogo isDarkTheme={true} height={52} />
             </button>
             
             <p className="text-xs text-gray-400 leading-relaxed font-sans pr-4">
@@ -305,7 +305,7 @@ export default function Footer({ onOpenInquiry, onChangePage, onAdminAccess, onA
       </div>
 
       {showThankYou && (
-        <div className="fixed inset-0 z-50 bg-[#00090a]/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#030d0f] border border-primary/20 rounded-3xl p-8 max-w-sm w-full text-center relative space-y-6 shadow-2xl animate-fade-in">
             <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
               <Mail className="h-5 w-5 text-primary" />

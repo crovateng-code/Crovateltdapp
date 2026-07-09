@@ -200,7 +200,7 @@ export default function ExecutiveConsoleAuth({
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="flex justify-center mb-6">
-          <CrovationLogo isDarkTheme={false} height={42} />
+          <CrovationLogo isDarkTheme={false} height={52} />
         </div>
         <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans">
           Executive Control Room

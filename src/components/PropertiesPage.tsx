@@ -37,11 +37,12 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
 
   useEffect(() => {
     async function fetchProperties() {
+      if (!isSupabaseConfigured || !supabase) {
+        setLoading(false);
+        return; // Silent fallback, no error set
+      }
       setLoading(true);
       try {
-        if (!isSupabaseConfigured || !supabase) {
-          throw new Error('Supabase configuration is missing or inactive.');
-        }
         const { data, error } = await supabase
           .from('properties')
           .select('*');
@@ -60,8 +61,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
   }, []);
 
   const loadedProperties = useMemo(() => {
-    const source = (isSupabaseConfigured && dbProperties.length > 0) ? dbProperties : (properties || []);
-    return source.filter(p => p && p.id && !p.id.toString().startsWith('prop-'));
+    return (isSupabaseConfigured && dbProperties.length > 0) ? dbProperties : (properties || []);
   }, [dbProperties, properties]);
 
   // Stats summary counted
@@ -362,7 +362,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                         referrerPolicy="no-referrer"
                       />
                       {/* Floating tags */}
-                      <span className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest text-[#00090a] uppercase shadow-sm z-10">
+                      <span className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest text-[#000000] uppercase shadow-sm z-10">
                         {prop.type}
                       </span>
 
@@ -377,7 +377,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                         </span>
                       </div>
                       
-                      <div className="absolute bottom-4 right-4 bg-[#00090a]/90 text-white font-mono text-xs font-semibold px-3 py-1 bg-secondary/80 rounded-lg">
+                      <div className="absolute bottom-4 right-4 bg-[#000000]/90 text-white font-mono text-xs font-semibold px-3 py-1 bg-secondary/80 rounded-lg">
                         {formatPrice(prop.price, prop.currency)}
                       </div>
                     </div>
