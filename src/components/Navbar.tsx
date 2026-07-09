@@ -349,155 +349,152 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
         </div>
       </div>
 
-      {/* Mobile Menu Backdrop and Drawer */}
+      {/* Mobile Full-Screen Slide-in Navigation Menu */}
       <div
-        className={`fixed inset-0 bg-[#000405]/80 backdrop-blur-sm z-50 transition-opacity duration-300 md:hidden ${
-          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        className={`fixed inset-0 w-screen h-screen bg-slate-950/98 backdrop-blur-2xl z-50 flex flex-col p-6 sm:p-10 md:hidden overflow-y-auto transition-all duration-500 ease-in-out ${
+          mobileMenuOpen
+            ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto'
+            : 'translate-y-full opacity-0 scale-95 pointer-events-none'
         }`}
-        onClick={() => setMobileMenuOpen(false)}
-        id="mobile-drawer-backdrop"
-      />
-
-      <div
-        className={`fixed top-0 right-0 h-full w-[310px] sm:w-[350px] bg-[#00090a]/98 backdrop-blur-xl border-l border-white/10 z-50 shadow-2xl flex flex-col p-6 overflow-y-auto transition-transform duration-300 ease-in-out md:hidden ${
-          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        id="mobile-drawer"
+        id="mobile-fullscreen-menu"
       >
-        <div className="flex items-center justify-between border-b border-white/5 pb-4.5 mb-5" id="mobile-drawer-header">
-          <CrovationLogo isDarkTheme={true} height={30} />
+        {/* Full-Screen Header */}
+        <div className="flex items-center justify-between border-b border-white/5 pb-5 mb-8" id="mobile-menu-header">
+          <CrovationLogo isDarkTheme={true} height={32} />
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="p-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer focus:outline-none"
+            className="p-2 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40 active:scale-95"
             aria-label="Close menu"
           >
-            <X className="h-4.5 w-4.5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="pb-2.5 mb-2">
-          <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold">Navigation Bureau</span>
-          <p className="text-[9px] font-mono text-gray-400">CROVATION LIMITED</p>
+        {/* Minimalist Subheader */}
+        <div className="mb-8" id="mobile-menu-bureau">
+          <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold block">
+            Navigation Bureau
+          </span>
+          <p className="text-[9px] font-mono text-gray-400">CROVATION LIMITED • LUXURY PROPERTY CATALOG</p>
         </div>
 
-        <div className="flex flex-col gap-2 flex-grow">
-          <button
-            onClick={() => handleNavigate('home')}
-            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
-              activePage === 'home' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary font-bold' : 'hover:bg-white/5 text-gray-300'
-            }`}
-          >
-            <Home className="h-4 w-4 text-[#02ceed]" />
-            <span>Home Showcase</span>
-          </button>
-
-          <button
-            onClick={() => handleNavigate('properties')}
-            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
-              activePage === 'properties' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary font-bold' : 'hover:bg-white/5 text-gray-300'
-            }`}
-          >
-            <Building2 className="h-4 w-4 text-[#02ceed]" />
-            <span>Properties Catalog</span>
-          </button>
-
-          <button
-            onClick={() => handleNavigate('about')}
-            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
-              activePage === 'about' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary font-bold' : 'hover:bg-white/5 text-gray-300'
-            }`}
-          >
-            <Info className="h-4 w-4 text-[#02ceed]" />
-            <span>About Lineage</span>
-          </button>
-
-          <button
-            onClick={() => handleNavigate('services')}
-            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
-              activePage === 'services' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary font-bold' : 'hover:bg-white/5 text-gray-300'
-            }`}
-          >
-            <Compass className="h-4 w-4 text-[#02ceed]" />
-            <span>Premium Services</span>
-          </button>
-
-          <button
-            onClick={() => handleNavigate('contact')}
-            className={`flex items-center gap-3 py-3 px-4 rounded-xl text-left text-sm font-semibold transition-all duration-200 cursor-pointer ${
-              activePage === 'contact' ? 'bg-primary/10 text-[#02ceed] border-l-4 border-primary font-bold' : 'hover:bg-white/5 text-gray-300'
-            }`}
-          >
-            <Phone className="h-4 w-4 text-[#02ceed]" />
-            <span>Contact Bureau</span>
-          </button>
+        {/* Elegant Display Links */}
+        <div className="flex flex-col gap-6 md:gap-8 my-auto py-4" id="mobile-menu-links">
+          {[
+            { number: '01', label: 'Home Showcase', page: 'home' },
+            { number: '02', label: 'Properties Catalog', page: 'properties' },
+            { number: '03', label: 'About Lineage', page: 'about' },
+            { number: '04', label: 'Premium Services', page: 'services' },
+            { number: '05', label: 'Contact Bureau', page: 'contact' },
+          ].map((item) => {
+            const isActive = activePage === item.page || (item.page === 'services' && activePage.startsWith('services/'));
+            return (
+              <button
+                key={item.page}
+                onClick={() => handleNavigate(item.page as any)}
+                className="group flex items-baseline gap-4 text-left cursor-pointer focus:outline-none"
+              >
+                <span className="text-[11px] font-mono text-[#02ceed]/80 tracking-wider font-semibold">
+                  {item.number} /
+                </span>
+                <span className={`text-3xl sm:text-4xl font-light tracking-tight transition-all duration-300 ${
+                  isActive
+                    ? 'text-primary font-medium tracking-wide translate-x-2'
+                    : 'text-gray-300 group-hover:text-white group-hover:translate-x-1'
+                }`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="pt-4 border-t border-white/5 mt-auto">
-          {loggedInAdmin && (
-            <div className="space-y-1 mb-4 border-b border-white/5 pb-4 bg-white/[0.02] p-3 rounded-xl border border-white/5">
-              <span className="text-[10px] font-mono tracking-widest text-[#00e1ff] uppercase font-bold block mb-2 px-1">
-                Control Room Deck
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onBackToAdmin?.('analytics');
-                  }}
-                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
-                >
-                  <TrendingUp className="h-3.5 w-3.5 text-slate-400" />
-                  <span>Performance</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onBackToAdmin?.('listings');
-                  }}
-                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
-                >
-                  <Layers className="h-3.5 w-3.5 text-slate-400" />
-                  <span>Listings</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onBackToAdmin?.('locations');
-                  }}
-                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
-                >
-                  <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                  <span>Regions</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onBackToAdmin?.('leads');
-                  }}
-                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
-                >
-                  <MessageCircle className="h-3.5 w-3.5 text-slate-400" />
-                  <span>Leads</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onBackToAdmin?.('subs');
-                  }}
-                  className="flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left col-span-2 cursor-pointer"
-                >
-                  <Mail className="h-3.5 w-3.5 text-slate-400" />
-                  <span>Email Subscribers</span>
-                </button>
-              </div>
+        {/* Control Room Deck (If Logged In Admin) */}
+        {loggedInAdmin && (
+          <div className="mt-8 mb-6 bg-white/[0.02] border border-white/5 rounded-2xl p-4" id="mobile-menu-admin-deck">
+            <span className="text-[10px] font-mono tracking-widest text-[#00e1ff] uppercase font-bold block mb-3 px-1">
+              Control Room Deck
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onBackToAdmin?.('analytics');
+                }}
+                className="flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
+              >
+                <TrendingUp className="h-3.5 w-3.5 text-slate-400" />
+                <span>Performance</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onBackToAdmin?.('listings');
+                }}
+                className="flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
+              >
+                <Layers className="h-3.5 w-3.5 text-slate-400" />
+                <span>Listings</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onBackToAdmin?.('locations');
+                }}
+                className="flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
+              >
+                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                <span>Regions</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onBackToAdmin?.('leads');
+                }}
+                className="flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left cursor-pointer"
+              >
+                <MessageCircle className="h-3.5 w-3.5 text-slate-400" />
+                <span>Leads</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onBackToAdmin?.('subs');
+                }}
+                className="flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-300 hover:bg-white/5 hover:text-primary text-left col-span-2 cursor-pointer"
+              >
+                <Mail className="h-3.5 w-3.5 text-slate-400" />
+                <span>Email Subscribers</span>
+              </button>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Brand Details & Quick Enquiry Footer */}
+        <div className="pt-6 border-t border-white/5 mt-auto" id="mobile-menu-footer">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <div>
+              <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold block mb-1">HQ Address</span>
+              <p className="text-xs text-gray-400 font-sans leading-relaxed">
+                Victoria Island, Lagos, Nigeria <br />
+                Midtown, Manhattan, NY, USA
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] font-mono tracking-widest text-[#02ceed] uppercase font-bold block mb-1">Concierge Office</span>
+              <p className="text-xs text-gray-400 font-sans leading-relaxed">
+                <a href="tel:+2348088727277" className="hover:text-[#02ceed] transition-colors">+234 (0) 808 872 7277</a> <br />
+                <a href="mailto:info@crovationlimited.com" className="hover:text-[#02ceed] transition-colors">info@crovationlimited.com</a>
+              </p>
+            </div>
+          </div>
+
           <a
             href="https://wa.me/2348088727277?text=Hello%20Crovation%20Limited,%20I'd%20like%20to%20make%20a%20quick%20enquiry."
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileMenuOpen(false)}
-            className="w-full bg-primary hover:bg-[#00e1ff] text-secondary text-center font-bold uppercase tracking-widest text-xs py-3.5 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer decoration-transparent"
+            className="w-full bg-primary hover:bg-[#00e1ff] text-secondary text-center font-bold uppercase tracking-widest text-xs py-4 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer decoration-transparent focus:ring-2 focus:ring-primary/40 active:scale-98"
           >
             <span>Quick Enquiry</span>
             <MessageCircle className="h-4 w-4" />

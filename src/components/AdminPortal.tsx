@@ -514,32 +514,96 @@ export default function AdminPortal({
     const cleanAmenities = amenities.map(a => a.trim()).filter(Boolean);
     const cleanDiligence = diligenceSummary.filter(item => item.label.trim() && item.value.trim());
 
-    const created: Property = {
-      id: `prop-${Date.now()}`,
+    const bedroomsVal = type === 'Land' ? 0 : parseInt(bedrooms || '0', 10);
+    const bathroomsVal = type === 'Land' ? 0 : parseInt(bathrooms || '0', 10);
+    const priceVal = parseFloat(price);
+    const sizeVal = parseInt(size, 10);
+
+    const newPropertyData = {
       title,
       type,
       location,
-      price: parseFloat(price),
-      bedrooms: type === 'Land' ? 0 : parseInt(bedrooms || '0', 10),
-      bathrooms: type === 'Land' ? 0 : parseInt(bathrooms || '0', 10),
-      size: parseInt(size, 10),
+      price: priceVal,
+      bedrooms: bedroomsVal,
+      bathrooms: bathroomsVal,
+      size: sizeVal,
       image,
       images: galleryImages,
       description,
-      currency: currency as 'USD' | 'NGN',
-      whatsappLink: whatsappLink || undefined,
-      phoneNumber: phoneNumber || undefined,
-      videoLink: videoLink.trim() || undefined,
       status: status || 'Available',
-      amenities: cleanAmenities.length > 0 ? cleanAmenities : undefined,
-      diligenceSummary: cleanDiligence.length > 0 ? cleanDiligence : undefined,
-      listerName: listerName.trim() || undefined,
-      listerBio: listerBio.trim() || undefined
+      currency: currency || 'USD',
+      whatsappLink: whatsappLink || null,
+      phoneNumber: phoneNumber || null,
+      videoLink: videoLink.trim() || null,
+      amenities: cleanAmenities.length > 0 ? cleanAmenities : null,
+      diligenceSummar: cleanDiligence.length > 0 ? cleanDiligence : null,
+      listerName: listerName.trim() || null,
+      listerBio: listerBio.trim() || null
     };
 
-    const updatedCatalog = [created, ...properties];
-    onPropertiesUpdated(updatedCatalog);
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase.from('properties').insert([newPropertyData]).select();
 
+        if (error) {
+          console.error('Supabase insertion error detail:', error);
+          alert(`Failed to save listing to Supabase: ${error.message}`);
+          throw error;
+        }
+
+        if (data && data[0]) {
+          const insertedDb = data[0];
+          const typedInserted: Property = {
+            id: insertedDb.id,
+            title: insertedDb.title,
+            type: insertedDb.type as PropertyType,
+            location: insertedDb.location,
+            price: typeof insertedDb.price === 'string' ? parseFloat(insertedDb.price) : insertedDb.price,
+            bedrooms: insertedDb.bedrooms,
+            bathrooms: insertedDb.bathrooms,
+            size: insertedDb.size,
+            image: insertedDb.image,
+            images: insertedDb.images || [],
+            description: insertedDb.description,
+            currency: insertedDb.currency as 'USD' | 'NGN',
+            whatsappLink: insertedDb.whatsappLink || undefined,
+            phoneNumber: insertedDb.phoneNumber || undefined,
+            videoLink: insertedDb.videoLink || undefined,
+            status: insertedDb.status || 'Available',
+            amenities: insertedDb.amenities || undefined,
+            diligenceSummary: insertedDb.diligenceSummar || undefined,
+            listerName: insertedDb.listerName || undefined,
+            listerBio: insertedDb.listerBio || undefined
+          };
+
+          // Prepend the new property to local dashboard properties and trigger state update
+          onPropertiesUpdated([typedInserted, ...properties]);
+          console.log('Saved new property to Supabase successfully:', typedInserted);
+          alert('Custom Asset Registered Successfully on Supabase cloud!');
+        }
+      } catch (err: any) {
+        console.error('Error syncing dynamic insertion to Supabase:', err);
+        return; // Don't close the form or reset data if there's a database failure, let them retry
+      }
+    } else {
+      // Offline/Local Fallback
+      const fallbackId = `user-${Date.now()}`; // Do not use "prop-" so it is not filtered out as a demo listing
+      const created: Property = {
+        id: fallbackId,
+        ...newPropertyData,
+        whatsappLink: newPropertyData.whatsappLink || undefined,
+        phoneNumber: newPropertyData.phoneNumber || undefined,
+        videoLink: newPropertyData.videoLink || undefined,
+        amenities: newPropertyData.amenities || undefined,
+        diligenceSummary: newPropertyData.diligenceSummar || undefined,
+        listerName: newPropertyData.listerName || undefined,
+        listerBio: newPropertyData.listerBio || undefined
+      };
+      onPropertiesUpdated([created, ...properties]);
+      alert('Custom Asset Registered Successfully (Local Storage Only)');
+    }
+
+    // Reset Form & Close
     setNewProperty({
       title: '',
       type: 'Apartment',
@@ -566,65 +630,6 @@ export default function AdminPortal({
       listerBio: ''
     });
     setIsAddFormOpen(false);
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.from('properties').insert([{
-          title: created.title,
-          type: created.type,
-          location: created.location,
-          price: created.price,
-          bedrooms: created.bedrooms,
-          bathrooms: created.bathrooms,
-          size: created.size,
-          image: created.image,
-          images: galleryImages,
-          description: created.description,
-          status: created.status,
-          currency: created.currency || 'USD',
-          whatsappLink: created.whatsappLink || null,
-          phoneNumber: created.phoneNumber || null,
-          videoLink: created.videoLink || null,
-          amenities: created.amenities || null,
-          diligenceSummar: created.diligenceSummary || null,
-          listerName: created.listerName || null,
-          listerBio: created.listerBio || null
-        }]).select();
-
-        if (error) throw error;
-
-        if (data && data[0]) {
-          const insertedDb = data[0];
-          const typedInserted: Property = {
-            id: insertedDb.id,
-            title: insertedDb.title,
-            type: insertedDb.type as PropertyType,
-            location: insertedDb.location,
-            price: typeof insertedDb.price === 'string' ? parseFloat(insertedDb.price) : insertedDb.price,
-            bedrooms: insertedDb.bedrooms,
-            bathrooms: insertedDb.bathrooms,
-            size: insertedDb.size,
-            image: insertedDb.image,
-            images: insertedDb.images || [],
-            description: insertedDb.description,
-            currency: insertedDb.currency as 'USD' | 'NGN',
-            whatsappLink: insertedDb.whatsappLink || undefined,
-            phoneNumber: insertedDb.phoneNumber || undefined,
-            videoLink: insertedDb.videoLink || undefined,
-            status: insertedDb.status || 'Available',
-            amenities: insertedDb.amenities || undefined,
-            diligenceSummary: insertedDb.diligenceSummar || undefined,
-            listerName: insertedDb.listerName || undefined,
-            listerBio: insertedDb.listerBio || undefined
-          };
-          const filteredCatalog = properties.filter(p => p.id !== created.id);
-          onPropertiesUpdated([typedInserted, ...filteredCatalog]);
-        }
-        console.log('Saved new property to Supabase successfully');
-      } catch (err) {
-        console.error('Error syncing dynamic insertion to Supabase:', err);
-      }
-    }
   };
 
   // Save changes of edited properties
