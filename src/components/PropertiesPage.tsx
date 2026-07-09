@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, ArrowUpDown, SlidersHorizontal, ArrowUpRight } from 'lucide-react';
 import { Property, PropertyType } from '../types';
-import { PROPERTIES } from '../data';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 function stripHtml(html: string): string {
   if (!html) return '';
@@ -30,7 +30,36 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
   const [filterBeds, setFilterBeds] = useState(initialFilters?.bedrooms || 'All');
   const [sortBy, setSortBy] = useState<'default' | 'priceAsc' | 'priceDesc' | 'sizeDesc'>('default');
   
-  const loadedProperties = properties || PROPERTIES;
+  // Real database properties state
+  const [dbProperties, setDbProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchProperties() {
+      setLoading(true);
+      try {
+        if (!isSupabaseConfigured || !supabase) {
+          throw new Error('Supabase configuration is missing or inactive.');
+        }
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*');
+        if (error) {
+          throw error;
+        }
+        setDbProperties(data || []);
+      } catch (err: any) {
+        console.error('Error fetching properties from Supabase:', err);
+        setFetchError(err?.message || 'Failed to fetch properties.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProperties();
+  }, []);
+
+  const loadedProperties = dbProperties;
 
   // Stats summary counted
   const totalInInventory = loadedProperties.length;
@@ -282,10 +311,36 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                   <option value="sizeDesc">Size: High-low area</option>
                 </select>
               </div>
-            </div>
-
-            {/* Listings Stream */}
-            {filteredProperties.length > 0 ? (
+            </div>            {/* Listings Stream */}
+            {loading ? (
+              <div className="bg-white rounded-3xl border border-black/[0.03] p-16 text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Loading premium holdings...</p>
+              </div>
+            ) : fetchError ? (
+              <div className="bg-white rounded-3xl border border-black/[0.03] p-12 text-center max-w-md mx-auto">
+                <span className="text-4xl block mb-3">⚠️</span>
+                <h4 className="text-base font-extrabold text-red-600 mb-1">
+                  Connection Error
+                </h4>
+                <p className="text-xs text-gray-400 leading-normal mb-6">
+                  {fetchError}
+                </p>
+              </div>
+            ) : dbProperties.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-black/[0.03] p-16 text-center max-w-md mx-auto">
+                <span className="text-4xl block mb-3">🏡</span>
+                <h4 className="text-base font-extrabold text-secondary mb-1">
+                  No properties listed yet
+                </h4>
+                <p className="text-xs text-gray-400 leading-normal mb-2">
+                  Our exclusive private registry is currently empty.
+                </p>
+                <p className="text-[11px] text-gray-400">
+                  Please register assets using the Executive Console.
+                </p>
+              </div>
+            ) : filteredProperties.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {filteredProperties.map((prop) => (
                   <div

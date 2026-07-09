@@ -36,7 +36,10 @@ export async function getSupabaseProperties(): Promise<Property[] | null> {
       return null;
     }
 
-    return data as Property[];
+    return (data || []).map((p: any) => ({
+      ...p,
+      diligenceSummary: p.diligenceSummar || p.diligenceSummary
+    })) as Property[];
   } catch (err) {
     console.error('Error fetching from Supabase database:', err);
     return null;
@@ -76,7 +79,7 @@ export async function seedPropertiesIntoSupabase(properties: Property[]): Promis
           phoneNumber: p.phoneNumber || null,
           videoLink: p.videoLink || null,
           amenities: p.amenities || null,
-          diligenceSummary: p.diligenceSummary || null,
+          diligenceSummar: p.diligenceSummary || null,
           listerName: p.listerName || null,
           listerBio: p.listerBio || null
         })),

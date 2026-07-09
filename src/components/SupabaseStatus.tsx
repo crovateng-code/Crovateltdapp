@@ -102,7 +102,7 @@ create table properties (
   "phoneNumber" text,
   "videoLink" text,
   amenities text[],
-  "diligenceSummary" jsonb,
+  "diligenceSummar" jsonb,
   "listerName" text,
   "listerBio" text
 );
@@ -114,7 +114,7 @@ create table properties (
 -- alter table properties add column if not exists "phoneNumber" text;
 -- alter table properties add column if not exists "videoLink" text;
 -- alter table properties add column if not exists amenities text[];
--- alter table properties add column if not exists "diligenceSummary" jsonb;
+-- alter table properties add column if not exists "diligenceSummar" jsonb;
 -- alter table properties add column if not exists "listerName" text;
 -- alter table properties add column if not exists "listerBio" text;
 

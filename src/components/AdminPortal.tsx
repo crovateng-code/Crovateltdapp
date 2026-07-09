@@ -437,17 +437,24 @@ export default function AdminPortal({
     if (!window.confirm('Are you absolutely sure you want to permanently retire this luxury listing? This action is permanent and cannot be undone.')) {
       return;
     }
-    const filtered = properties.filter(p => p.id !== id);
-    onPropertiesUpdated(filtered); // Prop callback updates local state & persistent LocalStorage on parent
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('properties').delete().eq('id', id);
+        const { error } = await supabase.from('properties').delete().eq('id', id);
+        if (error) {
+          throw error;
+        }
         console.log('Deleted successfully in Cloud database.');
-      } catch (e) {
-        console.error('Supabase deletion sync issue:', e);
+        alert('Property listing has been permanently deleted from the Supabase cloud database.');
+      } catch (err: any) {
+        console.error('Supabase deletion error:', err);
+        alert(`Failed to delete listing from the Supabase database: ${err?.message || err}`);
+        return; // Stop and do not filter from UI if the cloud deletion failed
       }
     }
+
+    const filtered = properties.filter(p => p.id !== id);
+    onPropertiesUpdated(filtered); // Prop callback updates local state & persistent LocalStorage on parent
   };
 
   // Add Location
@@ -558,8 +565,7 @@ export default function AdminPortal({
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('properties').insert([{
-          id: created.id,
+        const { data, error } = await supabase.from('properties').insert([{
           title: created.title,
           type: created.type,
           location: created.location,
@@ -576,10 +582,40 @@ export default function AdminPortal({
           phoneNumber: created.phoneNumber || null,
           videoLink: created.videoLink || null,
           amenities: created.amenities || null,
-          diligenceSummary: created.diligenceSummary || null,
+          diligenceSummar: created.diligenceSummary || null,
           listerName: created.listerName || null,
           listerBio: created.listerBio || null
-        }]);
+        }]).select();
+
+        if (error) throw error;
+
+        if (data && data[0]) {
+          const insertedDb = data[0];
+          const typedInserted: Property = {
+            id: insertedDb.id,
+            title: insertedDb.title,
+            type: insertedDb.type as PropertyType,
+            location: insertedDb.location,
+            price: typeof insertedDb.price === 'string' ? parseFloat(insertedDb.price) : insertedDb.price,
+            bedrooms: insertedDb.bedrooms,
+            bathrooms: insertedDb.bathrooms,
+            size: insertedDb.size,
+            image: insertedDb.image,
+            images: insertedDb.images || [],
+            description: insertedDb.description,
+            currency: insertedDb.currency as 'USD' | 'NGN',
+            whatsappLink: insertedDb.whatsappLink || undefined,
+            phoneNumber: insertedDb.phoneNumber || undefined,
+            videoLink: insertedDb.videoLink || undefined,
+            status: insertedDb.status || 'Available',
+            amenities: insertedDb.amenities || undefined,
+            diligenceSummary: insertedDb.diligenceSummar || undefined,
+            listerName: insertedDb.listerName || undefined,
+            listerBio: insertedDb.listerBio || undefined
+          };
+          const filteredCatalog = properties.filter(p => p.id !== created.id);
+          onPropertiesUpdated([typedInserted, ...filteredCatalog]);
+        }
         console.log('Saved new property to Supabase successfully');
       } catch (err) {
         console.error('Error syncing dynamic insertion to Supabase:', err);
@@ -633,7 +669,7 @@ export default function AdminPortal({
           phoneNumber: sanitizedEditing.phoneNumber || null,
           videoLink: sanitizedEditing.videoLink || null,
           amenities: sanitizedEditing.amenities || null,
-          diligenceSummary: sanitizedEditing.diligenceSummary || null,
+          diligenceSummar: sanitizedEditing.diligenceSummary || null,
           listerName: sanitizedEditing.listerName || null,
           listerBio: sanitizedEditing.listerBio || null
         }).eq('id', id);

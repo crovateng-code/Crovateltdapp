@@ -24,6 +24,7 @@ import InvestmentAdvisoryPage from './components/InvestmentAdvisoryPage';
 import CommercialRealEstatePage from './components/CommercialRealEstatePage';
 import { Property } from './types';
 import { PROPERTIES } from './data';
+import { getSupabaseProperties, isSupabaseConfigured } from './lib/supabase';
 
 export default function App() {
   const [activePage, setActivePage] = useState<'home' | 'properties' | 'about' | 'services' | 'contact' | 'admin' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial'>('home');
@@ -170,11 +171,28 @@ export default function App() {
   useEffect(() => {
     async function syncWithServer() {
       try {
-        // Sync properties
-        const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
-        if (propsRes && propsRes.success && Array.isArray(propsRes.properties) && propsRes.properties.length > 0) {
-          setDynamicProperties(propsRes.properties);
-          localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
+        // Sync properties - load from Supabase if configured as the primary source of truth
+        let fetchedProps: Property[] | null = null;
+        if (isSupabaseConfigured) {
+          fetchedProps = await getSupabaseProperties();
+        }
+
+        if (fetchedProps && fetchedProps.length > 0) {
+          setDynamicProperties(fetchedProps);
+          localStorage.setItem('crovation_local_properties', JSON.stringify(fetchedProps));
+          // Keep backend JSON backup up to date too
+          fetch('/api/properties', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ properties: fetchedProps })
+          }).catch(() => null);
+        } else {
+          // Fallback to local server backup if Supabase is empty or not configured
+          const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
+          if (propsRes && propsRes.success && Array.isArray(propsRes.properties) && propsRes.properties.length > 0) {
+            setDynamicProperties(propsRes.properties);
+            localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
+          }
         }
 
         // Sync locations
