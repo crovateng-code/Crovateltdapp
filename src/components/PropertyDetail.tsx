@@ -128,13 +128,18 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
     };
   }, [isLightboxOpen, lightboxIndex, galleryImages.length]);
 
-  const formatPrice = (value: number) => {
+  const formatPrice = (value: any) => {
+    const num = typeof value === 'number' ? value : parseFloat(value) || 0;
     const isNaira = property.currency === 'NGN';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: isNaira ? 'NGN' : 'USD',
-      maximumFractionDigits: 0
-    }).format(value).replace('NGN', '₦');
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: isNaira ? 'NGN' : 'USD',
+        maximumFractionDigits: 0
+      }).format(num).replace('NGN', '₦');
+    } catch (e) {
+      return (isNaira ? '₦' : '$') + num.toLocaleString();
+    }
   };
 
   // Generate customized WhatsApp query link or use configured link
@@ -188,8 +193,8 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
   const highlights = property.diligenceSummary !== undefined 
     ? property.diligenceSummary.filter(item => item.label && item.value) 
     : [
-      { label: 'Asset ID', value: `CRV-${property.id.toUpperCase()}-2025` },
-      { label: 'Financing Grade', value: property.price > 10000000 ? 'Sovereign Institutional' : 'Generational Private' },
+      { label: 'Asset ID', value: `CRV-${String(property.id || '').toUpperCase()}-2025` },
+      { label: 'Financing Grade', value: Number(property.price) > 10000000 ? 'Sovereign Institutional' : 'Generational Private' },
       { label: 'Deed Category', value: 'Clean Title / Handover Ready' },
       { label: 'Taxation Level', value: 'Special LLC Structured Exemptions Ready' }
     ];
@@ -364,7 +369,7 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                 <span className="text-[9px] text-gray-400 block uppercase font-medium">Total Area</span>
                 <div className="flex items-center justify-center gap-2 text-secondary font-bold text-sm md:text-base">
                   <Maximize2 className="h-4 w-4 text-primary" />
-                  <span>{property.size.toLocaleString()} <span className="text-[10px] text-gray-400 font-light">sqft</span></span>
+                  <span>{(Number(property.size) || 0).toLocaleString()} <span className="text-[10px] text-gray-400 font-light">sqft</span></span>
                 </div>
               </div>
             </div>

@@ -108,10 +108,14 @@ export default function App() {
       setSelectedProperty(null);
     } else if (path.startsWith('/property/')) {
       const slug = path.substring('/property/'.length);
-      const found = dynamicProperties.find(p => {
-        if (!p || !p.title) return false;
-        const pSlug = getSlug(p.title);
-        return pSlug === slug.toLowerCase() || getSlug(decodeURIComponent(slug)) === pSlug || p.id === slug;
+      const found = [...dynamicProperties, ...PROPERTIES].find(p => {
+        if (!p) return false;
+        const pSlug = p.title ? getSlug(p.title) : '';
+        const decodedSlug = decodeURIComponent(slug).toLowerCase();
+        return pSlug === slug.toLowerCase() || 
+               pSlug === decodedSlug || 
+               String(p.id).toLowerCase() === slug.toLowerCase() ||
+               String(p.id).toLowerCase() === decodedSlug;
       });
       if (found) {
         setSelectedProperty(found);
