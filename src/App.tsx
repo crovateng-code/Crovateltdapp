@@ -500,6 +500,7 @@ export default function App() {
                   onOpenInquiry={handleOpenInquiry} 
                   onExploreClick={handleExploreClick} 
                   locations={locations}
+                  onNavigateAbout={() => navigateTo('/about')}
                 />
 
                 {/* WHY CHOOSE CROVATION SECTION */}

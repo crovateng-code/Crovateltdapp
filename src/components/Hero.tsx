@@ -12,9 +12,10 @@ interface HeroProps {
   onOpenInquiry: (subject?: string) => void;
   onExploreClick: () => void;
   locations?: string[];
+  onNavigateAbout?: () => void;
 }
 
-export default function Hero({ onSearch, onOpenInquiry, onExploreClick, locations = ['California', 'New York', 'Dubai', 'Colorado', 'Boston'] }: HeroProps) {
+export default function Hero({ onSearch, onOpenInquiry, onExploreClick, locations = ['California', 'New York', 'Dubai', 'Colorado', 'Boston'], onNavigateAbout }: HeroProps) {
   const [location, setLocation] = useState('All');
   const [type, setType] = useState('All');
   const [priceRange, setPriceRange] = useState('All');
@@ -92,28 +93,30 @@ export default function Hero({ onSearch, onOpenInquiry, onExploreClick, location
             <div className="relative w-full max-w-[460px] aspect-[4/5] rounded-[24px] overflow-hidden border-8 border-white shadow-2xl group cursor-crosshair">
               {/* Luxury Estate Photo */}
               <img
-                src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80"
+                src="/img/CROVATION%20WALL%20DISPLAY.jpg"
                 alt="Architectural Masterpiece Mansion"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent opacity-60" />
               
-              {/* Premium overlay badge inside the frame */}
-              <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 text-white">
-                <span className="text-[10px] uppercase font-bold text-primary tracking-widest block mb-1">
-                  Private Showroom Featured
+              {/* Text overlay linking to the About page to learn about Crovation */}
+              <button
+                onClick={onNavigateAbout}
+                className="absolute bottom-6 left-6 right-6 bg-slate-900/90 hover:bg-slate-900 backdrop-blur-md rounded-2xl border border-white/10 p-4 text-white text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group/overlay shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                id="hero-about-link-overlay"
+              >
+                <span className="text-[10px] uppercase font-bold text-primary tracking-widest block mb-1.5 flex items-center gap-1">
+                  Discover Crovation Limited
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/overlay:translate-x-0.5 group-hover/overlay:-translate-y-0.5" />
                 </span>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <h4 className="font-semibold text-base leading-tight">The Horizon Estate</h4>
-                    <span className="text-xs text-gray-200">Bel-Air, Los Angeles</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs text-primary font-mono block">$18,450,000</span>
-                  </div>
-                </div>
-              </div>
+                <h4 className="font-semibold text-xs leading-relaxed text-gray-200">
+                  Crovation is a high-performing real estate firm specializing in luxury properties, sustainable architecture, and premium investment assets.
+                </h4>
+                <span className="inline-block mt-2 text-xs text-primary font-bold hover:underline">
+                  Learn more about us &rarr;
+                </span>
+              </button>
             </div>
           </div>
         </div>
