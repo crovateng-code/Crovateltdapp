@@ -65,6 +65,60 @@ export default function App() {
     return [];
   });
 
+  const getSlug = (title: string): string => {
+    if (!title) return '';
+    return title
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9\s-]/g, '')
+      .replace(/\s+/g, '-');
+  };
+
+  useEffect(() => {
+    const path = currentPath;
+    if (path === '/' || path === '' || path === '/home') {
+      setActivePage('home');
+      setSelectedProperty(null);
+    } else if (path === '/properties') {
+      setActivePage('properties');
+      setSelectedProperty(null);
+    } else if (path === '/about') {
+      setActivePage('about');
+      setSelectedProperty(null);
+    } else if (path === '/services') {
+      setActivePage('services');
+      setSelectedProperty(null);
+    } else if (path === '/contact') {
+      setActivePage('contact');
+      setSelectedProperty(null);
+    } else if (path === '/services/sales') {
+      setActivePage('services/sales');
+      setSelectedProperty(null);
+    } else if (path === '/services/management') {
+      setActivePage('services/management');
+      setSelectedProperty(null);
+    } else if (path === '/services/advisory') {
+      setActivePage('services/advisory');
+      setSelectedProperty(null);
+    } else if (path === '/services/commercial') {
+      setActivePage('services/commercial');
+      setSelectedProperty(null);
+    } else if (path === '/Executive-Console' || path === '/admin-dashboard') {
+      setActivePage('admin');
+      setSelectedProperty(null);
+    } else if (path.startsWith('/property/')) {
+      const slug = path.substring('/property/'.length);
+      const found = dynamicProperties.find(p => {
+        if (!p || !p.title) return false;
+        const pSlug = getSlug(p.title);
+        return pSlug === slug.toLowerCase() || getSlug(decodeURIComponent(slug)) === pSlug || p.id === slug;
+      });
+      if (found) {
+        setSelectedProperty(found);
+      }
+    }
+  }, [currentPath, dynamicProperties]);
+
   // Track the logged in admin state so we can render an avatar at the top in Navbar!
   const [loggedInAdmin, setLoggedInAdmin] = useState<any>(() => {
     try {
@@ -317,7 +371,7 @@ export default function App() {
     bedrooms: string;
   }) => {
     setSearchFilters(filters);
-    setActivePage('properties');
+    navigateTo('/properties');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -339,13 +393,13 @@ export default function App() {
 
   // Switch to Properties page
   const handleExploreClick = () => {
-    setActivePage('properties');
-    setSelectedProperty(null);
+    navigateTo('/properties');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSelectProperty = (property: Property) => {
-    setSelectedProperty(property);
+    const slug = getSlug(property.title);
+    navigateTo(`/property/${slug}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -399,11 +453,7 @@ export default function App() {
         onOpenInquiry={handleOpenInquiry} 
         activePage={activePage}
         onChangePage={(page) => {
-          setActivePage(page);
-          setSelectedProperty(null);
-          if (currentPath !== '/') {
-            navigateTo('/');
-          }
+          navigateTo(page === 'home' ? '/' : `/${page}`);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         loggedInAdmin={loggedInAdmin}
@@ -422,11 +472,20 @@ export default function App() {
 
       {/* Main Flow Sections based on Active Page */}
       <main className="relative min-h-[70vh]">
-        {selectedProperty ? (
+        {currentPath.startsWith('/property/') && !selectedProperty ? (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4" id="loading-property-detail">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
+            <p className="text-sm font-mono text-gray-400">Retrieving secure portfolio assets...</p>
+          </div>
+        ) : selectedProperty ? (
           <PropertyDetail 
             property={selectedProperty} 
             onBack={() => {
-              setSelectedProperty(null);
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                navigateTo('/properties');
+              }
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
@@ -460,7 +519,7 @@ export default function App() {
 
                 {/* BESPOKE ADVISORY SERVICES SHORT PREVIEW */}
                 <Services onChangePage={(page) => {
-                  setActivePage(page);
+                  navigateTo(`/${page}`);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} />
 
@@ -493,7 +552,7 @@ export default function App() {
               <ServicesPage 
                 onOpenInquiry={handleOpenInquiry} 
                 onNavigateToFullPage={(page) => {
-                  setActivePage(page);
+                  navigateTo(`/${page}`);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               />
@@ -502,7 +561,7 @@ export default function App() {
             {activePage === 'services/sales' && (
               <PropertySalesPage 
                 onBack={() => {
-                  setActivePage('services');
+                  navigateTo('/services');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
@@ -513,7 +572,7 @@ export default function App() {
             {activePage === 'services/management' && (
               <PropertyManagementPage 
                 onBack={() => {
-                  setActivePage('services');
+                  navigateTo('/services');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
@@ -524,7 +583,7 @@ export default function App() {
             {activePage === 'services/advisory' && (
               <InvestmentAdvisoryPage 
                 onBack={() => {
-                  setActivePage('services');
+                  navigateTo('/services');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
@@ -535,7 +594,7 @@ export default function App() {
             {activePage === 'services/commercial' && (
               <CommercialRealEstatePage 
                 onBack={() => {
-                  setActivePage('services');
+                  navigateTo('/services');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} 
                 onOpenInquiry={handleOpenInquiry} 
@@ -557,8 +616,7 @@ export default function App() {
       <Footer 
         onOpenInquiry={handleOpenInquiry}
         onChangePage={(page) => {
-          setActivePage(page);
-          setSelectedProperty(null);
+          navigateTo(page === 'home' ? '/' : `/${page}`);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onAdminAccess={() => {
