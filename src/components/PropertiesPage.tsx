@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, ArrowUpDown, SlidersHorizontal, ArrowUpRight } from 'lucide-react';
+import { Search, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, ArrowUpDown, SlidersHorizontal, ArrowUpRight, Grid, Map, Scale, X, Check } from 'lucide-react';
 import { Property, PropertyType } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import PropertyMapView from './PropertyMapView';
+import PropertyComparison from './PropertyComparison';
 
 function stripHtml(html: string): string {
   if (!html) return '';
@@ -35,6 +37,11 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // Map view & side-by-side comparison states
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [comparePropertyIds, setComparePropertyIds] = useState<string[]>([]);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+
   useEffect(() => {
     async function fetchProperties() {
       if (!isSupabaseConfigured || !supabase) {
@@ -61,8 +68,14 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
   }, []);
 
   const loadedProperties = useMemo(() => {
-    return (isSupabaseConfigured && dbProperties.length > 0) ? dbProperties : (properties || []);
-  }, [dbProperties, properties]);
+    if (isSupabaseConfigured) {
+      if (fetchError || (loading && dbProperties.length === 0)) {
+        return properties || [];
+      }
+      return dbProperties;
+    }
+    return properties || [];
+  }, [isSupabaseConfigured, dbProperties, properties, loading, fetchError]);
 
   // Stats summary counted
   const totalInInventory = loadedProperties.length;
@@ -129,6 +142,26 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
     setFilterBeds('All');
     setSortBy('default');
   };
+
+  const handleToggleCompare = (property: Property) => {
+    setComparePropertyIds(prev => {
+      if (prev.includes(property.id)) {
+        return prev.filter(id => id !== property.id);
+      }
+      if (prev.length >= 3) {
+        return prev; // Limit comparison list to 3 properties maximum
+      }
+      return [...prev, property.id];
+    });
+  };
+
+  const handleRemoveCompare = (propertyId: string) => {
+    setComparePropertyIds(prev => prev.filter(id => id !== propertyId));
+  };
+
+  const comparePropertiesList = useMemo(() => {
+    return loadedProperties.filter(p => comparePropertyIds.includes(p.id));
+  }, [loadedProperties, comparePropertyIds]);
 
   const formatPrice = (value: number, currency?: 'USD' | 'NGN') => {
     const isNaira = currency === 'NGN';
@@ -290,29 +323,58 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
           <main className="lg:col-span-9 space-y-6">
             
             {/* Control Bar */}
-            <div className="bg-white rounded-2xl border border-black/[0.03] p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-white rounded-2xl border border-black/[0.03] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-left">
                 <span className="text-xs text-gray-400">
                   Showing <strong className="text-secondary font-semibold">{filteredProperties.length}</strong> of {totalInInventory} Private Assets Listed
                 </span>
               </div>
 
-              {/* Sorter Selector */}
-              <div className="flex items-center gap-2.5 self-end sm:self-auto">
-                <span className="text-xs text-gray-400 flex items-center gap-1">
-                  <ArrowUpDown className="h-3 w-3 text-primary" />
-                  Sort properties by:
-                </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="rounded-lg border border-gray-100 bg-white px-2 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer text-center font-semibold"
-                >
-                  <option value="default">Standard Order</option>
-                  <option value="priceAsc">Price: Low to High</option>
-                  <option value="priceDesc">Price: High to Low</option>
-                  <option value="sizeDesc">Size: High-low area</option>
-                </select>
+              {/* View Toggle & Sorter */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto justify-end">
+                {/* View Mode Toggle */}
+                <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200/50 w-full sm:w-auto justify-center">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                      viewMode === 'grid'
+                        ? 'bg-white text-secondary shadow-sm'
+                        : 'text-gray-400 hover:text-secondary'
+                    }`}
+                  >
+                    <Grid className="h-3.5 w-3.5" />
+                    <span>Grid View</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('map')}
+                    className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                      viewMode === 'map'
+                        ? 'bg-white text-secondary shadow-sm'
+                        : 'text-gray-400 hover:text-secondary'
+                    }`}
+                  >
+                    <Map className="h-3.5 w-3.5" />
+                    <span>Map View</span>
+                  </button>
+                </div>
+
+                {/* Sorter Selector */}
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+                  <span className="text-xs text-gray-400 flex items-center gap-1 whitespace-nowrap">
+                    <ArrowUpDown className="h-3 w-3 text-primary" />
+                    Sort:
+                  </span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="rounded-xl border border-gray-100 bg-white px-3 py-1.5 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer text-center font-semibold w-full sm:w-auto"
+                  >
+                    <option value="default">Standard Order</option>
+                    <option value="priceAsc">Price: Low to High</option>
+                    <option value="priceDesc">Price: High to Low</option>
+                    <option value="sizeDesc">Size: High-low area</option>
+                  </select>
+                </div>
               </div>
             </div>            {/* Listings Stream */}
             {loading ? (
@@ -330,7 +392,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                   {fetchError}
                 </p>
               </div>
-            ) : dbProperties.length === 0 ? (
+            ) : loadedProperties.length === 0 ? (
               <div className="bg-white rounded-3xl border border-black/[0.03] p-16 text-center max-w-md mx-auto">
                 <span className="text-4xl block mb-3">🏡</span>
                 <h4 className="text-base font-extrabold text-secondary mb-1">
@@ -344,102 +406,138 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                 </p>
               </div>
             ) : filteredProperties.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {filteredProperties.map((prop) => (
-                  <div
-                    key={prop.id}
-                    className="group bg-white rounded-3xl border border-black/[0.04] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.015)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1"
-                  >
-                    {/* Img frame */}
-                    <div 
-                      onClick={() => onSelectProperty(prop)}
-                      className="relative aspect-[16/11] bg-slate-100 overflow-hidden cursor-pointer"
+              viewMode === 'map' ? (
+                <PropertyMapView
+                  properties={filteredProperties}
+                  onSelectProperty={onSelectProperty}
+                  selectedPropertiesForCompare={comparePropertyIds}
+                  onToggleCompare={handleToggleCompare}
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {filteredProperties.map((prop) => (
+                    <div
+                      key={prop.id}
+                      className="group bg-white rounded-3xl border border-black/[0.04] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.015)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1"
                     >
-                      <img
-                        src={prop.image}
-                        alt={prop.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        referrerPolicy="no-referrer"
-                      />
-                      {/* Floating tags */}
-                      <span className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest text-[#000000] uppercase shadow-sm z-10">
-                        {prop.type}
-                      </span>
-
-                      {/* Absolute Availability Status Badge Right */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <span className={`inline-block px-3.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border shadow-md ${
-                          (prop.status || 'Available') === 'Available'
-                            ? 'bg-emerald-600 border-emerald-500 text-white'
-                            : 'bg-red-600 border-red-500 text-white'
-                        }`}>
-                          {(prop.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}
-                        </span>
-                      </div>
-                      
-                      <div className="absolute bottom-4 right-4 bg-[#000000]/90 text-white font-mono text-xs font-semibold px-3 py-1 bg-secondary/80 rounded-lg">
-                        {formatPrice(prop.price, prop.currency)}
-                      </div>
-                    </div>
-
-                    {/* Details block */}
-                    <div className="p-6 text-left space-y-3.5">
-                      <div className="flex items-center gap-1.5 text-gray-400 font-mono text-xs">
-                        <MapPin className="h-3 w-3 text-primary flex-shrink-0" />
-                        <span className="truncate">{prop.location}</span>
-                      </div>
-
-                      <h3 
-                        onClick={() => onSelectProperty(prop)}
-                        className="font-extrabold text-base text-secondary group-hover:text-primary transition-colors cursor-pointer"
+                      {/* Img frame */}
+                      <div 
+                        className="relative aspect-[16/11] bg-slate-100 overflow-hidden cursor-pointer"
                       >
-                        {prop.title}
-                      </h3>
+                        <img
+                          src={prop.image}
+                          alt={prop.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          referrerPolicy="no-referrer"
+                          onClick={() => onSelectProperty(prop)}
+                        />
+                        
+                        {/* Floating tags */}
+                        <span className="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-[10px] font-semibold tracking-widest text-[#000000] uppercase shadow-sm z-10">
+                          {prop.type}
+                        </span>
 
-                      <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
-                        {stripHtml(prop.description)}
-                      </p>
+                        {/* Absolute Availability Status Badge Right */}
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className={`inline-block px-3.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border shadow-md ${
+                            (prop.status || 'Available') === 'Available'
+                              ? 'bg-emerald-600 border-emerald-500 text-white'
+                              : 'bg-red-600 border-red-500 text-white'
+                          }`}>
+                            {(prop.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}
+                          </span>
+                        </div>
 
-                      {/* Specs section */}
-                      <div className="grid grid-cols-3 gap-2 border-t border-black/[0.02] pt-3.5 text-center">
-                        {prop.type !== 'Commercial' && (
+                        {/* Comparison Toggle Overlay */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleCompare(prop);
+                          }}
+                          className={`absolute bottom-4 left-4 z-10 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border shadow-md transition-all flex items-center gap-1 cursor-pointer ${
+                            comparePropertyIds.includes(prop.id)
+                              ? 'bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-700'
+                              : 'bg-white/95 border-slate-200 text-secondary hover:bg-white hover:scale-102'
+                          }`}
+                          title={comparePropertyIds.includes(prop.id) ? "Remove from comparison" : "Select to compare side-by-side (Max 3)"}
+                        >
+                          {comparePropertyIds.includes(prop.id) ? (
+                            <>
+                              <Check className="h-3 w-3 text-white" />
+                              <span>Selected</span>
+                            </>
+                          ) : (
+                            <>
+                              <Scale className="h-3 w-3 text-slate-500" />
+                              <span>Compare</span>
+                            </>
+                          )}
+                        </button>
+                        
+                        <div className="absolute bottom-4 right-4 bg-[#000000]/90 text-white font-mono text-xs font-semibold px-3 py-1 bg-secondary/80 rounded-lg">
+                          {formatPrice(prop.price, prop.currency)}
+                        </div>
+                      </div>
+
+                      {/* Details block */}
+                      <div className="p-6 text-left space-y-3.5">
+                        <div className="flex items-center gap-1.5 text-gray-400 font-mono text-xs">
+                          <MapPin className="h-3 w-3 text-primary flex-shrink-0" />
+                          <span className="truncate">{prop.location}</span>
+                        </div>
+
+                        <h3 
+                          onClick={() => onSelectProperty(prop)}
+                          className="font-extrabold text-base text-secondary group-hover:text-primary transition-colors cursor-pointer"
+                        >
+                          {prop.title}
+                        </h3>
+
+                        <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                          {stripHtml(prop.description)}
+                        </p>
+
+                        {/* Specs section */}
+                        <div className="grid grid-cols-3 gap-2 border-t border-black/[0.02] pt-3.5 text-center">
+                          {prop.type !== 'Commercial' && (
+                            <div>
+                              <span className="text-[9px] text-gray-400 block uppercase font-medium">Beds</span>
+                              <div className="flex items-center justify-center gap-1 text-secondary font-bold text-xs">
+                                <BedDouble className="h-3 w-3 text-slate-500" />
+                                <span>{prop.bedrooms}</span>
+                              </div>
+                            </div>
+                          )}
                           <div>
-                            <span className="text-[9px] text-gray-400 block uppercase font-medium">Beds</span>
+                            <span className="text-[9px] text-gray-400 block uppercase font-medium">Baths</span>
                             <div className="flex items-center justify-center gap-1 text-secondary font-bold text-xs">
-                              <BedDouble className="h-3 w-3 text-slate-500" />
-                              <span>{prop.bedrooms}</span>
+                              <Bath className="h-3 w-3 text-slate-500" />
+                              <span>{prop.bathrooms}</span>
                             </div>
                           </div>
-                        )}
-                        <div>
-                          <span className="text-[9px] text-gray-400 block uppercase font-medium">Baths</span>
-                          <div className="flex items-center justify-center gap-1 text-secondary font-bold text-xs">
-                            <Bath className="h-3 w-3 text-slate-500" />
-                            <span>{prop.bathrooms}</span>
+                          <div>
+                            <span className="text-[9px] text-gray-400 block uppercase font-medium">Size</span>
+                            <div className="flex items-center justify-center gap-1 text-secondary font-bold text-xs">
+                              <Maximize2 className="h-3 w-3 text-slate-500" />
+                              <span>{prop.size} <span className="text-[8px] text-slate-400 font-light">sqft</span></span>
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <span className="text-[9px] text-gray-400 block uppercase font-medium">Size</span>
-                          <div className="flex items-center justify-center gap-1 text-secondary font-bold text-xs">
-                            <Maximize2 className="h-3 w-3 text-slate-500" />
-                            <span>{prop.size} <span className="text-[8px] text-slate-400 font-light">sqft</span></span>
-                          </div>
-                        </div>
+
+                        {/* CTA trigger */}
+                        <button
+                          onClick={() => onSelectProperty(prop)}
+                          className="w-full bg-slate-50 border border-slate-200 text-secondary hover:border-primary hover:bg-primary hover:text-secondary py-2.5 rounded-xl font-bold uppercase tracking-wider text-[10px] duration-300 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          View Asset Details
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </button>
                       </div>
 
-                      {/* CTA trigger */}
-                      <button
-                        onClick={() => onSelectProperty(prop)}
-                        className="w-full bg-slate-50 border border-slate-200 text-secondary hover:border-primary hover:bg-primary hover:text-secondary py-2.5 rounded-xl font-bold uppercase tracking-wider text-[10px] duration-300 transition-all flex items-center justify-center gap-1 cursor-pointer"
-                      >
-                        View Asset Details
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </button>
                     </div>
-
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )
             ) : (
               <div className="bg-white rounded-3xl border border-black/[0.03] p-12 text-center max-w-md mx-auto">
                 <span className="text-4xl block mb-3">🔍</span>
@@ -462,6 +560,51 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
 
         </div>
       </div>
+
+      {/* Sticky Bottom Comparison Drawer */}
+      {comparePropertyIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-4 animate-fade-in">
+          <div className="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 text-white text-left">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/25 p-2 rounded-xl border border-primary/45 shrink-0">
+                <Scale className="h-5 w-5 text-primary animate-pulse" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs text-white">Compare Assets Side-by-Side</h4>
+                <span className="text-[10px] text-gray-400 font-medium font-mono">
+                  {comparePropertyIds.length} of 3 properties selected
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsComparisonOpen(true)}
+                className="bg-primary hover:bg-cyan-400 text-slate-950 font-extrabold uppercase tracking-wider text-[10px] px-3.5 py-2.5 rounded-xl duration-300 transition-all flex items-center gap-1 cursor-pointer shadow-lg"
+              >
+                Compare ({comparePropertyIds.length}/3)
+              </button>
+              <button
+                onClick={() => setComparePropertyIds([])}
+                className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-300 cursor-pointer"
+                title="Clear comparison list"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Side-by-Side Comparison Fullscreen Overlay */}
+      {isComparisonOpen && (
+        <PropertyComparison
+          selectedProperties={comparePropertiesList}
+          onRemove={handleRemoveCompare}
+          onClose={() => setIsComparisonOpen(false)}
+          onOpenInquiry={onOpenInquiry}
+        />
+      )}
     </div>
   );
 }

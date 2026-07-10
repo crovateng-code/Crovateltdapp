@@ -278,6 +278,9 @@ export default function AdminPortal({
   // Property Editing State
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
+  // Property Deletion Confirmation Dialog State
+  const [deleteConfirmProperty, setDeleteConfirmProperty] = useState<Property | null>(null);
+
   // Local administrative credentials database
   const [registeredAdmin, setRegisteredAdmin] = useState<any>(null);
 
@@ -434,10 +437,6 @@ export default function AdminPortal({
 
   // Deletion logic: verified permanent!
   const handleDeleteProperty = async (id: string) => {
-    if (!window.confirm('Are you absolutely sure you want to permanently retire this luxury listing? This action is permanent and cannot be undone.')) {
-      return;
-    }
-
     // Always attempt deletion from Supabase if configured so that all listings (including demo listings synced to cloud) are permanently deleted
     if (isSupabaseConfigured && supabase) {
       try {
@@ -446,7 +445,6 @@ export default function AdminPortal({
           throw error;
         }
         console.log('Deleted successfully in Cloud database.');
-        alert('Property listing has been permanently deleted from the Supabase cloud database.');
       } catch (err: any) {
         console.error('Supabase deletion error:', err);
         // Only block UI deletion if it's not a demo property (since a demo property might not have been seeded/stored in Supabase yet)
@@ -459,6 +457,7 @@ export default function AdminPortal({
 
     const filtered = properties.filter(p => p.id !== id);
     onPropertiesUpdated(filtered); // Prop callback updates local state & persistent LocalStorage on parent
+    setDeleteConfirmProperty(null); // Close the confirmation dialog
   };
 
   // Add Location
@@ -1239,7 +1238,7 @@ export default function AdminPortal({
 
                               {/* Persistent delete logic is configured here */}
                               <button
-                                onClick={() => handleDeleteProperty(prop.id)}
+                                onClick={() => setDeleteConfirmProperty(prop)}
                                 className="inline-flex items-center gap-1 text-red-500 hover:text-white py-1.5 px-3 bg-red-50 hover:bg-red-500 border border-red-100 rounded-lg font-bold text-[10px] uppercase cursor-pointer transition-all"
                                 title="Retire listing permanently"
                               >
@@ -2481,6 +2480,67 @@ export default function AdminPortal({
                 </button>
               </div>
             </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* ------------------- CUSTOM CONFIRMATION DIALOG: DELETE PROPERTY ------------------- */}
+      {deleteConfirmProperty && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-slate-200 w-full max-w-md p-6 shadow-2xl relative animate-in zoom-in-95 duration-200 text-left">
+            
+            <button
+              onClick={() => setDeleteConfirmProperty(null)}
+              className="absolute top-5 right-5 p-2 bg-slate-50 border border-slate-100 stroke-2 text-slate-400 hover:text-slate-800 rounded-xl transition duration-150 cursor-pointer"
+              title="Close dialog"
+            >
+              <X className="h-4.5 w-4.5" />
+            </button>
+
+            <div className="flex items-start gap-4 mb-5">
+              <div className="p-3 bg-red-50 text-red-500 rounded-2xl border border-red-100 shrink-0">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div className="space-y-1">
+                <span className="bg-red-50 text-red-500 font-bold px-2 py-0.5 rounded text-[9px] font-mono inline-block">SECURITY OVERRIDE</span>
+                <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">Confirm Asset Deletion</h3>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <p className="text-sm text-slate-650 leading-relaxed font-sans">
+                Are you absolutely sure you want to permanently retire <span className="font-semibold text-slate-950">"{deleteConfirmProperty.title}"</span>?
+              </p>
+              
+              <div className="bg-red-50/50 rounded-2xl border border-red-100/50 p-4 space-y-2">
+                <h4 className="text-xs font-bold text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  Central Sync Warning
+                </h4>
+                <p className="text-xs text-red-800/80 leading-relaxed font-medium">
+                  This action is irreversible and will immediately synchronize with the central database, permanently overwriting the primary source of truth for all synchronized platforms and mobile apps.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmProperty(null)}
+                className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-bold uppercase text-[10px] tracking-wider py-3 px-5 rounded-xl transition duration-150 cursor-pointer border border-slate-200"
+              >
+                Cancel, Keep Asset
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteProperty(deleteConfirmProperty.id)}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-[10px] tracking-wider py-3 px-5 rounded-xl transition duration-150 shadow-md shadow-red-200 cursor-pointer flex items-center gap-1.5"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Yes, Delete permanently
+              </button>
+            </div>
 
           </div>
         </div>

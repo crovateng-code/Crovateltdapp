@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WhyChoose from './components/WhyChoose';
@@ -31,6 +31,7 @@ export default function App() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
   const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs' | 'security'>('analytics');
+  const lastSaveTimeRef = useRef<number>(0);
 
   // Client-side path-routing system
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -227,52 +228,201 @@ export default function App() {
 
   // Synchronization with server backend to share state live between Desktop and Mobile
   useEffect(() => {
+    let isFirstSync = true;
+
     async function syncWithServer() {
+      // Prevent background polling from overwriting recent local updates / deletions
+      if (!isFirstSync && Date.now() - lastSaveTimeRef.current < 10000) {
+        return;
+      }
       try {
-        // Sync properties - load from Supabase if configured as the primary source of truth
+        // Simple helper to check if two arrays are structurally equal to prevent redundant updates
+        const isSameArray = (a: any[], b: any[]) => {
+          if (a.length !== b.length) return false;
+          return JSON.stringify(a) === JSON.stringify(b);
+        };
+
+        // 1. SYNC PROPERTIES - load from Supabase if configured as the primary source of truth
         let fetchedProps: Property[] | null = null;
         if (isSupabaseConfigured) {
           fetchedProps = await getSupabaseProperties();
         }
 
-        if (fetchedProps && fetchedProps.length > 0) {
-          setDynamicProperties(fetchedProps);
-          localStorage.setItem('crovation_local_properties', JSON.stringify(fetchedProps));
+        if (isSupabaseConfigured && fetchedProps !== null) {
+          // If Supabase is configured and the fetch succeeded, it's the absolute source of truth (even if empty!)
+          const finalProps = fetchedProps;
+          setDynamicProperties(prev => {
+            if (!isSameArray(prev, finalProps)) {
+              localStorage.setItem('crovation_local_properties', JSON.stringify(finalProps));
+              return finalProps;
+            }
+            return prev;
+          });
           // Keep backend JSON backup up to date too
           fetch('/api/properties', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ properties: fetchedProps })
+            body: JSON.stringify({ properties: finalProps })
           }).catch(() => null);
         } else {
-          // Fallback to local server backup if Supabase is empty or not configured
-          const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
-          if (propsRes && propsRes.success && Array.isArray(propsRes.properties)) {
-            setDynamicProperties(propsRes.properties);
-            localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
+          // If Supabase is not configured, or fetchedProps was null:
+          if (isFirstSync) {
+            // First run: warm up the server cache if we have client-side local changes
+            const savedLocal = localStorage.getItem('crovation_local_properties');
+            if (savedLocal !== null) {
+              try {
+                const parsed = JSON.parse(savedLocal);
+                if (Array.isArray(parsed)) {
+                  // Push local storage to warm up server cache
+                  await fetch('/api/properties', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ properties: parsed })
+                  }).catch(() => null);
+                }
+              } catch (e) {
+                console.error('Error parsing local properties on first sync', e);
+              }
+            } else {
+              // No local storage, load fallback from server backup
+              const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
+              if (propsRes && propsRes.success && Array.isArray(propsRes.properties)) {
+                setDynamicProperties(propsRes.properties);
+                localStorage.setItem('crovation_local_properties', JSON.stringify(propsRes.properties));
+              }
+            }
+          } else {
+            // Subsequent polls: fetch from server (absolute source of truth)
+            const propsRes = await fetch('/api/properties').then(r => r.json()).catch(() => null);
+            if (propsRes && propsRes.success && Array.isArray(propsRes.properties)) {
+              const serverProps = propsRes.properties;
+              setDynamicProperties(prev => {
+                if (!isSameArray(prev, serverProps)) {
+                  localStorage.setItem('crovation_local_properties', JSON.stringify(serverProps));
+                  return serverProps;
+                }
+                return prev;
+              });
+            }
           }
         }
 
-        // Sync locations
-        const locsRes = await fetch('/api/locations').then(r => r.json()).catch(() => null);
-        if (locsRes && locsRes.success && Array.isArray(locsRes.locations) && locsRes.locations.length > 0) {
-          setLocations(locsRes.locations);
-          localStorage.setItem('crovation_custom_locations', JSON.stringify(locsRes.locations));
+        // 2. SYNC LOCATIONS
+        if (isFirstSync) {
+          const savedLocs = localStorage.getItem('crovation_custom_locations');
+          if (savedLocs !== null) {
+            try {
+              const parsedLocs = JSON.parse(savedLocs);
+              if (Array.isArray(parsedLocs) && parsedLocs.length > 0) {
+                await fetch('/api/locations', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ locations: parsedLocs })
+                }).catch(() => null);
+              }
+            } catch (e) {
+              console.error('Error parsing local locations on sync', e);
+            }
+          } else {
+            const locsRes = await fetch('/api/locations').then(r => r.json()).catch(() => null);
+            if (locsRes && locsRes.success && Array.isArray(locsRes.locations) && locsRes.locations.length > 0) {
+              setLocations(locsRes.locations);
+              localStorage.setItem('crovation_custom_locations', JSON.stringify(locsRes.locations));
+            }
+          }
+        } else {
+          // Subsequent polls: pull from server
+          const locsRes = await fetch('/api/locations').then(r => r.json()).catch(() => null);
+          if (locsRes && locsRes.success && Array.isArray(locsRes.locations)) {
+            const serverLocs = locsRes.locations;
+            setLocations(prev => {
+              if (!isSameArray(prev, serverLocs)) {
+                localStorage.setItem('crovation_custom_locations', JSON.stringify(serverLocs));
+                return serverLocs;
+              }
+              return prev;
+            });
+          }
         }
 
-        // Sync inquiries
-        const inquiriesRes = await fetch('/api/inquiries').then(r => r.json()).catch(() => null);
-        if (inquiriesRes && inquiriesRes.success && Array.isArray(inquiriesRes.inquiries) && inquiriesRes.inquiries.length > 0) {
-          setLocalInquiries(inquiriesRes.inquiries);
-          localStorage.setItem('crovation_local_inquiries', JSON.stringify(inquiriesRes.inquiries));
+        // 3. SYNC INQUIRIES
+        if (isFirstSync) {
+          const savedInquiries = localStorage.getItem('crovation_local_inquiries');
+          if (savedInquiries !== null) {
+            try {
+              const parsedInqs = JSON.parse(savedInquiries);
+              if (Array.isArray(parsedInqs)) {
+                await fetch('/api/inquiries', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ inquiries: parsedInqs })
+                }).catch(() => null);
+              }
+            } catch (e) {
+              console.error('Error parsing local inquiries on sync', e);
+            }
+          } else {
+            const inquiriesRes = await fetch('/api/inquiries').then(r => r.json()).catch(() => null);
+            if (inquiriesRes && inquiriesRes.success && Array.isArray(inquiriesRes.inquiries) && inquiriesRes.inquiries.length > 0) {
+              setLocalInquiries(inquiriesRes.inquiries);
+              localStorage.setItem('crovation_local_inquiries', JSON.stringify(inquiriesRes.inquiries));
+            }
+          }
+        } else {
+          // Subsequent polls: pull from server
+          const inquiriesRes = await fetch('/api/inquiries').then(r => r.json()).catch(() => null);
+          if (inquiriesRes && inquiriesRes.success && Array.isArray(inquiriesRes.inquiries)) {
+            const serverInqs = inquiriesRes.inquiries;
+            setLocalInquiries(prev => {
+              if (!isSameArray(prev, serverInqs)) {
+                localStorage.setItem('crovation_local_inquiries', JSON.stringify(serverInqs));
+                return serverInqs;
+              }
+              return prev;
+            });
+          }
         }
 
-        // Sync newsletter subscriptions
-        const subsRes = await fetch('/api/subs').then(r => r.json()).catch(() => null);
-        if (subsRes && subsRes.success && Array.isArray(subsRes.subs) && subsRes.subs.length > 0) {
-          setLocalSubs(subsRes.subs);
-          localStorage.setItem('crovation_local_subs', JSON.stringify(subsRes.subs));
+        // 4. SYNC NEWSLETTER SUBSCRIPTIONS
+        if (isFirstSync) {
+          const savedSubs = localStorage.getItem('crovation_local_subs');
+          if (savedSubs !== null) {
+            try {
+              const parsedSubs = JSON.parse(savedSubs);
+              if (Array.isArray(parsedSubs)) {
+                await fetch('/api/subs', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ subs: parsedSubs })
+                }).catch(() => null);
+              }
+            } catch (e) {
+              console.error('Error parsing local subs on sync', e);
+            }
+          } else {
+            const subsRes = await fetch('/api/subs').then(r => r.json()).catch(() => null);
+            if (subsRes && subsRes.success && Array.isArray(subsRes.subs) && subsRes.subs.length > 0) {
+              setLocalSubs(subsRes.subs);
+              localStorage.setItem('crovation_local_subs', JSON.stringify(subsRes.subs));
+            }
+          }
+        } else {
+          // Subsequent polls: pull from server
+          const subsRes = await fetch('/api/subs').then(r => r.json()).catch(() => null);
+          if (subsRes && subsRes.success && Array.isArray(subsRes.subs)) {
+            const serverSubs = subsRes.subs;
+            setLocalSubs(prev => {
+              if (!isSameArray(prev, serverSubs)) {
+                localStorage.setItem('crovation_local_subs', JSON.stringify(serverSubs));
+                return serverSubs;
+              }
+              return prev;
+            });
+          }
         }
+
+        // Set isFirstSync to false after completing the initial seeding sync
+        isFirstSync = false;
       } catch (err) {
         console.warn('Silent server synchronization failure:', err);
       }
@@ -343,14 +493,24 @@ export default function App() {
   };
 
   // Persist properties state changes
-  const saveProperties = (updated: Property[]) => {
+  const saveProperties = async (updated: Property[]) => {
+    lastSaveTimeRef.current = Date.now();
     setDynamicProperties(updated);
     localStorage.setItem('crovation_local_properties', JSON.stringify(updated));
-    fetch('/api/properties', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ properties: updated })
-    }).catch((e) => console.error(e));
+    try {
+      const response = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ properties: updated })
+      });
+      if (response.ok) {
+        console.log('Successfully saved properties to backend API.');
+      } else {
+        console.error('Failed to save properties to backend API:', response.statusText);
+      }
+    } catch (e) {
+      console.error('Error in saveProperties fetch:', e);
+    }
   };
 
   // Helper to persist updated locations list

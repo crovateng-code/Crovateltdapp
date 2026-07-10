@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Phone, MessageCircle, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, Check, Sparkles, Compass, Landmark, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, Check, Sparkles, Compass, Landmark, X, ChevronLeft, ChevronRight, ZoomIn, Mail, Share2, Copy } from 'lucide-react';
 import { Property } from '../types';
 
 interface PropertyDetailProps {
@@ -605,15 +605,61 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
               </div>
             </div>
 
-            {/* Copyable share banner */}
-            <div className="bg-white rounded-2xl border border-black/[0.03] p-4 flex items-center justify-between text-xs">
-              <span className="text-gray-405 font-sans">Share Private Holdings URL:</span>
-              <button
-                onClick={handleShare}
-                className="text-primary hover:underline font-bold text-[10px] uppercase tracking-wider cursor-pointer"
-              >
-                {copiedLink ? 'Copied to Clipboard' : 'Copy Share Link'}
-              </button>
+            {/* Immersive Share Protocol Deck */}
+            <div className="bg-white rounded-3xl border border-black/[0.03] p-6 space-y-4 shadow-sm text-left">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 p-2 rounded-xl">
+                  <Share2 className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-secondary uppercase tracking-wider">Share Asset Portfolio</h4>
+                  <span className="text-[10px] text-gray-400 font-medium font-sans">Forward this private listing with partners</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {/* WhatsApp Share Button */}
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Greetings, look at this high-end property from Crovation Limited: "${property.title}" - ${window.location.href}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/20 hover:border-[#25D366]/40 text-[#20ba5a] font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all text-center"
+                >
+                  <MessageCircle className="h-4 w-4 fill-current text-[#20ba5a]" />
+                  <span>WhatsApp</span>
+                </a>
+
+                {/* Email Share Button */}
+                <a
+                  href={`mailto:?subject=${encodeURIComponent(`Crovation Limited Portfolio Offer: ${property.title}`)}&body=${encodeURIComponent(`Greetings, check out this premium asset portfolio on Crovation Limited:\n\nTitle: "${property.title}"\nLocation: ${property.location}\nLink: ${window.location.href}\n\nKind regards.`)}`}
+                  className="bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 hover:border-sky-500/40 text-sky-600 font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all text-center"
+                >
+                  <Mail className="h-4 w-4 text-sky-600" />
+                  <span>Email</span>
+                </a>
+
+                {/* Clipboard Copy Button */}
+                <button
+                  onClick={handleShare}
+                  className={`font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    copiedLink
+                      ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-600'
+                      : 'bg-slate-100 hover:bg-slate-200 border border-slate-200 text-secondary'
+                  }`}
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="h-4 w-4 text-emerald-600" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 text-slate-600" />
+                      <span>Copy Link</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
           </aside>

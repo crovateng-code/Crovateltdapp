@@ -30,9 +30,7 @@ export default function SupabaseStatus({ onDataLoaded }: SupabaseStatusProps) {
       const liveProps = await getSupabaseProperties();
       if (liveProps !== null) {
         setDbPropertiesCount(liveProps.length);
-        if (liveProps.length > 0) {
-          onDataLoaded(liveProps); // Dynamic runtime override!
-        }
+        onDataLoaded(liveProps); // Dynamic runtime override!
       }
       fetchRecentInquiries();
     } catch (e) {
