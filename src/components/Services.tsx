@@ -3,15 +3,19 @@ import * as Icons from 'lucide-react';
 import { SERVICES } from '../data';
 
 interface ServicesProps {
-  onChangePage: (page: 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
+  onSelectService: (serviceTab: string) => void;
 }
 
-export default function Services({ onChangePage }: ServicesProps) {
-  const getPageKey = (id: string): 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial' => {
-    if (id === 'srv-1') return 'services/sales';
-    if (id === 'srv-2') return 'services/management';
-    if (id === 'srv-3') return 'services/advisory';
-    return 'services/commercial';
+export default function Services({ onSelectService }: ServicesProps) {
+  const getTabKey = (id: string): string => {
+    if (id === 'srv-1') return 'development';
+    if (id === 'srv-2') return 'landsales';
+    if (id === 'srv-3') return 'propertysales';
+    if (id === 'srv-4') return 'landbanking';
+    if (id === 'srv-5') return 'advisory';
+    if (id === 'srv-6') return 'jv';
+    if (id === 'srv-7') return 'title';
+    return 'financing';
   };
 
   return (
@@ -32,16 +36,16 @@ export default function Services({ onChangePage }: ServicesProps) {
           </p>
         </div>
 
-        {/* 4-column grid */}
+        {/* 4-column grid wrapping for 8 services */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {SERVICES.map((srv) => {
             const IconComponent = (Icons as any)[srv.iconName] || Icons.HelpCircle;
-            const targetPage = getPageKey(srv.id);
+            const targetTab = getTabKey(srv.id);
 
             return (
               <div 
                 key={srv.id}
-                onClick={() => onChangePage(targetPage)}
+                onClick={() => onSelectService(targetTab)}
                 className="group relative bg-slate-50/50 rounded-3xl border border-black/[0.03] p-6 lg:p-7 transition-all duration-300 hover:bg-white hover:border-black/[0.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer"
                 id={`srv-block-${srv.id}`}
               >
@@ -51,11 +55,11 @@ export default function Services({ onChangePage }: ServicesProps) {
                     <IconComponent className="h-4.5 w-4.5" />
                   </div>
 
-                  <h3 className="font-extrabold text-base text-secondary mb-2.5">
+                  <h3 className="font-extrabold text-sm text-secondary mb-2.5 tracking-tight">
                     {srv.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500 leading-relaxed font-sans text-left">
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-sans text-left">
                     {srv.description}
                   </p>
                 </div>

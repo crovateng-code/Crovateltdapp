@@ -21,9 +21,21 @@ interface PropertiesPageProps {
   };
   properties?: Property[];
   locations?: string[];
+  comparePropertyIds?: string[];
+  onToggleCompare?: (property: Property) => void;
+  onOpenComparison?: () => void;
 }
 
-export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initialFilters, properties, locations = ['California', 'New York', 'Dubai', 'Colorado', 'Boston'] }: PropertiesPageProps) {
+export default function PropertiesPage({ 
+  onOpenInquiry, 
+  onSelectProperty, 
+  initialFilters, 
+  properties, 
+  locations = ['California', 'New York', 'Dubai', 'Colorado', 'Boston'],
+  comparePropertyIds: comparePropertyIdsProp,
+  onToggleCompare,
+  onOpenComparison
+}: PropertiesPageProps) {
   // Local state for full catalog filtering
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLocation, setFilterLocation] = useState(initialFilters?.location || 'All');
@@ -39,8 +51,13 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
 
   // Map view & side-by-side comparison states
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
-  const [comparePropertyIds, setComparePropertyIds] = useState<string[]>([]);
-  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  
+  // Local fallbacks if not lifted globally
+  const [localComparePropertyIds, setLocalComparePropertyIds] = useState<string[]>([]);
+  const [localIsComparisonOpen, setLocalIsComparisonOpen] = useState(false);
+
+  const comparePropertyIds = comparePropertyIdsProp !== undefined ? comparePropertyIdsProp : localComparePropertyIds;
+  const isComparisonOpen = onOpenComparison !== undefined ? false : localIsComparisonOpen;
 
   useEffect(() => {
     async function fetchProperties() {
@@ -144,19 +161,28 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
   };
 
   const handleToggleCompare = (property: Property) => {
-    setComparePropertyIds(prev => {
+    if (onToggleCompare) {
+      onToggleCompare(property);
+      return;
+    }
+    setLocalComparePropertyIds(prev => {
       if (prev.includes(property.id)) {
         return prev.filter(id => id !== property.id);
       }
-      if (prev.length >= 3) {
-        return prev; // Limit comparison list to 3 properties maximum
+      if (prev.length >= 4) {
+        return prev; // Limit comparison list to 4 properties maximum
       }
       return [...prev, property.id];
     });
   };
 
   const handleRemoveCompare = (propertyId: string) => {
-    setComparePropertyIds(prev => prev.filter(id => id !== propertyId));
+    if (onToggleCompare) {
+      const found = loadedProperties.find(p => p.id === propertyId);
+      if (found) onToggleCompare(found);
+      return;
+    }
+    setLocalComparePropertyIds(prev => prev.filter(id => id !== propertyId));
   };
 
   const comparePropertiesList = useMemo(() => {
@@ -459,7 +485,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
                               ? 'bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-700'
                               : 'bg-white/95 border-slate-200 text-secondary hover:bg-white hover:scale-102'
                           }`}
-                          title={comparePropertyIds.includes(prop.id) ? "Remove from comparison" : "Select to compare side-by-side (Max 3)"}
+                          title={comparePropertyIds.includes(prop.id) ? "Remove from comparison" : "Select to compare side-by-side (Max 4)"}
                         >
                           {comparePropertyIds.includes(prop.id) ? (
                             <>
@@ -562,7 +588,7 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
       </div>
 
       {/* Sticky Bottom Comparison Drawer */}
-      {comparePropertyIds.length > 0 && (
+      {comparePropertyIds.length > 0 && !onOpenComparison && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-4 animate-fade-in">
           <div className="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 text-white text-left">
             <div className="flex items-center gap-3">
@@ -572,20 +598,20 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
               <div>
                 <h4 className="font-bold text-xs text-white">Compare Assets Side-by-Side</h4>
                 <span className="text-[10px] text-gray-400 font-medium font-mono">
-                  {comparePropertyIds.length} of 3 properties selected
+                  {comparePropertyIds.length} of 4 properties selected
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setIsComparisonOpen(true)}
+                onClick={() => setLocalIsComparisonOpen(true)}
                 className="bg-primary hover:bg-cyan-400 text-slate-950 font-extrabold uppercase tracking-wider text-[10px] px-3.5 py-2.5 rounded-xl duration-300 transition-all flex items-center gap-1 cursor-pointer shadow-lg"
               >
-                Compare ({comparePropertyIds.length}/3)
+                Compare ({comparePropertyIds.length}/4)
               </button>
               <button
-                onClick={() => setComparePropertyIds([])}
+                onClick={() => handleRemoveCompare('')} // Clear all
                 className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-300 cursor-pointer"
                 title="Clear comparison list"
               >
@@ -597,11 +623,11 @@ export default function PropertiesPage({ onOpenInquiry, onSelectProperty, initia
       )}
 
       {/* Side-by-Side Comparison Fullscreen Overlay */}
-      {isComparisonOpen && (
+      {isComparisonOpen && !onOpenComparison && (
         <PropertyComparison
           selectedProperties={comparePropertiesList}
           onRemove={handleRemoveCompare}
-          onClose={() => setIsComparisonOpen(false)}
+          onClose={() => setLocalIsComparisonOpen(false)}
           onOpenInquiry={onOpenInquiry}
         />
       )}

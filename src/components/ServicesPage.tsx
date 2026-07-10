@@ -1,62 +1,133 @@
-import React, { useState } from 'react';
-import { BadgeDollarSign, KeyRound, LineChart, Building2, Landmark, CheckCircle, ArrowRight, Calendar, UserCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Construction, 
+  Map, 
+  BadgeDollarSign, 
+  TrendingUp, 
+  LineChart, 
+  Handshake, 
+  FileCheck, 
+  Coins, 
+  Landmark, 
+  ArrowRight, 
+  UserCheck 
+} from 'lucide-react';
 
 interface ServicesPageProps {
   onOpenInquiry: (subject?: string) => void;
-  onNavigateToFullPage: (page: 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
+  onNavigateToFullPage: (page: string) => void;
+  initialTab?: string;
 }
 
-export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: ServicesPageProps) {
-  const [activeTab, setActiveTab] = useState<'sales' | 'management' | 'advisory' | 'commercial'>('sales');
+export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage, initialTab }: ServicesPageProps) {
+  const [activeTab, setActiveTab] = useState<string>('development');
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const clientProtocols = {
-    sales: {
-      title: 'Property Sales & Elite Brokerage',
-      desc: 'Seamless transaction coordination for buyers and sellers of premium multi-million dollar residential estates and curated modern properties.',
-      icon: BadgeDollarSign,
+    development: {
+      title: 'Property Development & Design',
+      shortTitle: 'Property Development',
+      desc: 'We acquire land, plan, and develop high-quality residential and commercial properties, delivering lasting value and investment potential.',
+      icon: Construction,
       steps: [
-        { label: 'Architectural Appraisal', body: 'We assess spatial parameters, light exposure, and structural premium features to define true value.' },
-        { label: 'Bespoke Private Listing', body: 'Confidential catalog indexing visible only to qualified private funds and high-net-worth buyers.' },
-        { label: 'Qualified Buyer Screening', body: 'No looky-loos. Every prospect completes premium capital verification before viewing approval.' },
-        { label: 'Notary & Trust Escrow Handover', body: 'Our elite legal team drafts the contract configurations for standard or institutional escrow trust.' },
+        { label: 'Acquisition & Planning', body: 'We secure strategic parcels and conduct feasibility studies for optimized spatial footprinting.' },
+        { label: 'Architectural Design', body: 'We collaborate with award-winning architects to draft sustainable, state-of-the-art designs.' },
+        { label: 'High-Precision Construction', body: 'We execute building works under strict quality engineering standards and premium finishes.' },
+        { label: 'Value Delivery', body: 'We deliver luxury spaces with built-in amenities, optimized utility systems, and immediate high-appreciation potential.' },
       ]
     },
-    management: {
-      title: 'Premium Property Trust Management',
-      desc: 'Complete hands-off peace of mind. We oversee day-to-day operations, luxury upkeep, maintenance, and concierge tenants facilitation.',
-      icon: KeyRound,
+    landsales: {
+      title: 'Secure Land Sales & Allocation',
+      shortTitle: 'Land Sales',
+      desc: 'We offer prime land in carefully selected locations with verified titles, providing secure opportunities for ownership and growth.',
+      icon: Map,
       steps: [
-        { label: '24/7 Concierge Allocation', body: 'A dedicated estate manager on site coordinates instant maintenance, guest arrivals, and estate health.' },
-        { label: 'High-Value Upkeep & Landscape', body: 'Routine professional inspections for infinity pools, cedar decking, HVAC filters, and advanced alarm layers.' },
-        { label: 'Revenue Yield Optimization', body: 'Dynamic luxury listing management for high-net-worth seasonal leasing to optimize estate cash reserves.' },
-        { label: 'Confidential Consolidated Bills', body: 'Consolidated reporting covering utility schedules, estate staff payroll, and tax deductions in one ledger.' },
+        { label: 'Location Curation', body: 'We scout and secure high-growth zones with guaranteed infrastructure readiness.' },
+        { label: 'Title Verification Check', body: 'Every parcel is pre-vetted with local registries to guarantee zero legal disputes.' },
+        { label: 'Flexible Plot Sizes', body: 'We offer premium residential plots, commercial acres, or bulk land portfolios.' },
+        { label: 'Allocation Handover', body: 'We provide immediate physical mapping and official documentation signing for absolute peace of mind.' },
+      ]
+    },
+    propertysales: {
+      title: 'Residential & Commercial Property Sales',
+      shortTitle: 'Property Sales',
+      desc: 'We specialize in selling both residential and commercial properties, ensuring clients secure well-designed, valuable spaces.',
+      icon: BadgeDollarSign,
+      steps: [
+        { label: 'Bespoke Asset Catalog', body: 'We present a curated selection of modern family duplexes, luxury terraces, and corporate commercial centers.' },
+        { label: 'Transparent Appraisals', body: 'We offer detailed specifications, construction reports, and price breakdowns.' },
+        { label: 'Tailored Viewing Protocols', body: 'We arrange private physical walkthroughs or immersive virtual tours to experience the estate details.' },
+        { label: 'Ownership Transition', body: 'We provide structured payment timelines and notary-backed transfer of title deeds.' },
+      ]
+    },
+    landbanking: {
+      title: 'Land Banking & Wealth Accumulation',
+      shortTitle: 'Land Banking',
+      desc: 'We help investors acquire strategically located land with strong appreciation potential, fostering long-term wealth.',
+      icon: TrendingUp,
+      steps: [
+        { label: 'Macro Growth Mapping', body: 'We identify fringe urban zones that are positioned for massive infrastructure expansion.' },
+        { label: 'Pre-Construction Acquisition', body: 'We secure hectares at ground-floor pricing before surrounding developments launch.' },
+        { label: 'Appreciation Gestation', body: 'We hold the assets as they appreciate exponentially while the surrounding corridor develops.' },
+        { label: 'Structured Asset Exit', body: 'We help you divest plots or develop the banked land for astronomical multi-fold returns.' },
       ]
     },
     advisory: {
-      title: 'Sovereign Investment Advisory',
-      desc: 'Data-driven real estate intelligence identifying fast-appreciating off-market phases, tax advantages, and high-yield developer blocks.',
+      title: 'Real Estate Investment Advisory',
+      shortTitle: 'Investment Advisory',
+      desc: 'We provide expert guidance on real estate investments, tailored to your goals, so you can make informed, profitable decisions.',
       icon: LineChart,
       steps: [
-        { label: 'Macro Yield Analytics', body: 'Using historical and machine forecasts to determine high-growth zones and regional appreciation lines.' },
-        { label: 'Off-Market Phase 0 Priority', body: 'Direct access to pre-launch allocations, letting clients acquire villas before core ground foundation laying.' },
-        { label: 'LCC Holding Structuring', body: 'Structuring acquisitions under specialized LLCs or single family trusts to shield identity and optimize taxation.' },
-        { label: 'Structured Exit Roadmaps', body: 'Ready liquidity paths with pre-screened buyers when portfolio appreciation targets are achieved.' },
+        { label: 'Financial Objective Audit', body: 'We analyse your capital allocation goals, risk profiles, and yield timelines.' },
+        { label: 'Predictive Analytics', body: 'We review data-driven forecasts, ROI calculations, and market demand indicators.' },
+        { label: 'Tailored Portfolio Strategy', body: 'We construct a customized real estate acquisition roadmap suited to your wealth targets.' },
+        { label: 'Active Performance Management', body: 'We conduct periodic reviews of asset yields, rental rates, and optimal exit timelines.' },
       ]
     },
-    commercial: {
-      title: 'Corporate & Commercial Real Estate',
-      desc: 'Premium strategic workspaces, luxury retail fronts, and corporate centers configured for high business throughput and efficiency.',
-      icon: Building2,
+    jv: {
+      title: 'Joint Venture Development Partnerships',
+      shortTitle: 'Joint Venture',
+      desc: 'We partner with landowners, investors, and developers to unlock land value through mutually beneficial joint ventures.',
+      icon: Handshake,
       steps: [
-        { label: 'Tech & Spatial Alignment', body: 'Configuring fiber lines, backup generation hubs, and zoning optimization for elite corporate activities.' },
-        { label: 'LEED Green Compliance', body: 'Auditing thermal performance and solar/greywater recycling to guarantee platinum sustainability scores.' },
-        { label: 'Strategic Zoning Research', body: 'Assessing traffic access, transport links, and local employee densities to guarantee business success.' },
-        { label: 'Long-Term Corporate Leasing', body: 'Drafting multi-year inflation-indexed lease agreements with global corporations, providing stable low-risk yields.' },
+        { label: 'Asset & Equity Assessment', body: 'Landowner assets are evaluated alongside developer equity and technical competence.' },
+        { label: 'JV Contract Configuration', body: 'We draft mutual shareholdings, profit-sharing ratios, and legal safeguards.' },
+        { label: 'Execution & Management', body: 'Crovation handles full building planning, permits, construction, and marketing.' },
+        { label: 'Revenue Distribution', body: 'We ensure seamless disbursement of returns or built-up properties to joint venture partners.' },
+      ]
+    },
+    title: {
+      title: 'Land Title Processing & Sponsorship',
+      shortTitle: 'Land Title Processing',
+      desc: 'We guide you through securing official land titles, offering financing and sponsorship arrangements so you can gain title security with flexible terms.',
+      icon: FileCheck,
+      steps: [
+        { label: 'Documentation Audit', body: 'We collate survey plans, family receipts, and purchase records to verify file completeness.' },
+        { label: 'Government Agency Liaison', body: 'We manage processing through Land Registries, Surveyor General, and Ministry of Lands.' },
+        { label: 'Title Sponsorship Finance', body: 'We sponsor the heavy regulatory fees in exchange for agreed flexible payment terms or equity.' },
+        { label: 'Secure Certificate Handover', body: 'We handle the delivery of Governor\'s Consent, C of O, or registered deeds to secure your ownership.' },
+      ]
+    },
+    financing: {
+      title: 'Real Estate Project Financing & Partnerships',
+      shortTitle: 'Project Financing',
+      desc: 'We provide tailored financing and strategic partnerships to bring real estate projects to life with the right support and collaboration.',
+      icon: Coins,
+      steps: [
+        { label: 'Feasibility & Cost Audit', body: 'We perform detailed structural and financial auditing to verify project viability.' },
+        { label: 'Financing Options Design', body: 'We structure equity funding, construction loans, or private equity partnerships.' },
+        { label: 'Fund Management Control', body: 'We manage milestoned fund disbursement matching project execution stages to prevent cost overruns.' },
+        { label: 'Partner Alignment & Exit', body: 'We deliver completed architectural projects while maximizing stakeholder payouts.' },
       ]
     }
   };
 
-  const selectedProtocol = clientProtocols[activeTab];
+  const selectedProtocol = clientProtocols[activeTab as keyof typeof clientProtocols];
 
   return (
     <div className="pt-24 min-h-screen bg-brandbg" id="services-view-page">
@@ -88,7 +159,7 @@ export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: Se
               Select Services Protocol
             </span>
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-1">
               {(Object.keys(clientProtocols) as Array<keyof typeof clientProtocols>).map((key) => {
                 const item = clientProtocols[key];
                 const IconComp = item.icon;
@@ -98,23 +169,23 @@ export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: Se
                   <button
                     key={key}
                     onClick={() => setActiveTab(key)}
-                    className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-start gap-4 cursor-pointer relative ${
+                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 cursor-pointer relative ${
                       isSelected
-                        ? 'bg-secondary text-white border-transparent shadow-lg'
+                        ? 'bg-secondary text-white border-transparent shadow-lg shadow-secondary/15'
                         : 'bg-white text-gray-400 hover:text-secondary border-black/[0.03] hover:bg-slate-50'
                     }`}
                   >
-                    <div className={`p-2.5 rounded-xl flex items-center justify-center ${
+                    <div className={`p-2 rounded-xl flex items-center justify-center shrink-0 ${
                       isSelected ? 'bg-primary text-secondary' : 'bg-slate-100 text-gray-500'
                     }`}>
-                      <IconComp className="h-5 w-5" />
+                      <IconComp className="h-4.5 w-4.5" />
                     </div>
                     
                     <div className="space-y-1">
-                      <h3 className={`font-extrabold text-sm leading-none ${isSelected ? 'text-white' : 'text-secondary'}`}>
-                        {key === 'sales' ? 'Property Sales' : key === 'management' ? 'Property Management' : key === 'advisory' ? 'Investment Advisory' : 'Commercial Spaces'}
+                      <h3 className={`font-extrabold text-xs leading-none ${isSelected ? 'text-white' : 'text-secondary'}`}>
+                        {item.shortTitle}
                       </h3>
-                      <p className="text-[11px] text-gray-400 line-clamp-1">
+                      <p className="text-[10px] text-gray-400 line-clamp-1">
                         {item.desc}
                       </p>
                     </div>
@@ -136,11 +207,11 @@ export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: Se
               </div>
               <h4 className="font-bold text-sm text-primary">Need a custom strategy?</h4>
               <p className="text-[11px] text-gray-400 leading-normal leading-relaxed">
-                Connect for private consultation on legacy asset distributions or multi-agency brokerage lists. We operate with standard NDAs.
+                Connect for private consultation on legacy asset distributions or joint-venture sponsorship agreements. We operate with standard confidentiality.
               </p>
               <button
                 onClick={() => onOpenInquiry(`Custom Advisory Service Request - (${activeTab.toUpperCase()})`)}
-                className="w-full bg-primary hover:bg-white text-secondary font-bold text-[10px] uppercase tracking-wider py-3 rounded-xl duration-300 transition-colors"
+                className="w-full bg-primary hover:bg-white text-secondary font-bold text-[10px] uppercase tracking-wider py-3 rounded-xl duration-300 transition-colors cursor-pointer"
               >
                 Initiate Consultation
               </button>
@@ -212,15 +283,20 @@ export default function ServicesPage({ onOpenInquiry, onNavigateToFullPage }: Se
               </div>
 
               <div className="flex flex-wrap gap-2.5 flex-shrink-0">
-                <button
-                  onClick={() => onNavigateToFullPage(`services/${activeTab}` as any)}
-                  className="border border-secondary hover:bg-slate-100 text-secondary px-4 py-3 rounded-xl font-extrabold text-[10px] uppercase tracking-wider duration-300 transition-colors"
-                >
-                  Learn Protocol Details
-                </button>
+                {(activeTab === 'propertysales' || activeTab === 'advisory') && (
+                  <button
+                    onClick={() => {
+                      const targetRoute = activeTab === 'propertysales' ? 'services/sales' : 'services/advisory';
+                      onNavigateToFullPage(targetRoute);
+                    }}
+                    className="border border-secondary hover:bg-slate-100 text-secondary px-4 py-3 rounded-xl font-extrabold text-[10px] uppercase tracking-wider duration-300 transition-colors cursor-pointer"
+                  >
+                    Learn Protocol Details
+                  </button>
+                )}
                 <button
                   onClick={() => onOpenInquiry(`Initiation request for: ${selectedProtocol.title}`)}
-                  className="bg-secondary hover:bg-primary text-white hover:text-secondary px-5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider duration-300 transition-colors"
+                  className="bg-secondary hover:bg-primary text-white hover:text-secondary px-5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider duration-300 transition-colors cursor-pointer"
                 >
                   Initiate Protocol
                 </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowRight, Home, Building2, Info, Compass, Phone, TrendingUp, Layers, MapPin, MessageCircle, Mail, ChevronDown } from 'lucide-react';
+import { Menu, X, ArrowRight, Home, Building2, Info, Compass, Phone, TrendingUp, Layers, MapPin, MessageCircle, Mail, ChevronDown, Scale } from 'lucide-react';
 import CrovationLogo from './CrovationLogo';
 
 interface NavbarProps {
@@ -8,9 +8,11 @@ interface NavbarProps {
   onChangePage: (page: 'home' | 'properties' | 'about' | 'services' | 'contact' | 'services/sales' | 'services/management' | 'services/advisory' | 'services/commercial') => void;
   loggedInAdmin?: any;
   onBackToAdmin?: (tab?: 'analytics' | 'listings' | 'locations' | 'leads' | 'subs') => void;
+  compareCount?: number;
+  onOpenComparison?: () => void;
 }
 
-export default function Navbar({ onOpenInquiry, activePage, onChangePage, loggedInAdmin, onBackToAdmin }: NavbarProps) {
+export default function Navbar({ onOpenInquiry, activePage, onChangePage, loggedInAdmin, onBackToAdmin, compareCount, onOpenComparison }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -108,6 +110,24 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
 
           {/* Header Action CTA */}
           <div className="hidden md:flex items-center gap-4">
+            {onOpenComparison && compareCount !== undefined && compareCount > 0 && (
+              <button
+                onClick={onOpenComparison}
+                className={`px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center gap-2 cursor-pointer border relative group ${
+                  isScrolled
+                    ? 'border-primary/40 bg-primary/10 text-primary hover:bg-primary hover:text-secondary'
+                    : 'border-secondary/25 bg-secondary/5 text-secondary hover:bg-secondary hover:text-white'
+                }`}
+                title="Open Side-by-Side Comparison"
+                id="btn-comparison-suite"
+              >
+                <Scale className="h-3.5 w-3.5" />
+                <span>Compare</span>
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center shadow-md">
+                  {compareCount}
+                </span>
+              </button>
+            )}
             <a
               href="https://wa.me/2348088727277?text=Hello%20Crovation%20Limited,%20I'd%20like%20to%20make%20a%20quick%20enquiry."
               target="_blank"
@@ -407,6 +427,26 @@ export default function Navbar({ onOpenInquiry, activePage, onChangePage, logged
               </button>
             );
           })}
+
+          {onOpenComparison && compareCount !== undefined && compareCount > 0 && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenComparison();
+              }}
+              className="group flex items-baseline gap-4 text-left cursor-pointer focus:outline-none pt-4 mt-2 border-t border-white/5"
+            >
+              <span className="text-[11px] font-mono text-emerald-500 tracking-wider font-semibold">
+                06 /
+              </span>
+              <span className="text-2xl sm:text-3xl font-light tracking-tight text-emerald-400 group-hover:text-emerald-300 transition-all duration-300 flex items-center gap-2.5">
+                Comparison Suite 
+                <span className="text-xs bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full">
+                  {compareCount}
+                </span>
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Control Room Deck (If Logged In Admin) */}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BedDouble, Bath, Maximize2, MapPin, Undo2, ArrowUpRight } from 'lucide-react';
+import { BedDouble, Bath, Maximize2, MapPin, Undo2, ArrowUpRight, Check, Scale } from 'lucide-react';
 import { Property, PropertyType } from '../types';
 
 function stripHtml(html: string): string {
@@ -20,9 +20,20 @@ interface FeaturedPropertiesProps {
   onSelectProperty: (property: Property) => void;
   properties?: Property[];
   locations?: string[];
+  comparePropertyIds?: string[];
+  onToggleCompare?: (property: Property) => void;
 }
 
-export default function FeaturedProperties({ filters, onResetFilters, onOpenInquiry, onSelectProperty, properties, locations }: FeaturedPropertiesProps) {
+export default function FeaturedProperties({ 
+  filters, 
+  onResetFilters, 
+  onOpenInquiry, 
+  onSelectProperty, 
+  properties, 
+  locations,
+  comparePropertyIds,
+  onToggleCompare
+}: FeaturedPropertiesProps) {
   const [selectedTypeTab, setSelectedTypeTab] = useState<string>('All');
 
   const loadedProperties = properties || [];
@@ -184,6 +195,34 @@ export default function FeaturedProperties({ filters, onResetFilters, onOpenInqu
                       {(prop.status || 'Available') === 'Available' ? 'Available' : 'Sold Out'}
                     </span>
                   </div>
+
+                  {/* Comparison Toggle Overlay */}
+                  {onToggleCompare && comparePropertyIds && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleCompare(prop);
+                      }}
+                      className={`absolute bottom-4 left-4 z-10 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border shadow-md transition-all flex items-center gap-1 cursor-pointer ${
+                        comparePropertyIds.includes(prop.id)
+                          ? 'bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-700'
+                          : 'bg-white/95 border-slate-200 text-secondary hover:bg-white hover:scale-102'
+                      }`}
+                      title={comparePropertyIds.includes(prop.id) ? "Remove from comparison" : "Select to compare side-by-side (Max 4)"}
+                    >
+                      {comparePropertyIds.includes(prop.id) ? (
+                        <>
+                          <Check className="h-3 w-3 text-white" />
+                          <span>Selected</span>
+                        </>
+                      ) : (
+                        <>
+                          <Scale className="h-3 w-3 text-slate-500" />
+                          <span>Compare</span>
+                        </>
+                      )}
+                    </button>
+                  )}
 
                   {/* Pricing Badge Right */}
                   <div className="absolute bottom-4 right-4 bg-secondary/90 text-white backdrop-blur-md px-4 py-1.5 rounded-xl border border-white/10 shadow-lg">

@@ -154,27 +154,51 @@ export const STATS: StatItem[] = [
 export const SERVICES: ServiceItem[] = [
   {
     id: 'srv-1',
-    title: 'Property Sales',
-    description: 'Seamless brokerage for buyers and sellers of ultra-luxury estates and upscale modern residences.',
-    iconName: 'BadgeDollarSign'
+    title: 'Property Development',
+    description: 'We acquire land, plan, and develop high-quality residential and commercial properties, delivering lasting value and investment potential.',
+    iconName: 'Construction'
   },
   {
     id: 'srv-2',
-    title: 'Property Management',
-    description: 'Complete hands-off peace of mind including maintenance oversight, leasing operations, and luxury upkeep.',
-    iconName: 'KeyRound'
+    title: 'Land Sales',
+    description: 'We offer prime land in carefully selected locations with verified titles, providing secure opportunities for ownership and growth.',
+    iconName: 'Map'
   },
   {
     id: 'srv-3',
-    title: 'Investment Advisory',
-    description: 'Data-driven market intelligence identifying high-yield developer phases and long-term land appreciations.',
-    iconName: 'LineChart'
+    title: 'Property Sales',
+    description: 'We specialize in selling both residential and commercial properties, ensuring clients secure well-designed, valuable spaces.',
+    iconName: 'BadgeDollarSign'
   },
   {
     id: 'srv-4',
-    title: 'Commercial Real Estate',
-    description: 'Premium strategic offices, tech landmarks, and retail real estates configured for high business throughput.',
-    iconName: 'Building2'
+    title: 'Land Banking',
+    description: 'We help investors acquire strategically located land with strong appreciation potential, fostering long-term wealth.',
+    iconName: 'TrendingUp'
+  },
+  {
+    id: 'srv-5',
+    title: 'Real Estate Investment Advisory',
+    description: 'We provide expert guidance on real estate investments, tailored to your goals, so you can make informed, profitable decisions.',
+    iconName: 'LineChart'
+  },
+  {
+    id: 'srv-6',
+    title: 'Joint Venture Development',
+    description: 'We partner with landowners, investors, and developers to unlock land value through mutually beneficial joint ventures.',
+    iconName: 'Handshake'
+  },
+  {
+    id: 'srv-7',
+    title: 'Land Title Processing & Sponsorship',
+    description: 'We guide you through securing official land titles, offering financing and sponsorship arrangements so you can gain title security with flexible terms.',
+    iconName: 'FileCheck'
+  },
+  {
+    id: 'srv-8',
+    title: 'Real Estate Project Financing & Partnerships',
+    description: 'We provide tailored financing and strategic partnerships to bring real estate projects to life with the right support and collaboration.',
+    iconName: 'Coins'
   }
 ];
 

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Phone, MessageCircle, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, Check, Sparkles, Compass, Landmark, X, ChevronLeft, ChevronRight, ZoomIn, Mail, Share2, Copy } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, MapPin, BedDouble, Bath, Maximize2, ShieldCheck, Check, Sparkles, Compass, Landmark, X, ChevronLeft, ChevronRight, ZoomIn, Mail, Share2, Copy, Scale, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { Property } from '../types';
 
 interface PropertyDetailProps {
   property: Property;
   onBack: () => void;
+  comparePropertyIds?: string[];
+  onToggleCompare?: (property: Property) => void;
 }
 
-export default function PropertyDetail({ property, onBack }: PropertyDetailProps) {
+export default function PropertyDetail({ property, onBack, comparePropertyIds, onToggleCompare }: PropertyDetailProps) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -167,8 +169,15 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
   // Amenities can be overridden by property.amenities
   // If property.amenities is explicitly provided, we use it. If it is empty, we hide the section.
   // If property.amenities is undefined (not set at all), we can fallback to default.
-  const hasAmenities = property.amenities !== undefined ? property.amenities.filter(Boolean).length > 0 : true;
-  const amenities = property.amenities !== undefined ? property.amenities.filter(Boolean) : (
+  const hasAmenities = Array.isArray(property.amenities)
+    ? property.amenities.filter(Boolean).length > 0
+    : property.amenities !== undefined && property.amenities !== null
+      ? false
+      : true;
+
+  const amenities = Array.isArray(property.amenities)
+    ? property.amenities.filter(Boolean)
+    : (
     property.type === 'Commercial' ? [
       'LEED Platinum Smart Microgrid Energy Systems',
       'Executive Boardroom with Panoramic Glazing',
@@ -187,11 +196,14 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
   );
 
   // Diligence summary highlights
-  const hasDiligence = property.diligenceSummary !== undefined 
-    ? property.diligenceSummary.filter(item => item.label && item.value).length > 0 
-    : true;
-  const highlights = property.diligenceSummary !== undefined 
-    ? property.diligenceSummary.filter(item => item.label && item.value) 
+  const hasDiligence = Array.isArray(property.diligenceSummary)
+    ? property.diligenceSummary.filter(item => item && item.label && item.value).length > 0
+    : property.diligenceSummary !== undefined && property.diligenceSummary !== null
+      ? false
+      : true;
+
+  const highlights = Array.isArray(property.diligenceSummary)
+    ? property.diligenceSummary.filter(item => item && item.label && item.value)
     : [
       { label: 'Asset ID', value: `CRV-${String(property.id || '').toUpperCase()}-2025` },
       { label: 'Financing Grade', value: Number(property.price) > 10000000 ? 'Sovereign Institutional' : 'Generational Private' },
@@ -576,6 +588,25 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
 
                 {/* TWO CORE REPLACEMENT ACTION CALL CTAs */}
                 <div className="space-y-3 pt-4">
+                  {/* Comparison Toggle CTA */}
+                  {onToggleCompare && comparePropertyIds && (
+                    <button
+                      onClick={() => onToggleCompare(property)}
+                      className={`w-full font-extrabold uppercase tracking-wider text-[10px] py-3.5 rounded-2xl flex items-center justify-center gap-2.5 duration-300 shadow-md border cursor-pointer ${
+                        comparePropertyIds.includes(property.id)
+                          ? 'bg-emerald-600 border-emerald-500 hover:bg-emerald-700 text-white'
+                          : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200'
+                      }`}
+                    >
+                      <Scale className="h-4 w-4" />
+                      <span>
+                        {comparePropertyIds.includes(property.id)
+                          ? 'In Comparison Suite'
+                          : 'Compare Side-by-Side'}
+                      </span>
+                    </button>
+                  )}
+
                   {/* Whatsapp CTA button */}
                   <a
                     href={generateWhatsAppLink()}
@@ -659,6 +690,39 @@ export default function PropertyDetail({ property, onBack }: PropertyDetailProps
                     </>
                   )}
                 </button>
+
+                {/* Facebook Share Button */}
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-blue-600/10 hover:bg-blue-600/20 border border-blue-600/20 hover:border-blue-600/40 text-blue-600 font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all text-center"
+                >
+                  <Facebook className="h-4 w-4 text-blue-600" />
+                  <span>Facebook</span>
+                </a>
+
+                {/* X (formerly Twitter) Share Button */}
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(`Check out this exceptional property portfolio from Crovation Limited: "${property.title}"`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-slate-900/10 hover:bg-slate-900/20 border border-slate-900/20 hover:border-slate-900/40 text-slate-900 font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all text-center"
+                >
+                  <Twitter className="h-4 w-4 text-slate-900" />
+                  <span>X / Twitter</span>
+                </a>
+
+                {/* LinkedIn Share Button */}
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-cyan-700/10 hover:bg-cyan-700/20 border border-cyan-700/20 hover:border-cyan-700/40 text-cyan-700 font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all text-center"
+                >
+                  <Linkedin className="h-4 w-4 text-cyan-700" />
+                  <span>LinkedIn</span>
+                </a>
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { X, Check, BedDouble, Bath, Maximize2, ShieldCheck, HelpCircle, Sparkles, MessageCircle, Phone } from 'lucide-react';
 import { Property } from '../types';
 
@@ -16,6 +16,18 @@ export default function PropertyComparison({
   onOpenInquiry
 }: PropertyComparisonProps) {
   
+  const cheapestId = useMemo(() => {
+    const validProps = selectedProperties.filter(Boolean);
+    if (validProps.length < 2) return null;
+    return [...validProps].sort((a, b) => a.price - b.price)[0]?.id;
+  }, [selectedProperties]);
+
+  const largestId = useMemo(() => {
+    const validProps = selectedProperties.filter(Boolean);
+    if (validProps.length < 2) return null;
+    return [...validProps].sort((a, b) => b.size - a.size)[0]?.id;
+  }, [selectedProperties]);
+
   const formatPrice = (value: number, currency?: 'USD' | 'NGN') => {
     const isNaira = currency === 'NGN';
     return new Intl.NumberFormat('en-US', {
@@ -35,7 +47,7 @@ export default function PropertyComparison({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4" id="comparison-modal">
-      <div className="bg-white rounded-[32px] w-full max-w-6xl shadow-2xl overflow-hidden border border-black/[0.03] flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-[32px] w-full max-w-7xl shadow-2xl overflow-hidden border border-black/[0.03] flex flex-col max-h-[95vh]">
         
         {/* Header Block */}
         <div className="p-6 md:p-8 bg-secondary text-white flex items-center justify-between border-b border-white/5 shrink-0">
@@ -94,8 +106,8 @@ export default function PropertyComparison({
               </div>
 
               {/* Selected Properties Columns (Span 9 / selected count) */}
-              <div className="col-span-9 grid grid-cols-3 gap-6 pl-4 items-stretch text-left">
-                {Array.from({ length: 3 }).map((_, idx) => {
+              <div className="col-span-9 grid grid-cols-4 gap-4 pl-4 items-stretch text-left">
+                {Array.from({ length: 4 }).map((_, idx) => {
                   const prop = selectedProperties[idx];
                   
                   if (!prop) {
@@ -123,12 +135,22 @@ export default function PropertyComparison({
 
                       {/* Header info (Image & Title) */}
                       <div className="h-[210px] flex flex-col justify-between border-b border-slate-100 pb-4">
-                        <div className="aspect-[16/10] rounded-xl overflow-hidden bg-slate-100">
+                        <div className="aspect-[16/10] rounded-xl overflow-hidden bg-slate-100 relative">
                           <img 
                             src={prop.image} 
                             alt={prop.title} 
                             className="w-full h-full object-cover"
                           />
+                          {prop.id === cheapestId && (
+                            <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-lg tracking-wider shadow-md z-10">
+                              Best Price
+                            </span>
+                          )}
+                          {prop.id === largestId && (
+                            <span className="absolute top-2 right-2 bg-indigo-600 text-white text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-lg tracking-wider shadow-md z-10">
+                              Largest Area
+                            </span>
+                          )}
                         </div>
                         <h3 className="font-extrabold text-sm text-secondary tracking-tight line-clamp-2 mt-3">
                           {prop.title}

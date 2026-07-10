@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Scale, X } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WhyChoose from './components/WhyChoose';
@@ -17,6 +18,7 @@ import AboutPage from './components/AboutPage';
 import ServicesPage from './components/ServicesPage';
 import ContactPage from './components/ContactPage';
 import PropertyDetail from './components/PropertyDetail';
+import PropertyComparison from './components/PropertyComparison';
 import AdminPortal from './components/AdminPortal';
 import PropertySalesPage from './components/PropertySalesPage';
 import PropertyManagementPage from './components/PropertyManagementPage';
@@ -31,6 +33,7 @@ export default function App() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [adminSubView, setAdminSubView] = useState<'login' | 'dashboard'>('login');
   const [dashTab, setDashTab] = useState<'analytics' | 'listings' | 'locations' | 'leads' | 'subs' | 'security'>('analytics');
+  const [selectedServiceTab, setSelectedServiceTab] = useState<string>('development');
   const lastSaveTimeRef = useRef<number>(0);
 
   // Client-side path-routing system
@@ -155,6 +158,30 @@ export default function App() {
     }
     return ['California', 'New York', 'Dubai', 'Colorado', 'Boston', 'Lagos', 'Abuja'];
   });
+
+  // Global Side-by-Side Comparison states
+  const [comparePropertyIds, setComparePropertyIds] = useState<string[]>([]);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+
+  const handleToggleCompare = (property: Property) => {
+    setComparePropertyIds(prev => {
+      if (prev.includes(property.id)) {
+        return prev.filter(id => id !== property.id);
+      }
+      if (prev.length >= 4) {
+        return prev; // Limit comparison list to 4 properties maximum
+      }
+      return [...prev, property.id];
+    });
+  };
+
+  const handleRemoveCompare = (propertyId: string) => {
+    setComparePropertyIds(prev => prev.filter(id => id !== propertyId));
+  };
+
+  const comparePropertiesList = React.useMemo(() => {
+    return [...dynamicProperties, ...PROPERTIES].filter(p => p && comparePropertyIds.includes(p.id));
+  }, [dynamicProperties, comparePropertyIds]);
 
   const [searchFilters, setSearchFilters] = useState({
     location: 'All',
@@ -626,6 +653,8 @@ export default function App() {
           setSelectedProperty(null);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        compareCount={comparePropertyIds.length}
+        onOpenComparison={() => setIsComparisonOpen(true)}
       />
 
       {/* Supabase Integration & Diagnostics Dashboard */}
@@ -649,6 +678,8 @@ export default function App() {
               }
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
+            comparePropertyIds={comparePropertyIds}
+            onToggleCompare={handleToggleCompare}
           />
         ) : (
           <>
@@ -674,14 +705,17 @@ export default function App() {
                   onSelectProperty={handleSelectProperty}
                   properties={dynamicProperties || undefined}
                   locations={locations}
+                  comparePropertyIds={comparePropertyIds}
+                  onToggleCompare={handleToggleCompare}
                 />
 
                 {/* NUMBERS ACHIEVEMENT STATS BANNER */}
                 <Numbers />
 
                 {/* BESPOKE ADVISORY SERVICES SHORT PREVIEW */}
-                <Services onChangePage={(page) => {
-                  navigateTo(`/${page}`);
+                <Services onSelectService={(tab) => {
+                  setSelectedServiceTab(tab);
+                  navigateTo('/services');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }} />
 
@@ -703,6 +737,9 @@ export default function App() {
                 initialFilters={searchFilters} 
                 properties={dynamicProperties || undefined}
                 locations={locations}
+                comparePropertyIds={comparePropertyIds}
+                onToggleCompare={handleToggleCompare}
+                onOpenComparison={() => setIsComparisonOpen(true)}
               />
             )}
 
@@ -717,6 +754,7 @@ export default function App() {
                   navigateTo(`/${page}`);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
+                initialTab={selectedServiceTab}
               />
             )}
 
@@ -796,6 +834,51 @@ export default function App() {
         defaultSubject={inquirySubject} 
         onAddInquiry={handleAddInquiry}
       />
+
+      {/* Persistent Global Bottom Comparison Suite Drawer */}
+      {comparePropertyIds.length > 0 && activePage !== 'admin' && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-md px-4 animate-fade-in">
+          <div className="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 text-white text-left">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/25 p-2 rounded-xl border border-primary/45 shrink-0">
+                <Scale className="h-5 w-5 text-primary animate-pulse" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs text-white">Compare Assets Side-by-Side</h4>
+                <span className="text-[10px] text-gray-400 font-medium font-mono">
+                  {comparePropertyIds.length} of 4 properties selected
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsComparisonOpen(true)}
+                className="bg-primary hover:bg-cyan-400 text-slate-950 font-extrabold uppercase tracking-wider text-[10px] px-3.5 py-2.5 rounded-xl duration-300 transition-all flex items-center gap-1 cursor-pointer shadow-lg"
+              >
+                Compare ({comparePropertyIds.length}/4)
+              </button>
+              <button
+                onClick={() => setComparePropertyIds([])}
+                className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-gray-300 cursor-pointer"
+                title="Clear comparison list"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Side-by-Side Comparison Overlay */}
+      {isComparisonOpen && (
+        <PropertyComparison
+          selectedProperties={comparePropertiesList}
+          onRemove={handleRemoveCompare}
+          onClose={() => setIsComparisonOpen(false)}
+          onOpenInquiry={handleOpenInquiry}
+        />
+      )}
       
     </div>
   );
