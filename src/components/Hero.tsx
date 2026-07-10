@@ -93,7 +93,7 @@ export default function Hero({ onSearch, onOpenInquiry, onExploreClick, location
             <div className="relative w-full max-w-[460px] aspect-[4/5] rounded-[24px] overflow-hidden border-8 border-white shadow-2xl group cursor-crosshair">
               {/* Luxury Estate Photo */}
               <img
-                src="/img/crovation_wall_display.jpg"
+                src="/img/CROVATION%20WALL%20DISPLAY.jpg"
                 alt="Architectural Masterpiece Mansion"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
